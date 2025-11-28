@@ -1,0 +1,3114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Order Helper Pro - Advanced Edition</title>
+<style>
+  :root {
+    --bg-dark: #0a0e27;
+    --bg-gradient-1: #1a1f3a;
+    --bg-gradient-2: #2d1b4e;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-bg-hover: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --glass-shadow: rgba(0, 0, 0, 0.3);
+    --text-primary: #e8edf5;
+    --text-secondary: #a0aec0;
+    --text-muted: #6b7b93;
+    --accent-green: #10b981;
+    --accent-green-light: #34d399;
+    --accent-blue: #3b82f6;
+    --accent-purple: #8b5cf6;
+    --accent-yellow: #fbbf24;
+    --accent-red: #ef4444;
+    --accent-orange: #f97316;
+    --input-bg: rgba(15, 23, 42, 0.6);
+    --input-border: rgba(148, 163, 184, 0.2);
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-gradient-1) 50%, var(--bg-gradient-2) 100%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  .container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 32px 20px 120px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  
+  .header h1 {
+    font-size: 42px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 50%, #34d399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 100px;
+    font-size: 14px;
+    color: #6ee7b7;
+    backdrop-filter: blur(10px);
+  }
+  
+  .badge::before {
+    content: '✨';
+    font-size: 16px;
+  }
+  
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  
+  .tab {
+    padding: 12px 24px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .tab:hover {
+    background: var(--glass-bg-hover);
+    color: var(--text-primary);
+  }
+  
+  .tab.active {
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  
+  .tab-content {
+    display: none;
+  }
+  
+  .tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  /* Glass Card */
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 
+      0 8px 32px var(--glass-shadow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  }
+  
+  .glass-card:hover {
+    background: var(--glass-bg-hover);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 
+      0 12px 40px var(--glass-shadow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+  
+  /* Grid Layout */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  
+  .grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+  
+  .grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+  
+  /* Form Elements */
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
+  }
+  
+  .form-input,
+  .form-textarea,
+  .form-select {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 15px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+  
+  .form-input:focus,
+  .form-textarea:focus,
+  .form-select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    background: rgba(15, 23, 42, 0.8);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  .form-textarea {
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.5;
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+  }
+  
+  /* Checkbox */
+  .checkbox-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    margin-top: 12px;
+  }
+  
+  .checkbox-wrapper input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--accent-blue);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  
+  .checkbox-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  
+  .checkbox-label strong {
+    color: var(--accent-blue);
+  }
+  
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+  }
+  
+  .btn:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+  
+  .btn:active {
+    transform: scale(0.98);
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-light) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  }
+  
+  .btn-secondary {
+    background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  
+  .btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  }
+  
+  .btn-warning {
+    background: linear-gradient(135deg, var(--accent-yellow) 0%, #f59e0b 100%);
+    color: #78350f;
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+  }
+  
+  .btn-ghost {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    border: 1px dashed var(--glass-border);
+  }
+  
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+  }
+  
+  .btn-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  
+  .btn-danger:hover {
+    background: rgba(239, 68, 68, 0.2);
+  }
+  
+  .btn-info {
+    background: rgba(59, 130, 246, 0.1);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  /* Draft Save */
+  .draft-save-card {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .draft-status {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    flex: 1;
+    min-width: 280px;
+  }
+
+  .draft-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-top: 4px;
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+  }
+
+  .draft-dot.saved {
+    background: var(--accent-green);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.18);
+  }
+
+  .draft-dot.unsaved {
+    background: var(--accent-orange);
+    box-shadow: 0 0 0 6px rgba(249, 115, 22, 0.18);
+  }
+
+  .draft-status-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+
+  .draft-meta {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .draft-banner {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-top: 6px;
+  }
+
+  .draft-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    min-width: 260px;
+  }
+
+  @media (max-width: 768px) {
+    .draft-save-card {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .draft-actions {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  }
+  
+  .btn-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .btn-full {
+    width: 100%;
+  }
+  
+  /* Table */
+  .table-wrapper {
+    overflow-x: auto;
+    margin-top: 16px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.4);
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .table thead {
+    background: rgba(255, 255, 255, 0.03);
+  }
+  
+  .table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+  }
+  
+  .table tbody tr {
+    transition: background 0.2s ease;
+  }
+  
+  .table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+  
+  .table input {
+    width: 100%;
+    text-align: right;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text-primary);
+    font-size: 14px;
+  }
+  
+  .table input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+  }
+  
+  .table .name-input {
+    text-align: left;
+  }
+  
+  .table input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--accent-green);
+  }
+  
+  /* Summary Section */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .summary-item {
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .summary-item h3 {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  
+  .summary-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  .summary-detail {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+  
+  .profit-positive {
+    color: var(--accent-green);
+  }
+  
+  .profit-negative {
+    color: var(--accent-red);
+  }
+  
+  /* Lists */
+  .info-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .info-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .info-list li:last-child {
+    border-bottom: none;
+  }
+  
+  .info-list .name {
+    color: var(--text-primary);
+  }
+  
+  .info-list .value {
+    font-weight: 600;
+    color: var(--accent-green);
+  }
+  
+  .info-list .note {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: 8px;
+  }
+  
+  /* Helper Text */
+  .helper-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  
+  .helper-text strong {
+    color: var(--text-secondary);
+  }
+  
+  /* Alert Box */
+  .alert {
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .alert-info {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #93c5fd;
+  }
+  
+  .alert-success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #6ee7b7;
+  }
+  
+  .alert-warning {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    color: #fcd34d;
+  }
+  
+  /* Price Suggestion */
+  .price-suggestion {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  
+  .price-card {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .price-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+  }
+  
+  .price-card.active {
+    border-color: var(--accent-green);
+    background: rgba(16, 185, 129, 0.1);
+  }
+  
+  .price-card-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .price-card-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  .price-card-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
+  }
+  
+  /* Section Title */
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .section-title::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background: linear-gradient(180deg, var(--accent-blue), var(--accent-purple));
+    border-radius: 4px;
+  }
+  
+  /* Stats Cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .stat-card {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    text-align: center;
+  }
+  
+  .stat-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+  
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  /* Badge Status */
+  .status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .status-paid {
+    background: rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+  }
+  
+  .status-unpaid {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+  }
+  
+  .status-partial {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fcd34d;
+  }
+  
+  /* Order History Item */
+  .history-item {
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .history-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateX(4px);
+  }
+  
+  .history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .history-title {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .history-date {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  
+  .history-details {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  
+  .empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .header h1 {
+      font-size: 32px;
+    }
+    
+    .grid,
+    .grid-2,
+    .grid-3 {
+      grid-template-columns: 1fr;
+    }
+    
+    .price-suggestion {
+      grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+    
+    .tabs {
+      overflow-x: auto;
+    }
+  }
+  
+  /* Animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .glass-card {
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  /* Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  
+  .modal.active {
+    display: flex;
+  }
+  
+  .modal-content {
+    background: var(--bg-gradient-1);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 32px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  .modal-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--text-primary);
+    font-size: 24px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  .modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <h1>Order Helper Pro</h1>
+    <div class="badge">Advanced Edition - Quick Parse + History + Debt Tracking</div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(event, 'newOrder')">
+      🆕 Tạo đơn mới
+    </div>
+    <div class="tab" onclick="switchTab(event, 'history')">
+      📜 Lịch sử đơn hàng
+    </div>
+    <div class="tab" onclick="switchTab(event, 'debt')">
+      💰 Quản lý công nợ
+    </div>
+    <div class="tab" onclick="switchTab(event, 'stats')">
+      📊 Thống kê
+    </div>
+  </div>
+
+  <!-- Tab: New Order -->
+  <div id="newOrder" class="tab-content active">
+    <div class="grid">
+      <!-- Quick Parse Input -->
+      <div class="glass-card">
+        <div class="section-title">⚡ Nhập nhanh</div>
+        
+        <div class="form-group">
+          <label class="form-label">Paste danh sách order</label>
+          <textarea id="quickInput" class="form-textarea" rows="4" placeholder="VD: aDuck, aDave 8, Lucas, Alvis, Hunter, Harrison, Ryan 2, Daniel 2, Ben 2"></textarea>
+          <div class="helper-text">
+            <strong>Format:</strong> Tên (số phần mặc định = 1), Tên 2 (2 phần), Tên 3, ...
+          </div>
+        </div>
+
+        <button class="btn btn-secondary btn-full" onclick="parseQuickInput()">
+          🚀 Parse & Fill vào bảng
+        </button>
+      </div>
+
+      <!-- Item & Pricing -->
+      <div class="glass-card">
+        <div class="section-title">Thông tin món ăn</div>
+        
+        <div class="form-group">
+          <label class="form-label">Tên món</label>
+          <input id="itemName" class="form-input" value="Phở bò" placeholder="Nhập tên món...">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tổng phần (n)</label>
+            <input id="n" class="form-input" type="number" min="2" step="1" value="12">
+            <div class="helper-text">Đã tính cả phần của Lão nhân gia</div>
+          </div>
+        </div>
+
+        <div class="checkbox-wrapper">
+          <input id="alvinFree" type="checkbox" checked>
+          <label class="checkbox-label">
+            <strong>Lão nhân gia ăn 1 phần (miễn phí)</strong><br>
+            Thu tiền theo (n−1) phần
+          </label>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tổng tiền món (T)</label>
+            <input id="totalCost" class="form-input" type="number" min="0" step="1" value="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Chi phí/phần (c)</label>
+            <input id="costPerUnit" class="form-input" type="number" min="0" step="0.01" value="0">
+            <div class="helper-text">Để 0 nếu dùng T</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Phí ship (S)</label>
+            <input id="shipFee" class="form-input" type="number" min="0" step="1" value="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lợi nhuận mục tiêu</label>
+            <input id="targetProfit" class="form-input" type="number" min="0" step="1" value="6">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Giá bán mong muốn</label>
+          <input id="desiredPrice" class="form-input" type="number" min="0" step="1" placeholder="Nhập giá muốn bán...">
+          <div class="helper-text">Tự nhập giá nếu không dùng mức gợi ý</div>
+        </div>
+
+        <button class="btn btn-secondary btn-full" onclick="suggestPrices()">
+          💡 Đề xuất 2 mức giá
+        </button>
+
+        <div id="priceSuggestion"></div>
+      </div>
+
+      <!-- VIP Management -->
+      <div class="glass-card">
+        <div class="section-title">Quản lý VIP</div>
+        
+        <div class="form-group">
+          <label class="form-label">Danh sách VIP (name=balance)</label>
+          <textarea id="vipArea" class="form-textarea" rows="6">a Duck=145</textarea>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="saveVIPOnly()" style="flex: 1;">
+            💾 Lưu VIP
+          </button>
+          <button class="btn btn-secondary" onclick="addNewVIP()">
+            ➕ Nạp VIP
+          </button>
+          <button class="btn btn-warning" onclick="cashOutVIP()">
+            💸 Cash Out
+          </button>
+        </div>
+
+        <div class="alert alert-info" style="margin-top: 12px;">
+          ℹ️ Khi chốt đơn, VIP sẽ tự động trừ tiền. Số dư hiển thị trong tin chốt là số dư SAU KHI ĐÃ TRỪ.
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card draft-save-card">
+      <div class="draft-status">
+        <span id="draftStatusDot" class="draft-dot unsaved" aria-label="Trạng thái lưu nháp"></span>
+        <div>
+          <div id="draftStatusText" class="draft-status-text">Nháp chưa lưu</div>
+          <div id="draftMetaText" class="draft-meta">Tự động lưu 30 phút/lần | Lưu cuối: —</div>
+          <div id="draftBannerMessage" class="draft-banner"></div>
+        </div>
+      </div>
+      <div class="draft-actions">
+        <button class="btn btn-primary" onclick="manualSaveDraft()">💾 Lưu nháp</button>
+        <button class="btn btn-secondary" onclick="loadLatestDraftFromICloud()">📂 Tải nháp</button>
+        <button class="btn btn-danger" onclick="clearDraft()">🗑️ Xóa nháp</button>
+      </div>
+    </div>
+
+    <!-- Order Table -->
+    <div class="glass-card" style="margin-top: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div class="section-title" style="margin: 0;">Danh sách order</div>
+        <button class="btn btn-ghost" onclick="addRow()">+ Thêm người</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="table" id="orderTable">
+          <thead>
+            <tr>
+              <th style="width: 36%">Tên</th>
+              <th style="width: 16%; text-align: right;">Số phần</th>
+              <th style="width: 16%; text-align: right;">Phần ship</th>
+              <th style="width: 16%; text-align: center;">Đã trả?</th>
+              <th style="width: 16%; text-align: center;">Xoá</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input class="name-input" value="Ben" placeholder="Nhập tên..."></td>
+              <td><input type="number" min="1" step="1" value="1"></td>
+              <td><input type="number" min="0" step="1" value="0" class="ship-count-input" placeholder="0"></td>
+              <td style="text-align: center;"><input type="checkbox" class="payment-check"></td>
+              <td style="text-align: center;"><button class="btn btn-danger" onclick="delRow(this)">✕</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="helper-text">
+        <strong>Lưu ý:</strong> Tick "Đã trả" cho người đã thanh toán ngay
+      </div>
+    </div>
+
+    <!-- Compute Section -->
+    <div class="glass-card" style="margin-top: 24px;">
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="compute({ save: false })" style="flex: 1;">
+          🧮 Tính tiền
+        </button>
+        <button class="btn btn-primary" onclick="compute({ save: true })" style="flex: 1;">
+          💾 Lưu đơn
+        </button>
+        <button class="btn btn-warning" onclick="resetOutput()" style="flex: 1;">
+          🗑️ Xoá kết quả
+        </button>
+      </div>
+
+      <div id="summarySection"></div>
+    </div>
+
+    <!-- Message Output -->
+    <div class="grid grid-2" style="margin-top: 24px;">
+      <div class="glass-card">
+        <div class="section-title">Tin nhắn chốt đơn</div>
+        
+        <div class="form-group">
+          <textarea id="finalMsg" class="form-textarea" rows="6" readonly></textarea>
+        </div>
+
+        <button class="btn btn-primary btn-full" onclick="copyMsg('finalMsg', event)">
+          📋 Copy tin chốt
+        </button>
+      </div>
+
+      <div class="glass-card">
+        <div class="section-title">Tin mở order</div>
+        
+        <div class="form-group">
+          <label class="form-label">Mô tả món</label>
+          <textarea id="itemDesc" class="form-textarea" rows="3"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Giờ chốt</label>
+            <input id="deadline" class="form-input" placeholder="VD: 11:00">
+          </div>
+          <div class="form-group" style="display: flex; align-items: flex-end;">
+            <button class="btn btn-secondary btn-full" onclick="generateOpenMsg()">Tạo tin</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <textarea id="openMsg" class="form-textarea" rows="6" readonly></textarea>
+        </div>
+
+        <button class="btn btn-primary btn-full" onclick="copyMsg('openMsg', event)">
+          📋 Copy tin mở
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: History -->
+  <div id="history" class="tab-content">
+    <div class="glass-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div class="section-title" style="margin: 0;">Lịch sử đơn hàng</div>
+        <div class="btn-group">
+          <button class="btn btn-info" onclick="importHistory()">📤 Import</button>
+          <button class="btn btn-secondary" onclick="exportHistory()">📥 Export JSON</button>
+          <button class="btn btn-warning" onclick="clearHistory()">🗑️ Xoá tất cả</button>
+        </div>
+      </div>
+
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- Tab: Debt Management -->
+  <div id="debt" class="tab-content">
+    <div class="glass-card">
+      <div class="section-title">💰 Tổng quan công nợ</div>
+      <div id="debtSummary"></div>
+    </div>
+
+    <div class="glass-card" style="margin-top: 24px;">
+      <div class="section-title">📋 Chi tiết từng người</div>
+      <div id="debtDetails"></div>
+    </div>
+  </div>
+
+  <!-- Tab: Stats -->
+  <div id="stats" class="tab-content">
+    <div class="glass-card">
+      <div class="section-title">📊 Thống kê tổng quan</div>
+      <div id="statsContent"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal for Order Details -->
+<div id="orderModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Chi tiết đơn hàng</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// Global State
+let orderHistory = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+let selectedPrice = null;
+const autoBackupMode = new URLSearchParams(window.location.search).get('autobackup') === 'true';
+const DRAFT_STORAGE_KEY = 'draftOrder';
+const DRAFT_META_KEY = 'draftBackupMeta';
+const DRAFT_DIR = '/Users/alvin/Library/Mobile Documents/com~apple~CloudDocs/Kitchen/drafts';
+const DRAFT_BACKUP_INTERVAL_MS = 30 * 60 * 1000;
+const DRAFT_RETRY_INTERVAL_MS = 5 * 60 * 1000;
+let draftDirty = false;
+let draftBackupIntervalId = null;
+let draftBackupRetryTimeout = null;
+let lastDraftBackupPath = null;
+let debouncedLocalDraftSave;
+let draftBackupInFlight = false;
+let suppressDraftChange = false;
+let lastDebtorPaidSnapshot = null;
+
+// Smart Name Matcher Class
+class SmartNameMatcher {
+  constructor() {
+    this.nameMap = new Map(); // normalized → {original, data}
+  }
+  
+  normalize(name) {
+    if (!name) return '';
+    return name
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+  
+  add(name, data) {
+    if (!name || !name.trim()) return;
+    
+    const normalized = this.normalize(name);
+    const trimmedName = name.trim();
+    
+    // Check if already exists
+    if (this.nameMap.has(normalized)) {
+      const existing = this.nameMap.get(normalized);
+      // Update data but keep original name if it's more "complete"
+      if (trimmedName.length >= existing.original.length) {
+        existing.original = trimmedName;
+      }
+      existing.data = data;
+    } else {
+      this.nameMap.set(normalized, {
+        original: trimmedName,
+        data: data
+      });
+    }
+  }
+  
+  find(name) {
+    const normalized = this.normalize(name);
+    return this.nameMap.get(normalized);
+  }
+  
+  getOriginalName(name) {
+    const found = this.find(name);
+    return found ? found.original : name.trim();
+  }
+  
+  getData(name) {
+    const found = this.find(name);
+    return found ? found.data : null;
+  }
+  
+  has(name) {
+    const normalized = this.normalize(name);
+    return this.nameMap.has(normalized);
+  }
+  
+  getAllEntries() {
+    return Array.from(this.nameMap.values()).map(v => ({
+      name: v.original,
+      data: v.data
+    }));
+  }
+  
+  clear() {
+    this.nameMap.clear();
+  }
+  
+  // Calculate similarity for fuzzy matching
+  calculateSimilarity(str1, str2) {
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.includes(shorter)) return 1.0;
+    
+    let matches = 0;
+    for (let char of shorter) {
+      if (longer.includes(char)) matches++;
+    }
+    return matches / longer.length;
+  }
+  
+  // Find similar names (for suggestions)
+  findSimilar(name, threshold = 0.7) {
+    const normalized = this.normalize(name);
+    const results = [];
+    
+    for (let [key, value] of this.nameMap) {
+      const similarity = this.calculateSimilarity(normalized, key);
+      if (similarity >= threshold && similarity < 1.0) {
+        results.push({
+          name: value.original,
+          similarity: similarity
+        });
+      }
+    }
+    
+    return results.sort((a, b) => b.similarity - a.similarity);
+  }
+}
+
+// Utility Functions
+function formatMoney(x) {
+  const neg = x < 0;
+  const v = Math.round(Math.abs(x) * 100) / 100;
+  return (neg ? '-' : '') + (Number.isInteger(v) ? v.toString() : v.toFixed(2)) + 'đ';
+}
+
+function ceilInt(x) {
+  return Math.ceil(x);
+}
+
+function parseVip(text) {
+  const matcher = new SmartNameMatcher();
+  
+  text.split(/\n+/).forEach(line => {
+    line = line.trim();
+    if (!line) return;
+    
+    const [name, bal] = line.split('=');
+    if (!name) return;
+    
+    const v = parseFloat((bal || '0').replace(/[^0-9.\-]/g, ''));
+    const balance = isNaN(v) ? 0 : v;
+    
+    matcher.add(name, balance);
+  });
+  
+  // Convert to Map for backward compatibility
+  const map = new Map();
+  matcher.getAllEntries().forEach(entry => {
+    map.set(entry.name, entry.data);
+  });
+  
+  // Attach matcher for later use
+  map._matcher = matcher;
+  
+  return map;
+}
+
+function vipToText(map) {
+  return Array.from(map.entries())
+    .map(([k, v]) => `${k}=${formatMoney(v)}`)
+    .join('\n');
+}
+
+function persistVipList(text, timestamp = Date.now()) {
+  localStorage.setItem('vipList', text);
+  localStorage.setItem('vipUpdatedAt', String(timestamp));
+}
+
+function getLatestVipFromHistory() {
+  if (!Array.isArray(orderHistory) || orderHistory.length === 0) return null;
+
+  const latest = orderHistory.reduce((acc, order) => {
+    const time = new Date(order?.date || order?.id || 0).getTime();
+    if (!isFinite(time) || !Array.isArray(order?.vipSnapshot) || order.vipSnapshot.length === 0) return acc;
+    if (time > acc.time) {
+      return { time, snapshot: order.vipSnapshot };
+    }
+    return acc;
+  }, { time: -Infinity, snapshot: null });
+
+  return latest.snapshot ? latest : null;
+}
+
+function hydrateVipAreaFromData(options = {}) {
+  const vipArea = document.getElementById('vipArea');
+  if (!vipArea) return;
+
+  const savedVipText = (localStorage.getItem('vipList') || '').trim();
+  const savedUpdatedAt = Number(localStorage.getItem('vipUpdatedAt') || 0);
+  const hasSavedTimestamp = Number.isFinite(savedUpdatedAt) && savedUpdatedAt > 0;
+
+  let chosenText = savedVipText;
+  let chosenUpdatedAt = hasSavedTimestamp ? savedUpdatedAt : null;
+
+  const latestHistoryVip = getLatestVipFromHistory();
+  const shouldUseHistory = latestHistoryVip && (
+    options.forceHistory ||
+    !chosenText ||
+    !hasSavedTimestamp || // nếu chưa từng ghi timestamp thì lấy dữ liệu mới nhất từ history
+    latestHistoryVip.time > savedUpdatedAt
+  );
+
+  if (shouldUseHistory) {
+    const map = new Map(latestHistoryVip.snapshot);
+    chosenText = vipToText(map);
+    chosenUpdatedAt = latestHistoryVip.time;
+  }
+
+  if (chosenText) {
+    vipArea.value = chosenText;
+    persistVipList(chosenText, chosenUpdatedAt || Date.now());
+  }
+}
+
+function formatDate(date) {
+  const d = new Date(date);
+  return d.toLocaleDateString('vi-VN', { 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit',
+    hour: '2-digit', 
+    minute: '2-digit'
+  });
+}
+
+function debounce(fn, wait) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(null, args), wait);
+  };
+}
+
+function formatDraftTime(ts) {
+  if (!ts) return '—';
+  return new Date(ts).toLocaleString('vi-VN', { hour12: false });
+}
+
+// Draft autosave helpers
+function getDraftPayload(hasChanges = draftDirty) {
+  const people = Array.from(document.querySelectorAll('#orderTable tbody tr')).map(tr => {
+    const nameInput = tr.children[0]?.querySelector('input');
+    const qtyInput = tr.children[1]?.querySelector('input');
+    const shipPartsInput = tr.children[2]?.querySelector('input');
+    const paidCheck = tr.children[3]?.querySelector('input[type="checkbox"]');
+    return {
+      name: (nameInput?.value || '').trim(),
+      qty: Number(qtyInput?.value || 0),
+      shipParts: Number(shipPartsInput?.value || 0),
+      paid: !!paidCheck?.checked
+    };
+  }).filter(p => p.name);
+
+  return {
+    draftOrder: {
+      itemName: document.getElementById('itemName')?.value || '',
+      totalParts: Number(document.getElementById('n')?.value || 0),
+      alvinFree: !!document.getElementById('alvinFree')?.checked,
+      desiredPrice: Number(document.getElementById('desiredPrice')?.value || 0),
+      people,
+      lastModified: Date.now(),
+      hasChanges: hasChanges === true
+    }
+  };
+}
+
+function applyPeopleToTable(people = []) {
+  const tbody = document.querySelector('#orderTable tbody');
+  if (!tbody) return;
+  suppressDraftChange = true;
+  tbody.innerHTML = '';
+
+  if (!Array.isArray(people) || people.length === 0) {
+    addRow();
+    suppressDraftChange = false;
+    return;
+  }
+
+  people.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input class="name-input" value="${p.name || ''}" placeholder="Nhập tên..."></td>
+      <td><input type="number" min="1" step="1" value="${p.qty || 1}"></td>
+      <td><input type="number" min="0" step="1" value="${p.shipParts || 0}" class="ship-count-input" placeholder="0"></td>
+      <td style="text-align: center;"><input type="checkbox" class="payment-check" ${p.paid ? 'checked' : ''}></td>
+      <td style="text-align: center;"><button class="btn btn-danger" onclick="delRow(this)">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  suppressDraftChange = false;
+}
+
+function updateDraftStatusUI(draftOrder = {}) {
+  const dot = document.getElementById('draftStatusDot');
+  const statusText = document.getElementById('draftStatusText');
+  const metaText = document.getElementById('draftMetaText');
+  const hasChanges = draftOrder.hasChanges || draftDirty;
+  const lastModified = draftOrder.lastModified || draftOrder.draftModified || Date.now();
+
+  if (dot) {
+    dot.classList.toggle('saved', !hasChanges);
+    dot.classList.toggle('unsaved', hasChanges);
+  }
+  if (statusText) {
+    statusText.textContent = hasChanges ? 'Nháp có thay đổi (chưa backup iCloud)' : 'Nháp đã lưu';
+  }
+  if (metaText) {
+    metaText.textContent = `Tự động lưu 30 phút/lần | Lưu cuối: ${formatDraftTime(lastModified)}`;
+  }
+}
+
+function setDraftBanner(message) {
+  const banner = document.getElementById('draftBannerMessage');
+  if (banner) banner.textContent = message || '';
+}
+
+function saveDraftToLocalStorage() {
+  const draft = getDraftPayload(true);
+  localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+  draftDirty = true;
+  updateDraftStatusUI(draft.draftOrder);
+  return draft;
+}
+
+function loadDraftFromLocalStorage() {
+  try {
+    const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_err) {
+    return null;
+  }
+}
+
+function restoreDraftToUI(draftData) {
+  if (!draftData || !draftData.draftOrder) return;
+
+  const data = draftData.draftOrder;
+  document.getElementById('itemName').value = data.itemName || '';
+  document.getElementById('n').value = data.totalParts || 0;
+  document.getElementById('alvinFree').checked = !!data.alvinFree;
+  const desiredPriceInput = document.getElementById('desiredPrice');
+  if (desiredPriceInput) desiredPriceInput.value = data.desiredPrice || '';
+  selectedPrice = data.desiredPrice ? Number(data.desiredPrice) : null;
+  applyPeopleToTable(data.people || []);
+
+  draftDirty = !!data.hasChanges;
+  updateDraftStatusUI(data);
+  setDraftBanner('📋 Đã khôi phục đơn nháp');
+}
+
+function markDraftChanged() {
+  if (suppressDraftChange) return;
+  draftDirty = true;
+  updateDraftStatusUI({ hasChanges: true, lastModified: Date.now() });
+  if (debouncedLocalDraftSave) {
+    debouncedLocalDraftSave();
+  } else {
+    saveDraftToLocalStorage();
+  }
+}
+
+function recordDraftMeta(path, savedAt) {
+  const meta = JSON.parse(localStorage.getItem(DRAFT_META_KEY) || '[]').filter(Boolean);
+  meta.unshift({ path, savedAt });
+
+  // Deduplicate by path
+  const unique = [];
+  const seen = new Set();
+  meta.forEach(entry => {
+    if (!entry.path || seen.has(entry.path)) return;
+    seen.add(entry.path);
+    unique.push(entry);
+  });
+
+  localStorage.setItem(DRAFT_META_KEY, JSON.stringify(unique.slice(0, 10)));
+}
+
+async function deleteDraftFile(path) {
+  try {
+    if (window.orderHelperNative?.deleteFile) {
+      await window.orderHelperNative.deleteFile(path);
+      return true;
+    }
+    if (window.webkit?.messageHandlers?.orderHelperNative) {
+      window.webkit.messageHandlers.orderHelperNative.postMessage({ action: 'deleteFile', path });
+      return true;
+    }
+  } catch (err) {
+    console.error('Delete draft failed', err);
+  }
+  return false;
+}
+
+async function cleanupOldDraftBackups() {
+  const entries = JSON.parse(localStorage.getItem(DRAFT_META_KEY) || '[]').filter(Boolean);
+  const now = Date.now();
+
+  const toKeep = entries
+    .filter(e => e.path)
+    .sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0));
+
+  const fresh = toKeep.filter(e => now - (e.savedAt || 0) <= 7 * 24 * 60 * 60 * 1000);
+  const survivors = fresh.slice(0, 5);
+  const survivorPaths = new Set(survivors.map(s => s.path));
+  const toDelete = toKeep.filter(e => !survivorPaths.has(e.path));
+
+  for (const entry of toDelete) {
+    await deleteDraftFile(entry.path);
+  }
+
+  localStorage.setItem(DRAFT_META_KEY, JSON.stringify(survivors));
+}
+
+async function writeFileToICloud(path, content, { allowDownloadFallback = false } = {}) {
+  try {
+    if (window.orderHelperNative?.writeFile) {
+      await window.orderHelperNative.writeFile({ path, content });
+      return { ok: true };
+    }
+    if (window.orderHelperNative?.writeTextFile) {
+      await window.orderHelperNative.writeTextFile(path, content);
+      return { ok: true };
+    }
+    if (window.webkit?.messageHandlers?.orderHelperNative) {
+      window.webkit.messageHandlers.orderHelperNative.postMessage({ action: 'writeFile', path, content });
+      return { ok: true };
+    }
+  } catch (err) {
+    return { ok: false, error: err?.message || 'Unknown write error' };
+  }
+
+  if (allowDownloadFallback) {
+    const a = document.createElement('a');
+    const blob = new Blob([content], { type: 'application/json' });
+    a.href = URL.createObjectURL(blob);
+    a.download = path.split('/').pop();
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    return { ok: true, fallback: true };
+  }
+
+  return { ok: false, error: 'Không có bridge để ghi iCloud' };
+}
+
+function appendLog(message) {
+  const line = `[${new Date().toISOString()}] ${message}`;
+  console.error(line);
+  try {
+    if (window.orderHelperNative?.appendLog) {
+      window.orderHelperNative.appendLog(line);
+      return;
+    }
+    if (window.webkit?.messageHandlers?.orderHelperNative) {
+      window.webkit.messageHandlers.orderHelperNative.postMessage({ action: 'appendLog', message: line });
+    }
+  } catch (_err) {
+    // ignore
+  }
+}
+
+function getDraftFilename(ts) {
+  const d = new Date(ts);
+  const pad = (n) => String(n).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  const mm = pad(d.getMonth() + 1);
+  const dd = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const min = pad(d.getMinutes());
+  return `draft_order_${yyyy}-${mm}-${dd}_${hh}${min}.json`;
+}
+
+async function saveDraftToICloud({ force = false, allowDownloadFallback = false, reason = 'auto' } = {}) {
+  if (!force && !draftDirty) return false;
+
+  if (draftBackupInFlight) return false;
+  draftBackupInFlight = true;
+
+  const draft = getDraftPayload(force || draftDirty);
+  const now = Date.now();
+  const filename = getDraftFilename(now);
+  const path = `${DRAFT_DIR}/${filename}`;
+  const content = JSON.stringify(draft, null, 2);
+
+  try {
+    if (window.orderHelperNative?.ensureDir) {
+      try {
+        await window.orderHelperNative.ensureDir(DRAFT_DIR);
+      } catch (_err) {
+        // ignore dir creation errors, writer may still handle it
+      }
+    }
+
+    const res = await writeFileToICloud(path, content, { allowDownloadFallback });
+
+    if (res.ok) {
+      draft.draftOrder.hasChanges = false;
+      draft.draftOrder.lastModified = now;
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+      draftDirty = false;
+      lastDraftBackupPath = path;
+      updateDraftStatusUI(draft.draftOrder);
+      setDraftBanner(`✅ Đã backup iCloud (${filename})`);
+      recordDraftMeta(path, now);
+      cleanupOldDraftBackups();
+      if (draftBackupRetryTimeout) {
+        clearTimeout(draftBackupRetryTimeout);
+        draftBackupRetryTimeout = null;
+      }
+      return true;
+    }
+
+    setDraftBanner('⚠️ Lưu iCloud thất bại, sẽ thử lại sau');
+    appendLog(`Draft backup failed (${reason}): ${res.error || 'unknown error'}`);
+
+    if (!draftBackupRetryTimeout) {
+      draftBackupRetryTimeout = setTimeout(() => {
+        draftBackupRetryTimeout = null;
+        saveDraftToICloud({ force: true, reason: 'retry' });
+      }, DRAFT_RETRY_INTERVAL_MS);
+    }
+
+    return false;
+  } finally {
+    draftBackupInFlight = false;
+  }
+}
+
+async function readFileFromICloud(path) {
+  try {
+    if (window.orderHelperNative?.readFile) {
+      return await window.orderHelperNative.readFile(path);
+    }
+    if (window.orderHelperNative?.readTextFile) {
+      return await window.orderHelperNative.readTextFile(path);
+    }
+  } catch (err) {
+    appendLog(`Read draft failed: ${err?.message || err}`);
+  }
+
+  try {
+    const res = await fetch(`file://${encodeURI(path)}`);
+    if (res.ok) {
+      return await res.text();
+    }
+  } catch (_err) {
+    // ignore fetch errors
+  }
+
+  return null;
+}
+
+async function loadLatestDraftFromICloud() {
+  let entries = JSON.parse(localStorage.getItem(DRAFT_META_KEY) || '[]').filter(e => e && e.path);
+
+  if (entries.length === 0 && window.orderHelperNative?.listFiles) {
+    try {
+      const files = await window.orderHelperNative.listFiles(DRAFT_DIR);
+      if (Array.isArray(files)) {
+        entries = files
+          .filter(f => typeof f === 'string' && f.startsWith('draft_order_') && f.endsWith('.json'))
+          .map(name => ({ path: `${DRAFT_DIR}/${name}`, savedAt: Date.now() }));
+        localStorage.setItem(DRAFT_META_KEY, JSON.stringify(entries));
+      }
+    } catch (_err) {
+      // ignore listing failures
+    }
+  }
+
+  if (entries.length === 0) {
+    setDraftBanner('ℹ️ Không tìm thấy nháp iCloud nào để tải');
+    return;
+  }
+
+  const latest = entries.sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0))[0];
+  const content = await readFileFromICloud(latest.path);
+
+  if (!content) {
+    setDraftBanner('❌ Không thể đọc nháp từ iCloud');
+    appendLog('Load draft from iCloud failed: missing content');
+    return;
+  }
+
+  try {
+    const data = JSON.parse(content);
+    const payload = data && data.draftOrder ? data.draftOrder : data;
+    restoreDraftToUI({ draftOrder: { ...payload, hasChanges: false } });
+    draftDirty = false;
+    updateDraftStatusUI({ ...payload, hasChanges: false });
+    setDraftBanner('📂 Đã tải nháp từ iCloud');
+  } catch (err) {
+    appendLog(`Parse draft failed: ${err?.message || err}`);
+    setDraftBanner('❌ File nháp không hợp lệ');
+  }
+}
+
+function clearDraft() {
+  localStorage.removeItem(DRAFT_STORAGE_KEY);
+  draftDirty = false;
+  document.getElementById('itemName').value = '';
+  document.getElementById('n').value = '';
+  document.getElementById('alvinFree').checked = true;
+  applyPeopleToTable([]);
+  updateDraftStatusUI({ hasChanges: false, lastModified: Date.now() });
+  setDraftBanner('🗑️ Đã xoá nháp cục bộ');
+}
+
+function setupDraftListeners() {
+  const watchedSelectors = ['#quickInput', '#itemName', '#n', '#alvinFree', '#totalCost', '#costPerUnit', '#shipFee', '#targetProfit', '#desiredPrice', '#itemDesc', '#deadline'];
+  watchedSelectors.forEach(sel => {
+    const el = document.querySelector(sel);
+    if (el) {
+      el.addEventListener('input', markDraftChanged);
+      el.addEventListener('change', markDraftChanged);
+    }
+  });
+
+  const table = document.getElementById('orderTable');
+  if (table) {
+    table.addEventListener('input', markDraftChanged);
+    table.addEventListener('change', markDraftChanged);
+  }
+}
+
+function startDraftBackupInterval() {
+  if (draftBackupIntervalId) clearInterval(draftBackupIntervalId);
+  draftBackupIntervalId = setInterval(() => {
+    saveDraftToICloud({ reason: 'interval' });
+  }, DRAFT_BACKUP_INTERVAL_MS);
+}
+
+function handleBeforeUnload() {
+  if (draftDirty) {
+    saveDraftToLocalStorage();
+    saveDraftToICloud({ force: true, reason: 'beforeunload' });
+  }
+}
+
+function initDraftAutosave() {
+  debouncedLocalDraftSave = debounce(() => saveDraftToLocalStorage(), 1000);
+
+  const storedDraft = loadDraftFromLocalStorage();
+  if (storedDraft) {
+    restoreDraftToUI(storedDraft);
+  } else {
+    loadLatestDraftFromICloud();
+  }
+
+  updateDraftStatusUI(storedDraft?.draftOrder || { hasChanges: false, lastModified: null });
+
+  setupDraftListeners();
+  startDraftBackupInterval();
+  window.addEventListener('beforeunload', handleBeforeUnload);
+}
+
+function manualSaveDraft() {
+  saveDraftToLocalStorage();
+  saveDraftToICloud({ force: true, allowDownloadFallback: true, reason: 'manual' });
+}
+
+// Tab Management
+function switchTab(evt, tabName) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  
+  const target = evt?.currentTarget || evt?.target;
+  if (target) target.classList.add('active');
+  document.getElementById(tabName).classList.add('active');
+  
+  // Load data for specific tabs
+  if (tabName === 'history') loadHistory();
+  if (tabName === 'debt') loadDebtManagement();
+  if (tabName === 'stats') loadStats();
+}
+window.switchTab = switchTab;
+
+// Quick Parse Input
+function parseQuickInput() {
+  const input = document.getElementById('quickInput').value.trim();
+  if (!input) {
+    alert('Vui lòng nhập danh sách order');
+    return;
+  }
+
+  // Parse VIP for smart matching
+  const vipMap = parseVip(document.getElementById('vipArea').value);
+  const vipMatcher = vipMap._matcher || new SmartNameMatcher();
+
+  // Clear existing table
+  const tbody = document.querySelector('#orderTable tbody');
+  tbody.innerHTML = '';
+
+  // Parse format: lines or commas, with optional qty via space/colon
+  const items = input
+    .split(/[\n,]+/)
+    .map(s => s.trim())
+    .filter(s => s);
+  let totalParts = 0;
+  const suggestions = [];
+
+  items.forEach(item => {
+    // Extract name and quantity
+    const match = item.match(/^(.+?)[\s:]+(\d+)$/);
+    const inputName = match ? match[1].trim() : item.trim();
+    const qty = match ? parseInt(match[2]) : 1;
+    
+    totalParts += qty;
+
+    // Smart match against VIP
+    const matchedVIP = vipMatcher.find(inputName);
+    let finalName = inputName;
+    
+    if (matchedVIP && matchedVIP.original !== inputName) {
+      finalName = matchedVIP.original;
+      suggestions.push({
+        input: inputName,
+        suggested: matchedVIP.original
+      });
+    }
+
+    // Add row to table
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input class="name-input" value="${finalName}"></td>
+      <td><input type="number" min="1" step="1" value="${qty}"></td>
+      <td><input type="number" min="0" step="1" value="0" class="ship-count-input" placeholder="0"></td>
+      <td style="text-align: center;"><input type="checkbox" class="payment-check"></td>
+      <td style="text-align: center;"><button class="btn btn-danger" onclick="delRow(this)">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Update total parts (add 1 for Lão nhân gia)
+  document.getElementById('n').value = totalParts + 1;
+
+  // Clear quick input
+  document.getElementById('quickInput').value = '';
+  
+  // Show success message with suggestions
+  let msg = `✅ Đã parse ${items.length} người, tổng ${totalParts + 1} phần (bao gồm Lão nhân gia)`;
+  
+  if (suggestions.length > 0) {
+    msg += '\n\n🔄 Smart matching đã tự động sửa tên:';
+    suggestions.forEach(s => {
+      msg += `\n• "${s.input}" → "${s.suggested}"`;
+    });
+  }
+
+  markDraftChanged();
+  alert(msg);
+}
+
+// Table Management
+function addRow() {
+  const tbody = document.querySelector('#orderTable tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input class="name-input" value="" placeholder="Nhập tên..."></td>
+    <td><input type="number" min="1" step="1" value="1"></td>
+    <td><input type="number" min="0" step="1" value="0" class="ship-count-input" placeholder="0"></td>
+    <td style="text-align: center;"><input type="checkbox" class="payment-check"></td>
+    <td style="text-align: center;"><button class="btn btn-danger" onclick="delRow(this)">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+  markDraftChanged();
+}
+
+function delRow(btn) {
+  btn.closest('tr').remove();
+  markDraftChanged();
+}
+
+// Price Suggestion
+function suggestPrices() {
+  const n = Number(document.getElementById('n').value || 0);
+  const alvinFree = document.getElementById('alvinFree').checked;
+  const totalCost = Number(document.getElementById('totalCost').value || 0);
+  const costPerUnit = Number(document.getElementById('costPerUnit').value || 0);
+  const shipFee = Number(document.getElementById('shipFee').value || 0);
+  const targetProfit = Number(document.getElementById('targetProfit').value || 6);
+
+  // Validation: Check minimum parts
+  const minParts = alvinFree ? 2 : 1;
+  if (n < minParts) {
+    alert(`⚠️ Lỗi: Khi bật "Lão nhân gia free", tổng phần phải ≥ 2.\n\nHiện tại: ${n} phần\nYêu cầu tối thiểu: ${minParts} phần\n\n💡 Gợi ý: Tăng số phần lên hoặc tắt "Lão nhân gia free".`);
+    return;
+  }
+
+  const denom = alvinFree ? (n - 1) : n;
+  
+  // Double check denom (safety guard)
+  if (denom <= 0) {
+    alert('⚠️ Lỗi hệ thống: Mẫu số không hợp lệ. Vui lòng kiểm tra lại tổng phần.');
+    return;
+  }
+
+  let T = 0;
+  if (costPerUnit > 0) {
+    T = n * costPerUnit + shipFee;
+  } else if (totalCost > 0) {
+    T = totalCost + shipFee;
+  } else {
+    alert('Vui lòng nhập Tổng tiền món (T) hoặc Chi phí/phần (c)');
+    return;
+  }
+
+  const priceBreakEven = ceilInt(T / denom);
+  const priceProfit = ceilInt((T + targetProfit) / denom);
+
+  const suggestionHTML = `
+    <div class="price-suggestion">
+      <div class="price-card" onclick="selectPrice(${priceBreakEven}, event)">
+        <div class="price-card-label">Hoà vốn</div>
+        <div class="price-card-value">${priceBreakEven}đ</div>
+        <div class="price-card-desc">Thu = Chi</div>
+      </div>
+      <div class="price-card active" onclick="selectPrice(${priceProfit}, event)">
+        <div class="price-card-label">Lời ${targetProfit}đ</div>
+        <div class="price-card-value">${priceProfit}đ</div>
+        <div class="price-card-desc">Lời tối thiểu ${targetProfit}đ</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('priceSuggestion').innerHTML = suggestionHTML;
+  selectPrice(priceProfit);
+}
+
+function handleDesiredPriceInput() {
+  const input = document.getElementById('desiredPrice');
+  if (!input) return;
+
+  const manualPrice = Number(input.value || 0);
+  document.querySelectorAll('.price-card').forEach(card => card.classList.remove('active'));
+
+  if (manualPrice > 0) {
+    selectedPrice = manualPrice;
+  } else {
+    selectedPrice = null;
+  }
+}
+
+function selectPrice(price, evt) {
+  document.querySelectorAll('.price-card').forEach(card => {
+    card.classList.remove('active');
+  });
+  
+  if (evt && evt.target) {
+    evt.target.closest('.price-card').classList.add('active');
+  }
+  
+  selectedPrice = price;
+  const desiredPriceInput = document.getElementById('desiredPrice');
+  if (desiredPriceInput) desiredPriceInput.value = price;
+}
+
+// Main Compute Function
+function compute(options = {}) {
+  const saveHistory = !!options.save;
+  const itemName = document.getElementById('itemName').value.trim() || 'Món ăn';
+  const n = Number(document.getElementById('n').value || 0);
+  const alvinFree = document.getElementById('alvinFree').checked;
+  const totalCost = Number(document.getElementById('totalCost').value || 0);
+  const costPerUnit = Number(document.getElementById('costPerUnit').value || 0);
+  const shipFee = Number(document.getElementById('shipFee').value || 0);
+
+  // Validation: Check minimum parts
+  const minParts = alvinFree ? 2 : 1;
+  if (n < minParts) {
+    alert(`⚠️ Lỗi: Khi bật "Lão nhân gia free", tổng phần phải ≥ 2.\n\nHiện tại: ${n} phần\nYêu cầu tối thiểu: ${minParts} phần\n\n💡 Gợi ý: Tăng số phần lên hoặc tắt "Lão nhân gia free".`);
+    return;
+  }
+
+  const denom = alvinFree ? (n - 1) : n;
+  if (denom <= 0) {
+    alert('⚠️ Lỗi hệ thống: Mẫu số không hợp lệ. Vui lòng kiểm tra lại tổng phần.');
+    return;
+  }
+
+  let T = 0;
+  if (costPerUnit > 0) {
+    T = n * costPerUnit + shipFee;
+  } else if (totalCost > 0) {
+    T = totalCost + shipFee;
+  }
+
+  // Parse Order Table
+  const rows = Array.from(document.querySelectorAll('#orderTable tbody tr')).map(tr => {
+    const nameInput = tr.children[0].querySelector('input');
+    const qtyInput = tr.children[1].querySelector('input');
+    const shipPartsInput = tr.children[2].querySelector('input');
+    const paidCheck = tr.children[3].querySelector('input[type="checkbox"]');
+    const name = (nameInput.value || '').trim();
+    const qty = Number(qtyInput.value || 0);
+    let shipParts = Number(shipPartsInput.value || 0);
+    shipParts = Math.max(0, Math.min(shipParts, qty)); // clamp 0..qty
+    const paid = paidCheck.checked;
+    return { name, qty, paid, shipParts };
+  }).filter(r => r.name && r.qty > 0);
+
+  const shipCount = rows.reduce((sum, r) => sum + r.shipParts, 0);
+  const nonShipCount = rows.reduce((sum, r) => sum + (r.qty - r.shipParts), 0);
+
+  // Decide pricing mode
+  let sellingPrice = selectedPrice;
+  let priceNonShip = null;
+  let priceShip = null;
+  let revenue = 0;
+  let profit = 0;
+  const foodCostOnly = T - shipFee;
+
+  const canSplitShip = shipFee > 0 && shipCount > 0;
+
+  if (canSplitShip) {
+    // Base giá: chia đều tiền món; ship chia riêng cho phần có ship
+    const basePrice = foodCostOnly / denom;
+    priceNonShip = ceilInt(basePrice);
+    const surchargePerShip = shipFee / shipCount;
+    priceShip = ceilInt(basePrice + surchargePerShip);
+    sellingPrice = priceNonShip; // keep for backward compatibility fields
+
+    const revenueNonShip = priceNonShip * nonShipCount;
+    const revenueShip = priceShip * shipCount;
+    revenue = revenueNonShip + revenueShip;
+    profit = revenue - (foodCostOnly + shipFee);
+  } else {
+    if (!selectedPrice) {
+      alert('Vui lòng bấm "Đề xuất 2 mức giá" và chọn giá bán trước.');
+      return;
+    }
+    sellingPrice = selectedPrice;
+    priceNonShip = sellingPrice;
+    priceShip = sellingPrice;
+    revenue = denom * sellingPrice;
+    profit = revenue - T;
+  }
+
+  // Parse VIP with smart matching
+  const vipFromArea = parseVip(document.getElementById('vipArea').value);
+  const vipPersisted = parseVip(localStorage.getItem('vipList') || '');
+  let vipMap = new Map([...vipPersisted, ...vipFromArea]);
+  
+  // Get matcher from vipMap
+  const vipMatcher = vipFromArea._matcher || new SmartNameMatcher();
+  
+  // Re-populate matcher with all VIP data
+  vipMap.forEach((balance, name) => {
+    vipMatcher.add(name, balance);
+  });
+
+  // Process payments with smart name matching
+  const members = [];
+  const vipChanged = new Set();
+  const orderDetails = [];
+  const nameCorrections = []; // Track name corrections
+
+  rows.forEach(r => {
+    const shipQty = r.shipParts;
+    const nonShipQty = r.qty - shipQty;
+    const due = shipQty * priceShip + nonShipQty * priceNonShip;
+    
+    // Smart match: check if this name matches any VIP
+    const matchedVIP = vipMatcher.find(r.name);
+    
+    if (matchedVIP) {
+      // Found VIP match!
+      const originalName = matchedVIP.original;
+      const currentBalance = matchedVIP.data;
+      const newBalance = currentBalance - due;
+      
+      // Update VIP balance
+      vipMap.set(originalName, newBalance);
+      vipMatcher.add(originalName, newBalance);
+      vipChanged.add(originalName);
+      
+      // Track if name was corrected
+      if (r.name !== originalName) {
+        nameCorrections.push({
+          input: r.name,
+          corrected: originalName
+        });
+      }
+      
+      orderDetails.push({
+        name: originalName, // Use original VIP name
+        qty: r.qty,
+        shipQty,
+        nonShipQty,
+        due: due,
+        paid: true, // VIP auto-paid
+        unitPrice: shipQty > 0 && nonShipQty > 0 ? `${formatMoney(priceNonShip)} / ${formatMoney(priceShip)}` : (shipQty > 0 ? priceShip : priceNonShip)
+      });
+    } else {
+      // Not VIP, add to members
+      orderDetails.push({
+        name: r.name,
+        qty: r.qty,
+        shipQty,
+        nonShipQty,
+        due: due,
+        paid: r.paid,
+        unitPrice: shipQty > 0 && nonShipQty > 0 ? `${formatMoney(priceNonShip)} / ${formatMoney(priceShip)}` : (shipQty > 0 ? priceShip : priceNonShip)
+      });
+      
+      if (!r.paid) {
+        members.push({ name: r.name, due: due, qty: r.qty });
+      }
+    }
+  });
+
+  // Save to history
+  const order = {
+    id: Date.now(),
+    date: new Date().toISOString(),
+    itemName: itemName,
+    totalParts: n,
+    sellingPrice: sellingPrice,
+    sellingPriceShip: priceShip,
+    sellingPriceNonShip: priceNonShip,
+    splitShipMode: canSplitShip,
+    shipCount,
+    nonShipCount,
+    shipFee,
+    totalCost: T,
+    revenue: revenue,
+    profit: profit,
+    details: orderDetails,
+    vipSnapshot: Array.from(vipMap.entries())
+  };
+
+  if (saveHistory) {
+    orderHistory.unshift(order);
+    localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+  }
+
+  // Generate Summary HTML
+  const priceDetailText = canSplitShip
+    ? `Ko ship: ${formatMoney(priceNonShip)} | Có ship: ${formatMoney(priceShip)}`
+    : `${formatMoney(sellingPrice)}/phần`;
+
+  const revenueDetail = canSplitShip
+    ? `${nonShipCount} × ${formatMoney(priceNonShip)} + ${shipCount} × ${formatMoney(priceShip)}`
+    : `${denom} × ${formatMoney(sellingPrice)}`;
+
+  const summaryHTML = `
+    <div class="summary-grid">
+      <div class="summary-item">
+        <h3>Tổng phần (n)</h3>
+        <div class="summary-value">${n} phần</div>
+        <div class="summary-detail">${alvinFree ? `Thu ${denom} phần (Lão nhân gia free)` : `Thu ${n} phần`}</div>
+      </div>
+      <div class="summary-item">
+        <h3>Tổng chi (T)</h3>
+        <div class="summary-value">${formatMoney(T)}</div>
+        <div class="summary-detail">${costPerUnit > 0 ? `${n} × ${formatMoney(costPerUnit)}` : formatMoney(totalCost)} + ship ${formatMoney(shipFee)}</div>
+      </div>
+      <div class="summary-item">
+        <h3>Thu</h3>
+        <div class="summary-value">${formatMoney(revenue)}</div>
+        <div class="summary-detail">${revenueDetail}</div>
+      </div>
+      <div class="summary-item">
+        <h3>Kết quả</h3>
+        <div class="summary-value ${profit >= 0 ? 'profit-positive' : 'profit-negative'}">
+          ${profit >= 0 ? 'Lời' : 'Lỗ'} ${formatMoney(Math.abs(profit))}
+        </div>
+        <div class="summary-detail">Hoà vốn: ${ceilInt(T / denom)}đ/phần</div>
+      </div>
+    </div>
+
+    <div class="summary-grid" style="margin-top: 12px;">
+      <div class="summary-item">
+        <h3>Đơn giá</h3>
+        <div class="summary-value">${priceDetailText}</div>
+        <div class="summary-detail">${canSplitShip ? `Ship ${shipCount} phần | Không ship ${nonShipCount} phần` : 'Áp dụng chung cho tất cả'}</div>
+      </div>
+      ${canSplitShip ? `
+      <div class="summary-item">
+        <h3>Chi tiết ship</h3>
+        <div class="summary-value">${formatMoney(shipFee)}</div>
+        <div class="summary-detail">${formatMoney(shipFee / shipCount)} mỗi phần ship (làm tròn khi tính tiền)</div>
+      </div>` : ''}
+    </div>
+
+    <div class="grid" style="margin-top: 20px;">
+      <div class="glass-card" style="padding: 20px;">
+        <h3 style="font-size: 16px; margin-bottom: 12px; color: var(--text-secondary);">👑 VIP (số dư sau khi trừ)</h3>
+        ${vipMap.size > 0 ? `
+          <ul class="info-list">
+            ${Array.from(vipMap.entries()).map(([name, bal]) => {
+              const charged = vipChanged.has(name);
+              const chargeAmount = charged 
+                ? orderDetails.filter(d => d.name === name).reduce((sum, d) => sum + d.due, 0)
+                : 0;
+              return `
+              <li>
+                <span class="name">${name}${charged ? ` (đã trừ ${formatMoney(chargeAmount)})` : ''}</span>
+                <span>
+                  <span class="value">${formatMoney(bal)}</span>
+                </span>
+              </li>
+            `;
+            }).join('')}
+          </ul>
+        ` : '<div class="empty-state"><div class="empty-state-icon">🫙</div>Chưa có VIP</div>'}
+      </div>
+
+      <div class="glass-card" style="padding: 20px;">
+        <h3 style="font-size: 16px; margin-bottom: 12px; color: var(--text-secondary);">👥 Member (chưa trả)</h3>
+        ${members.length > 0 ? `
+          <ul class="info-list">
+            ${members.map(m => `
+              <li>
+                <span class="name">${m.name}${m.qty > 1 ? ` (${m.qty} phần)` : ''}</span>
+                <span class="value" style="color: var(--accent-red);">-${formatMoney(m.due)}</span>
+              </li>
+            `).join('')}
+          </ul>
+        ` : '<div class="empty-state"><div class="empty-state-icon">✅</div>Tất cả đã thanh toán</div>'}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('summarySection').innerHTML = summaryHTML;
+
+  // Generate Final Message - Show VIP balance AFTER deduction
+  const vipLine = vipMap.size > 0 
+    ? Array.from(vipMap.entries()).map(([name, bal]) => {
+        // Check if this VIP was in the order
+        const wasCharged = vipChanged.has(name);
+        return `${name} (${formatMoney(bal)})`;
+      }).join(', ')
+    : '—';
+  
+  const memLine = members.length > 0
+    ? members.map(m => `${m.name}${m.qty > 1 ? ` (${m.qty} phần)` : ''} (-${formatMoney(m.due)})`).join(', ')
+    : '—';
+
+  const priceLine = canSplitShip
+    ? `${formatMoney(priceNonShip)} ko ship | ${formatMoney(priceShip)} có ship (ship ${shipCount} phần, phí ${formatMoney(shipFee)})`
+    : `${formatMoney(sellingPrice)}/phần`;
+
+  const finalMsg = `🍽 ${itemName}: ${priceLine}\n👑 VIP: ${vipLine}\n👥 Member (chưa trả): ${memLine}`;
+  
+  document.getElementById('finalMsg').value = finalMsg;
+
+  if (saveHistory) {
+    // Update VIP storage
+    const vipText = vipToText(vipMap);
+    document.getElementById('vipArea').value = vipText;
+    persistVipList(vipText);
+
+    // Show name corrections if any
+    if (nameCorrections.length > 0) {
+      const correctionMsg = nameCorrections
+        .map(c => `• "${c.input}" → "${c.corrected}"`)
+        .join('\n');
+      alert(`✅ Đã lưu đơn!\n\n🔄 Smart matching đã tự động sửa tên:\n${correctionMsg}`);
+    } else {
+      alert('✅ Đã lưu đơn vào lịch sử!');
+    }
+  } else {
+    setDraftBanner('ℹ️ Đã tính tạm, bấm "Lưu đơn" để ghi vào lịch sử');
+  }
+}
+
+// Generate Open Order Message
+function generateOpenMsg() {
+  const itemName = document.getElementById('itemName').value.trim() || 'Món ăn';
+  const desc = document.getElementById('itemDesc').value.trim();
+  const deadline = document.getElementById('deadline').value.trim();
+
+  const lines = [itemName];
+  if (desc) lines.push(desc);
+  lines.push('👉 Ai ăn/uống comment +1 / +2');
+  if (deadline) lines.push(`Chốt đơn ${deadline}`);
+
+  document.getElementById('openMsg').value = lines.join('\n');
+}
+
+// Reset Output
+function resetOutput() {
+  document.getElementById('summarySection').innerHTML = '';
+  document.getElementById('finalMsg').value = '';
+  document.getElementById('openMsg').value = '';
+  document.getElementById('priceSuggestion').innerHTML = '';
+  const desiredPriceInput = document.getElementById('desiredPrice');
+  if (desiredPriceInput) desiredPriceInput.value = '';
+  selectedPrice = null;
+}
+
+// Copy Message
+function copyMsg(id, event) {
+  const ta = document.getElementById(id);
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  
+  try {
+    document.execCommand('copy');
+    
+    if (event && event.target) {
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.textContent = '✓ Đã copy!';
+      setTimeout(() => {
+        btn.textContent = originalText;
+      }, 2000);
+    } else {
+      alert('✅ Đã copy!');
+    }
+  } catch (err) {
+    alert('Vui lòng copy thủ công bằng Ctrl+C');
+  }
+}
+
+// History Management
+function loadHistory() {
+  const historyList = document.getElementById('historyList');
+  
+  if (orderHistory.length === 0) {
+    historyList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div>Chưa có đơn hàng nào</div>';
+    return;
+  }
+
+  historyList.innerHTML = orderHistory.map(order => {
+    const paidCount = order.details.filter(d => d.paid).length;
+    const totalCount = order.details.length;
+    const statusClass = paidCount === totalCount ? 'status-paid' : (paidCount > 0 ? 'status-partial' : 'status-unpaid');
+    const statusText = paidCount === totalCount ? 'Đã thanh toán' : `${paidCount}/${totalCount} đã trả`;
+    const historyPriceLine = order.splitShipMode
+      ? `${order.nonShipCount || 0}×${formatMoney(order.sellingPriceNonShip || order.sellingPrice)} + ${order.shipCount || 0}×${formatMoney(order.sellingPriceShip || order.sellingPrice)}`
+      : `${order.totalParts} phần × ${formatMoney(order.sellingPrice)}`;
+
+    return `
+      <div class="history-item" onclick="showOrderDetail(${order.id})">
+        <div class="history-header">
+          <div class="history-title">${order.itemName}</div>
+          <div class="history-date">${formatDate(order.date)}</div>
+        </div>
+        <div class="history-details">
+          ${historyPriceLine} = ${formatMoney(order.revenue)} 
+64          <span class="${order.profit >= 0 ? 'profit-positive' : 'profit-negative'}">
+            (${order.profit >= 0 ? 'Lời' : 'Lỗ'} ${formatMoney(Math.abs(order.profit))})
+          </span>
+          <span class="status-badge ${statusClass}">${statusText}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function showOrderDetail(orderId) {
+  const order = orderHistory.find(o => o.id === orderId);
+  if (!order) return;
+
+  const modalBody = document.getElementById('modalBody');
+  const modalPriceLabel = order.splitShipMode
+    ? `Ko ship ${formatMoney(order.sellingPriceNonShip || order.sellingPrice)} | Ship ${formatMoney(order.sellingPriceShip || order.sellingPrice)}`
+    : `${formatMoney(order.sellingPrice)}/phần`;
+  
+  modalBody.innerHTML = `
+    <div class="form-group">
+      <label class="form-label">Tên món</label>
+      <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">${order.itemName}</div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Ngày giờ</label>
+        <div style="color: var(--text-primary);">${formatDate(order.date)}</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Giá bán</label>
+        <div style="color: var(--text-primary);">${modalPriceLabel}</div>
+      </div>
+    </div>
+
+    <div class="summary-grid" style="margin: 20px 0;">
+      <div class="summary-item">
+        <h3>Tổng chi</h3>
+        <div class="summary-value">${formatMoney(order.totalCost)}</div>
+      </div>
+      <div class="summary-item">
+        <h3>Thu về</h3>
+        <div class="summary-value">${formatMoney(order.revenue)}</div>
+      </div>
+      <div class="summary-item">
+        <h3>Kết quả</h3>
+        <div class="summary-value ${order.profit >= 0 ? 'profit-positive' : 'profit-negative'}">
+          ${order.profit >= 0 ? 'Lời' : 'Lỗ'} ${formatMoney(Math.abs(order.profit))}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Danh sách order</label>
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+              <tr>
+                <th>Tên</th>
+                <th style="text-align: right;">Số phần</th>
+                <th style="text-align: right;">Đơn giá</th>
+                <th style="text-align: right;">Ship</th>
+                <th style="text-align: right;">Thành tiền</th>
+                <th style="text-align: center;">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.details.map(d => `
+              <tr>
+                <td>${d.name}</td>
+                <td style="text-align: right;">${d.qty}</td>
+                <td style="text-align: right;">${typeof d.unitPrice === 'string' ? d.unitPrice : formatMoney(d.unitPrice || order.sellingPrice)}</td>
+                <td style="text-align: right;">${d.shipQty ? `${d.shipQty} 🚚` : '0'}</td>
+                <td style="text-align: right;">${formatMoney(d.due)}</td>
+                <td style="text-align: center;">
+                  <span class="status-badge ${d.paid ? 'status-paid' : 'status-unpaid'}">
+                    ${d.paid ? 'Đã trả' : 'Chưa trả'}
+                  </span>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="btn-group" style="margin-top: 20px;">
+      <button class="btn btn-danger" onclick="deleteOrder(${order.id})">🗑️ Xoá đơn này</button>
+      <button class="btn btn-info" onclick="markAllPaid(${order.id})">✓ Đánh dấu tất cả đã trả</button>
+    </div>
+  `;
+
+  document.getElementById('orderModal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('orderModal').classList.remove('active');
+}
+
+function deleteOrder(orderId) {
+  if (!confirm('Xác nhận xoá đơn hàng này?')) return;
+  
+  orderHistory = orderHistory.filter(o => o.id !== orderId);
+  localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+  
+  closeModal();
+  loadHistory();
+  alert('✅ Đã xoá đơn hàng');
+}
+
+function markAllPaid(orderId) {
+  const order = orderHistory.find(o => o.id === orderId);
+  if (!order) return;
+
+  order.details.forEach(d => d.paid = true);
+  localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+  
+  showOrderDetail(orderId);
+  alert('✅ Đã đánh dấu tất cả đã thanh toán');
+}
+
+function markDebtorPaid(name) {
+  if (!name) return;
+  const target = name.trim();
+  const changes = [];
+  let totalCleared = 0;
+
+  orderHistory.forEach(order => {
+    order.details.forEach((d, idx) => {
+      if (!d.paid && d.name === target) {
+        changes.push({ orderId: order.id, detailIndex: idx, due: d.due });
+        totalCleared += d.due;
+      }
+    });
+  });
+
+  if (changes.length === 0) {
+    alert('ℹ️ Không thấy công nợ cần cập nhật cho người này');
+    return;
+  }
+
+  const confirmMsg = `Đánh dấu đã trả cho ${target}?\n${changes.length} mục, tổng ${formatMoney(totalCleared)}`;
+  if (!confirm(confirmMsg)) return;
+
+  changes.forEach(change => {
+    const order = orderHistory.find(o => o.id === change.orderId);
+    if (order && order.details[change.detailIndex]) {
+      order.details[change.detailIndex].paid = true;
+    }
+  });
+
+  lastDebtorPaidSnapshot = { name: target, changes };
+  localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+  loadDebtManagement();
+  loadHistory();
+  alert(`✅ Đã đánh dấu ${target} đã trả hết nợ`);
+}
+
+function markSingleDebtPaid(orderId, detailIndex, name) {
+  const order = orderHistory.find(o => o.id === orderId);
+  if (!order || !order.details?.[detailIndex]) return;
+
+  const detail = order.details[detailIndex];
+  if (detail.paid) {
+    alert('ℹ️ Mục này đã được đánh dấu trả rồi');
+    return;
+  }
+
+  const confirmMsg = `Đánh dấu đã trả cho ${name || detail.name}?\n` +
+    `${order.itemName} - ${formatMoney(detail.due)} (${detail.qty} phần)`;
+  if (!confirm(confirmMsg)) return;
+
+  detail.paid = true;
+  lastDebtorPaidSnapshot = {
+    name: name || detail.name,
+    changes: [{ orderId, detailIndex }]
+  };
+
+  localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+  loadDebtManagement();
+  loadHistory();
+  alert('✅ Đã đánh dấu đã trả');
+}
+
+function undoLastDebtorPaid() {
+  if (!lastDebtorPaidSnapshot || !lastDebtorPaidSnapshot.changes?.length) {
+    alert('ℹ️ Không có thao tác nào để hoàn tác');
+    return;
+  }
+
+  const { name, changes } = lastDebtorPaidSnapshot;
+  changes.forEach(change => {
+    const order = orderHistory.find(o => o.id === change.orderId);
+    if (order && order.details[change.detailIndex]) {
+      order.details[change.detailIndex].paid = false;
+    }
+  });
+
+  localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+  loadDebtManagement();
+  loadHistory();
+  alert(`↩️ Đã hoàn tác đánh dấu đã trả cho ${name}`);
+  lastDebtorPaidSnapshot = null;
+}
+
+// Export helper for manual use and automation
+function exportForAutomation(options = {}) {
+  const { download = true, silent = false } = options;
+  
+  try {
+    const stored = localStorage.getItem('orderHistory');
+    const parsed = stored ? JSON.parse(stored) : [];
+    const filename = `order_history_${new Date().toISOString().split('T')[0]}.json`;
+    const content = JSON.stringify(parsed, null, 2);
+
+    if (download) {
+      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(content);
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', filename);
+      document.body.appendChild(linkElement);
+      linkElement.click();
+      document.body.removeChild(linkElement);
+    }
+
+    const result = { success: true, filename, count: parsed.length, content };
+    window.__autobackupResult = result;
+    return result;
+  } catch (error) {
+    const result = { success: false, error: error.message };
+    window.__autobackupResult = result;
+    if (!silent) {
+      alert('❌ Lỗi export: ' + error.message);
+    }
+    return result;
+  }
+}
+
+function exportHistory() {
+  const res = exportForAutomation({ download: true, silent: true });
+  if (!res.success) {
+    alert('❌ Không thể export: ' + res.error);
+  }
+}
+
+function clearHistory() {
+  if (!confirm('Xác nhận xoá toàn bộ lịch sử đơn hàng?')) return;
+  
+  orderHistory = [];
+  localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+  loadHistory();
+  alert('✅ Đã xoá toàn bộ lịch sử');
+}
+
+// Debt Management
+function loadDebtManagement() {
+  const debtMap = new Map();
+  
+  orderHistory.forEach(order => {
+    order.details.forEach((d, detailIndex) => {
+      if (!d.paid) {
+        const current = debtMap.get(d.name) || { total: 0, orders: [] };
+        current.total += d.due;
+        current.orders.push({
+          orderId: order.id,
+          itemName: order.itemName,
+          date: order.date,
+          detailIndex,
+          qty: d.qty,
+          due: d.due
+        });
+        debtMap.set(d.name, current);
+      }
+    });
+  });
+
+  // Summary
+  const totalDebt = Array.from(debtMap.values()).reduce((sum, d) => sum + d.total, 0);
+  const debtorCount = debtMap.size;
+
+  const summaryHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">${formatMoney(totalDebt)}</div>
+        <div class="stat-label">Tổng công nợ</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value">${debtorCount}</div>
+        <div class="stat-label">Người đang nợ</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('debtSummary').innerHTML = summaryHTML;
+
+  // Details
+  if (debtMap.size === 0) {
+    document.getElementById('debtDetails').innerHTML = '<div class="empty-state"><div class="empty-state-icon">✅</div>Không có công nợ</div>';
+    return;
+  }
+
+  const undoBtn = `
+    <div class="btn-group" style="margin-bottom: 12px;">
+      <button class="btn btn-info" onclick="undoLastDebtorPaid()">↩️ Hoàn tác lần cuối</button>
+    </div>
+  `;
+
+  const detailsHTML = undoBtn + Array.from(debtMap.entries())
+    .sort((a, b) => b[1].total - a[1].total)
+    .map(([name, data]) => `
+      <div class="glass-card" style="margin-bottom: 16px; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--text-primary);">${name}</div>
+            <div style="font-size: 14px; color: var(--text-muted);">${data.orders.length} đơn chưa thanh toán</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 24px; font-weight: 700; color: var(--accent-red);">${formatMoney(data.total)}</div>
+            <button class="btn btn-primary" style="margin-top: 8px;" onclick='markDebtorPaid(${JSON.stringify(name)})'>Đã trả</button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Ngày</th>
+                <th>Món</th>
+                <th style="text-align: right;">Số phần</th>
+                <th style="text-align: right;">Tiền</th>
+                <th style="text-align: center;">Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.orders.map(o => `
+                <tr>
+                  <td onclick="showOrderDetail(${o.orderId})" style="cursor: pointer;">${formatDate(o.date).split(' ')[0]}</td>
+                  <td onclick="showOrderDetail(${o.orderId})" style="cursor: pointer;">${o.itemName}</td>
+                  <td style="text-align: right;" onclick="showOrderDetail(${o.orderId})" style="cursor: pointer;">${o.qty}</td>
+                  <td style="text-align: right;" onclick="showOrderDetail(${o.orderId})" style="cursor: pointer;">${formatMoney(o.due)}</td>
+                  <td style="text-align: center;">
+                    <button class="btn btn-primary" style="padding: 6px 10px; font-size: 12px;"
+                      onclick='markSingleDebtPaid(${o.orderId}, ${o.detailIndex}, ${JSON.stringify(name)});'>
+                      Đã trả
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `).join('');
+
+  document.getElementById('debtDetails').innerHTML = detailsHTML;
+}
+
+// Stats
+function loadStats() {
+  if (orderHistory.length === 0) {
+    document.getElementById('statsContent').innerHTML = '<div class="empty-state"><div class="empty-state-icon">📊</div>Chưa có dữ liệu để thống kê</div>';
+    return;
+  }
+
+  const totalOrders = orderHistory.length;
+  const totalRevenue = orderHistory.reduce((sum, o) => sum + o.revenue, 0);
+  const totalCost = orderHistory.reduce((sum, o) => sum + o.totalCost, 0);
+  const totalProfit = totalRevenue - totalCost;
+
+  const statsHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-value">${totalOrders}</div>
+        <div class="stat-label">Tổng đơn hàng</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💵</div>
+        <div class="stat-value">${formatMoney(totalRevenue)}</div>
+        <div class="stat-label">Tổng thu</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💸</div>
+        <div class="stat-value">${formatMoney(totalCost)}</div>
+        <div class="stat-label">Tổng chi</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">${totalProfit >= 0 ? '📈' : '📉'}</div>
+        <div class="stat-value ${totalProfit >= 0 ? 'profit-positive' : 'profit-negative'}">
+          ${formatMoney(Math.abs(totalProfit))}
+        </div>
+        <div class="stat-label">${totalProfit >= 0 ? 'Lợi nhuận' : 'Thua lỗ'}</div>
+      </div>
+    </div>
+
+    <div class="glass-card" style="margin-top: 24px; padding: 20px;">
+      <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--text-secondary);">🍽 Top món được order nhiều nhất</h3>
+      ${getTopItems()}
+    </div>
+
+    <div class="glass-card" style="margin-top: 24px; padding: 20px;">
+      <h3 style="font-size: 16px; margin-bottom: 16px; color: var(--text-secondary);">👥 Top người order nhiều nhất</h3>
+      ${getTopPeople()}
+    </div>
+  `;
+
+  document.getElementById('statsContent').innerHTML = statsHTML;
+}
+
+function getTopItems() {
+  const itemMap = new Map();
+  
+  orderHistory.forEach(order => {
+    const current = itemMap.get(order.itemName) || { count: 0, revenue: 0 };
+    current.count += 1;
+    current.revenue += order.revenue;
+    itemMap.set(order.itemName, current);
+  });
+
+  const sorted = Array.from(itemMap.entries())
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, 5);
+
+  if (sorted.length === 0) return '<div class="empty-state-icon">—</div>';
+
+  return `
+    <ul class="info-list">
+      ${sorted.map(([name, data]) => `
+        <li>
+          <span class="name">${name}</span>
+          <span>
+            <span class="value">${data.count} lần</span>
+            <span class="note">${formatMoney(data.revenue)}</span>
+          </span>
+        </li>
+      `).join('')}
+    </ul>
+  `;
+}
+
+function getTopPeople() {
+  const peopleMap = new Map();
+  
+  orderHistory.forEach(order => {
+    order.details.forEach(d => {
+      const current = peopleMap.get(d.name) || { count: 0, total: 0 };
+      current.count += d.qty;
+      current.total += d.due;
+      peopleMap.set(d.name, current);
+    });
+  });
+
+  const sorted = Array.from(peopleMap.entries())
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, 5);
+
+  if (sorted.length === 0) return '<div class="empty-state-icon">—</div>';
+
+  return `
+    <ul class="info-list">
+      ${sorted.map(([name, data]) => `
+        <li>
+          <span class="name">${name}</span>
+          <span>
+            <span class="value">${data.count} phần</span>
+            <span class="note">${formatMoney(data.total)}</span>
+          </span>
+        </li>
+      `).join('')}
+    </ul>
+  `;
+}
+
+// Load VIP on page load
+document.addEventListener('DOMContentLoaded', () => {
+  hydrateVipAreaFromData();
+
+  initDraftAutosave();
+  
+  // Add listener for alvinFree checkbox to adjust min value of n
+  const alvinFreeCheckbox = document.getElementById('alvinFree');
+  const nInput = document.getElementById('n');
+  
+  if (alvinFreeCheckbox && nInput) {
+    alvinFreeCheckbox.addEventListener('change', function() {
+      if (this.checked) {
+        nInput.min = 2;
+        if (Number(nInput.value) < 2) {
+          nInput.value = 2;
+        }
+      } else {
+        nInput.min = 1;
+      }
+    });
+  }
+
+  const desiredPriceInput = document.getElementById('desiredPrice');
+  if (desiredPriceInput) {
+    desiredPriceInput.addEventListener('input', handleDesiredPriceInput);
+    desiredPriceInput.addEventListener('change', handleDesiredPriceInput);
+  }
+
+  // Auto-backup mode: run export silently after load
+  if (autoBackupMode) {
+    setTimeout(() => {
+      exportForAutomation({ download: false, silent: true });
+    }, 1200);
+  }
+});
+
+// VIP Management Functions
+function saveVIPOnly() {
+  const vipText = document.getElementById('vipArea').value.trim();
+  if (!vipText) {
+    alert('⚠️ Danh sách VIP trống!');
+    return;
+  }
+  
+  persistVipList(vipText);
+  alert('✅ Đã lưu danh sách VIP!');
+}
+
+function addNewVIP() {
+  const name = prompt('Nhập tên VIP:');
+  if (!name || !name.trim()) return;
+  
+  const amount = prompt('Số tiền nạp:');
+  if (!amount || isNaN(amount) || Number(amount) <= 0) {
+    alert('⚠️ Số tiền không hợp lệ!');
+    return;
+  }
+  
+  const vipMap = parseVip(document.getElementById('vipArea').value);
+  const currentBalance = vipMap.get(name.trim()) || 0;
+  const newBalance = currentBalance + Number(amount);
+  
+  vipMap.set(name.trim(), newBalance);
+  
+  const vipText = vipToText(vipMap);
+  document.getElementById('vipArea').value = vipText;
+  persistVipList(vipText);
+  
+  alert(`✅ Đã nạp ${formatMoney(Number(amount))} cho ${name.trim()}\nSố dư mới: ${formatMoney(newBalance)}`);
+}
+
+function cashOutVIP() {
+  const vipMap = parseVip(document.getElementById('vipArea').value);
+  
+  if (vipMap.size === 0) {
+    alert('⚠️ Không có VIP nào!');
+    return;
+  }
+  
+  const vipList = Array.from(vipMap.keys()).join('\n');
+  const name = prompt(`Chọn VIP để cash out:\n\n${vipList}\n\nNhập tên:`);
+  if (!name || !name.trim()) return;
+  
+  const currentBalance = vipMap.get(name.trim());
+  if (currentBalance === undefined) {
+    alert('⚠️ Không tìm thấy VIP này!');
+    return;
+  }
+  
+  const amount = prompt(`Số dư hiện tại: ${formatMoney(currentBalance)}\n\nNhập số tiền rút (hoặc để trống để rút hết):`);
+  
+  let withdrawAmount;
+  if (!amount || amount.trim() === '') {
+    withdrawAmount = currentBalance;
+  } else {
+    withdrawAmount = Number(amount);
+    if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
+      alert('⚠️ Số tiền không hợp lệ!');
+      return;
+    }
+    if (withdrawAmount > currentBalance) {
+      alert('⚠️ Số tiền rút vượt quá số dư!');
+      return;
+    }
+  }
+  
+  const newBalance = currentBalance - withdrawAmount;
+  
+  if (newBalance === 0) {
+    vipMap.delete(name.trim());
+  } else {
+    vipMap.set(name.trim(), newBalance);
+  }
+  
+  const vipText = vipToText(vipMap);
+  document.getElementById('vipArea').value = vipText;
+  persistVipList(vipText);
+  
+  alert(`✅ Đã cash out ${formatMoney(withdrawAmount)} cho ${name.trim()}\nSố dư còn lại: ${formatMoney(newBalance)}`);
+}
+
+function importHistory() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid format');
+        }
+        
+        if (confirm(`Bạn có chắc muốn import ${data.length} đơn hàng?\n\nLưu ý: Dữ liệu hiện tại sẽ BỊ GHI ĐÈ!`)) {
+          orderHistory = data;
+          localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+          hydrateVipAreaFromData({ forceHistory: true });
+          loadHistory();
+          alert('✅ Import thành công!');
+        }
+      } catch (err) {
+        alert('❌ File không hợp lệ! Vui lòng chọn file JSON đúng định dạng.');
+      }
+    };
+    
+    reader.readAsText(file);
+  };
+  
+  input.click();
+}
+
+// Close modal when clicking outside
+document.getElementById('orderModal').addEventListener('click', (e) => {
+  if (e.target.id === 'orderModal') {
+    closeModal();
+  }
+});
+</script>
+
+</body>
+</html>
