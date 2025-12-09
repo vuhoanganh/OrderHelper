@@ -1248,6 +1248,20 @@
         <div class="section-title">📋 Chi tiết từng người</div>
         <div id="debtDetails"></div>
       </div>
+
+      <!-- VIP Transaction History -->
+      <div class="glass-card" style="margin-top: 24px;">
+        <div class="section-title">📊 Lịch sử giao dịch VIP</div>
+
+        <div class="form-group">
+          <label class="form-label">Chọn VIP member</label>
+          <select id="vipMemberSelect" class="form-input" onchange="showVipMemberHistory()">
+            <option value="">-- Chọn VIP --</option>
+          </select>
+        </div>
+
+        <div id="vipMemberHistoryContainer"></div>
+      </div>
     </div>
 
     <!-- Tab: Stats -->
@@ -1826,6 +1840,7 @@
       vipTransactions = vipTransactions.slice(0, 200);
       localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
       renderVipHistory();
+      populateVipMemberSelect();
     }
 
     function renderVipHistory() {
@@ -1852,6 +1867,110 @@
       `).join('')}
     </ul>
   `;
+      container.innerHTML = html;
+    }
+
+    // VIP Member Transaction History Functions
+    function populateVipMemberSelect() {
+      const select = document.getElementById('vipMemberSelect');
+      if (!select) return;
+
+      // Get unique VIP names from transactions
+      const vipNames = new Set();
+      vipTransactions.forEach(tx => {
+        if (tx.name) vipNames.add(tx.name);
+      });
+
+      // Also add VIP names from current VIP list
+      const vipArea = document.getElementById('vipArea');
+      if (vipArea) {
+        const vipMap = parseVip(vipArea.value);
+        vipMap.forEach((_, name) => vipNames.add(name));
+      }
+
+      // Sort and populate
+      const sortedNames = Array.from(vipNames).sort();
+      select.innerHTML = '<option value="">-- Chọn VIP --</option>' +
+        sortedNames.map(name => `<option value="${name}">${name}</option>`).join('');
+    }
+
+    function showVipMemberHistory() {
+      const select = document.getElementById('vipMemberSelect');
+      const container = document.getElementById('vipMemberHistoryContainer');
+      if (!select || !container) return;
+
+      const selectedName = select.value;
+      if (!selectedName) {
+        container.innerHTML = '';
+        return;
+      }
+
+      // Filter transactions for this member
+      const memberTxs = vipTransactions
+        .filter(tx => tx.name === selectedName)
+        .sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
+
+      if (memberTxs.length === 0) {
+        container.innerHTML = '<div class="empty-state" style="padding: 12px 0;">Chưa có giao dịch nào</div>';
+        return;
+      }
+
+      // Calculate running balance
+      let balance = 0;
+      const txsWithBalance = memberTxs.reverse().map(tx => {
+        balance += tx.amount;
+        return { ...tx, balance };
+      }).reverse();
+
+      // Get current balance from VIP list
+      const vipArea = document.getElementById('vipArea');
+      const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
+
+      // Render
+      const html = `
+        <div class="info-list" style="margin-top: 16px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 16px; padding: 12px; background: var(--glass-bg); border-radius: 8px;">
+            <div>
+              <strong style="color: var(--text-primary);">Tên:</strong> ${selectedName}
+            </div>
+            <div>
+              <strong style="color: var(--text-primary);">Số dư hiện tại:</strong> 
+              <span style="color: ${currentBalance >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}; font-weight: 600;">
+                ${formatMoney(currentBalance)}
+              </span>
+            </div>
+          </div>
+          
+          <div style="max-height: 500px; overflow-y: auto;">
+            ${txsWithBalance.map(tx => `
+              <div class="info-item" style="padding: 12px; margin-bottom: 8px; background: var(--glass-bg); border-radius: 8px;">
+                <div>
+                  <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
+                    📅 ${formatDate(tx.ts)}
+                  </div>
+                  <div style="font-size: 14px; margin-bottom: 4px;">
+                    ${tx.type === 'topup' ? '💰 Nạp tiền' : '💸 Rút tiền'}: 
+                    <span style="color: ${tx.amount >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}; font-weight: 600;">
+                      ${tx.amount >= 0 ? '+' : ''}${formatMoney(tx.amount)}
+                    </span>
+                  </div>
+                  <div style="font-size: 13px; color: var(--text-secondary);">
+                    Số dư sau giao dịch: 
+                    <span style="font-weight: 600; color: ${tx.balance >= 0 ? 'var(--accent-green-light)' : 'var(--accent-red)'};">
+                      ${formatMoney(tx.balance)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div style="margin-top: 16px; padding: 12px; background: var(--glass-bg); border-radius: 8px; font-size: 13px; color: var(--text-muted);">
+            Tổng số giao dịch: ${memberTxs.length}
+          </div>
+        </div>
+      `;
+
       container.innerHTML = html;
     }
 
@@ -3901,6 +4020,7 @@
       refreshQuickOrderList();
       updateDishNameSuggestions();
       loadGithubSettings();
+      populateVipMemberSelect();
 
       initDraftAutosave();
 
