@@ -1529,6 +1529,42 @@
           </select>
         </div>
 
+        <!-- Transaction Filters -->
+        <div id="vipHistoryFilters" style="display: none; margin-top: 16px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label" style="font-size: 12px;">Từ ngày</label>
+              <input type="date" id="filterDateFrom" class="form-input" style="font-size: 13px; padding: 8px;" onchange="applyVipHistoryFilters()">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label" style="font-size: 12px;">Đến ngày</label>
+              <input type="date" id="filterDateTo" class="form-input" style="font-size: 13px; padding: 8px;" onchange="applyVipHistoryFilters()">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label" style="font-size: 12px;">Loại giao dịch</label>
+              <select id="filterTxType" class="form-input" style="font-size: 13px; padding: 8px;" onchange="applyVipHistoryFilters()">
+                <option value="all">Tất cả</option>
+                <option value="topup">💰 Nạp tiền</option>
+                <option value="cashout">💸 Rút tiền</option>
+                <option value="order">🍜 Order</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label" style="font-size: 12px;">Trạng thái thanh toán</label>
+              <select id="filterPaymentStatus" class="form-input" style="font-size: 13px; padding: 8px;" onchange="applyVipHistoryFilters()">
+                <option value="all">Tất cả</option>
+                <option value="paid">✅ Đã trả</option>
+                <option value="unpaid">⏳ Chưa trả</option>
+              </select>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <button onclick="clearVipHistoryFilters()" class="btn-secondary" style="padding: 8px 16px; font-size: 13px;">🔄 Đặt lại</button>
+            <div style="flex: 1;"></div>
+            <span id="filterResultCount" style="font-size: 13px; color: var(--text-muted); line-height: 32px;"></span>
+          </div>
+        </div>
+
         <div id="vipMemberHistoryContainer"></div>
       </div>
     </div>
@@ -2250,21 +2286,29 @@
       select.innerHTML = '<option value="">-- Chọn VIP --</option>' +
         sortedNames.map(name => `<option value="${name}">${name}</option>`).join('');
     }
+    // Store all transactions globally for filtering
+    let currentVipTransactions = [];
+
     function showVipMemberHistory() {
       const select = document.getElementById('vipMemberSelect');
       const container = document.getElementById('vipMemberHistoryContainer');
+      const filtersDiv = document.getElementById('vipHistoryFilters');
       if (!select || !container) return;
 
       const selectedName = select.value;
       if (!selectedName) {
         container.innerHTML = '';
+        if (filtersDiv) filtersDiv.style.display = 'none';
         return;
       }
+
+      // Show filters
+      if (filtersDiv) filtersDiv.style.display = 'block';
 
       // Get cash transactions (topup/cashout)
       const cashTxs = vipTransactions.filter(tx => tx.name === selectedName);
 
-      // Get order transactions (NEW)
+      // Get order transactions
       const orderTxs = getVipOrderTransactions(selectedName);
 
       // Combine all transactions
@@ -2276,86 +2320,196 @@
         return;
       }
 
-      // Get current balance from VIP list FIRST
+      // Get current balance from VIP list
       const vipArea = document.getElementById('vipArea');
       const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
 
-      // Count transaction types
-      const topupCount = cashTxs.filter(tx => tx.type === 'topup').length;
-      const cashoutCount = cashTxs.filter(tx => tx.type === 'cashout').length;
-      const orderCount = orderTxs.length;
-
-      // Calculate running balance CORRECTLY
-      // Strategy: Work backwards from current balance
-      // Sort newest first, then calculate what balance was BEFORE each transaction
+      // Calculate running balance
       let balance = currentBalance;
       const txsWithBalance = allTxs.map(tx => {
-        // Balance AFTER this transaction
         const balanceAfter = balance;
-        // Calculate balance BEFORE by reversing the transaction
-        balance = balance - tx.amount; // Undo the transaction
+        balance = balance - tx.amount;
         return { ...tx, balance: balanceAfter };
       });
 
-      // Now reverse to show chronological order (oldest first)
+      // Reverse to show chronological order (oldest first)
       txsWithBalance.reverse();
 
-      // Render
+      // Store for filtering
+      currentVipTransactions = txsWithBalance;
+
+      // Render with current filters
+      renderVipHistoryTable(selectedName, currentBalance, txsWithBalance);
+    }
+
+    function renderVipHistoryTable(selectedName, currentBalance, transactions) {
+      const container = document.getElementById('vipMemberHistoryContainer');
+      if (!container) return;
+
+      // Count transaction types
+      const topupCount = transactions.filter(tx => tx.type === 'topup').length;
+      const cashoutCount = transactions.filter(tx => tx.type === 'cashout').length;
+      const orderCount = transactions.filter(tx => tx.type === 'order').length;
+
+      // Compact date format function
+      const compactDate = (dateStr) => {
+        const d = new Date(dateStr);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
+      };
+
+      // Render compact table
       const html = `
-        <div class="info-list" style="margin-top: 16px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 16px; padding: 12px; background: var(--glass-bg); border-radius: 8px;">
+        <div style="margin-top: 16px;">
+          <!-- Header with summary -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 12px 16px; background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1)); border-radius: 12px; border: 1px solid rgba(99,102,241,0.2);">
             <div>
-              <strong style="color: var(--text-primary);">Tên:</strong> ${selectedName}
+              <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 2px;">VIP Member</div>
+              <div style="font-size: 18px; font-weight: 600; color: var(--text-primary);">${selectedName}</div>
             </div>
-            <div>
-              <strong style="color: var(--text-primary);">Số dư hiện tại:</strong> 
-              <span style="color: ${currentBalance >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}; font-weight: 600;">
+            <div style="text-align: right;">
+              <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 2px;">Số dư hiện tại</div>
+              <div style="font-size: 22px; font-weight: 700; color: ${currentBalance >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">
                 ${formatMoney(currentBalance)}
-              </span>
+              </div>
             </div>
           </div>
-          
-          <div style="max-height: 500px; overflow-y: auto;">
-            ${txsWithBalance.map(tx => `
-              <div class="info-item" style="padding: 12px; margin-bottom: 8px; background: var(--glass-bg); border-radius: 8px;">
-                <div>
-                  <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
-                    📅 ${formatDate(tx.ts)}
-                  </div>
-                  <div style="font-size: 14px; margin-bottom: 4px;">
-                    ${getTransactionIcon(tx.type)} ${getTransactionLabel(tx)}: 
-                    <span style="color: ${tx.amount >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}; font-weight: 600;">
-                      ${tx.amount >= 0 ? '+' : ''}${formatMoney(tx.amount)}
-                    </span>
-                  </div>
-                  ${tx.type === 'order' ? `
-                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">
-                      🍽️ ${tx.itemName} ${tx.paid ? '✅ Đã trả' : '⏳ Chưa trả'}
-                    </div>
-                  ` : ''}
-                  <div style="font-size: 13px; color: var(--text-secondary);">
-                    Số dư sau giao dịch: 
-                    <span style="font-weight: 600; color: ${tx.balance >= 0 ? 'var(--accent-green-light)' : 'var(--accent-red)'};">
-                      ${formatMoney(tx.balance)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
+
+          <!-- Transaction table -->
+          <div style="border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
+            <div style="max-height: 60vh; overflow-y: auto; overflow-x: auto; background: var(--glass-bg);">
+              <table style="width: 100%; min-width: 700px; border-collapse: collapse; font-size: 13px;">
+                <thead style="position: sticky; top: 0; background: rgba(30,30,50,0.95); backdrop-filter: blur(10px); z-index: 1;">
+                  <tr>
+                    <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">📅 Ngày giờ</th>
+                    <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">Loại</th>
+                    <th style="padding: 10px 12px; text-align: right; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">Số tiền</th>
+                    <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1);">Chi tiết</th>
+                    <th style="padding: 10px 12px; text-align: right; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">Số dư</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${transactions.map((tx, idx) => {
+                    const isEven = idx % 2 === 0;
+                    const bgColor = isEven ? 'rgba(255,255,255,0.02)' : 'transparent';
+                    const typeLabel = tx.type === 'topup' ? '💰 Nạp' : tx.type === 'cashout' ? '💸 Rút' : '🍜 Order';
+                    const amountColor = tx.amount >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+                    const balanceColor = tx.balance >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+
+                    return `
+                      <tr style="background: ${bgColor}; transition: background 0.2s;" onmouseover="this.style.background='rgba(99,102,241,0.08)'" onmouseout="this.style.background='${bgColor}'">
+                        <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">${compactDate(tx.ts)}</td>
+                        <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap;">${typeLabel}</td>
+                        <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: right; font-weight: 600; color: ${amountColor}; white-space: nowrap;">
+                          ${tx.amount >= 0 ? '+' : ''}${formatMoney(tx.amount)}
+                        </td>
+                        <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
+                          ${tx.type === 'order' ? `${tx.itemName} ${tx.paid ? '✅' : '⏳'}` : '-'}
+                        </td>
+                        <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: right; font-weight: 600; color: ${balanceColor}; white-space: nowrap;">
+                          ${formatMoney(tx.balance)}
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
           </div>
-          
-          <div style="margin-top: 16px; padding: 12px; background: var(--glass-bg); border-radius: 8px; font-size: 13px; color: var(--text-muted);">
-            <div>Tổng số giao dịch: ${allTxs.length}</div>
-            <div style="margin-top: 4px;">
-              💰 Nạp: ${topupCount} lần | 
-              💸 Rút: ${cashoutCount} lần | 
-              🍜 Order: ${orderCount} lần
+
+          <!-- Summary footer -->
+          <div style="margin-top: 12px; padding: 12px 16px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div style="font-size: 13px; color: var(--text-muted);">
+                <strong style="color: var(--text-primary);">Tổng: ${transactions.length}</strong> giao dịch
+              </div>
+              <div style="font-size: 13px; color: var(--text-muted); display: flex; gap: 16px;">
+                <span>💰 Nạp: <strong style="color: var(--accent-green);">${topupCount}</strong></span>
+                <span>💸 Rút: <strong style="color: var(--accent-yellow);">${cashoutCount}</strong></span>
+                <span>🍜 Order: <strong style="color: var(--accent-blue);">${orderCount}</strong></span>
+              </div>
             </div>
           </div>
         </div>
       `;
 
       container.innerHTML = html;
+    }
+
+    // Apply filters to VIP history
+    function applyVipHistoryFilters() {
+      if (currentVipTransactions.length === 0) return;
+
+      const select = document.getElementById('vipMemberSelect');
+      const vipArea = document.getElementById('vipArea');
+      const selectedName = select ? select.value : '';
+      const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
+
+      // Get filter values
+      const dateFrom = document.getElementById('filterDateFrom')?.value;
+      const dateTo = document.getElementById('filterDateTo')?.value;
+      const txType = document.getElementById('filterTxType')?.value || 'all';
+      const paymentStatus = document.getElementById('filterPaymentStatus')?.value || 'all';
+
+      // Apply filters
+      let filtered = [...currentVipTransactions];
+
+      // Date range filter
+      if (dateFrom) {
+        const fromDate = new Date(dateFrom);
+        fromDate.setHours(0, 0, 0, 0);
+        filtered = filtered.filter(tx => new Date(tx.ts) >= fromDate);
+      }
+      if (dateTo) {
+        const toDate = new Date(dateTo);
+        toDate.setHours(23, 59, 59, 999);
+        filtered = filtered.filter(tx => new Date(tx.ts) <= toDate);
+      }
+
+      // Transaction type filter
+      if (txType !== 'all') {
+        filtered = filtered.filter(tx => tx.type === txType);
+      }
+
+      // Payment status filter (only for orders)
+      if (paymentStatus !== 'all') {
+        filtered = filtered.filter(tx => {
+          if (tx.type !== 'order') return true; // Keep non-order transactions
+          return paymentStatus === 'paid' ? tx.paid : !tx.paid;
+        });
+      }
+
+      // Update result count
+      const countSpan = document.getElementById('filterResultCount');
+      if (countSpan) {
+        countSpan.textContent = `Hiển thị ${filtered.length}/${currentVipTransactions.length} giao dịch`;
+      }
+
+      // Render filtered results
+      renderVipHistoryTable(selectedName, currentBalance, filtered);
+    }
+
+    // Clear all filters
+    function clearVipHistoryFilters() {
+      document.getElementById('filterDateFrom').value = '';
+      document.getElementById('filterDateTo').value = '';
+      document.getElementById('filterTxType').value = 'all';
+      document.getElementById('filterPaymentStatus').value = 'all';
+
+      const countSpan = document.getElementById('filterResultCount');
+      if (countSpan) countSpan.textContent = '';
+
+      // Re-render with all transactions
+      const select = document.getElementById('vipMemberSelect');
+      const vipArea = document.getElementById('vipArea');
+      const selectedName = select ? select.value : '';
+      const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
+
+      renderVipHistoryTable(selectedName, currentBalance, currentVipTransactions);
     }
 
     // ========== Global Search Functions ==========
