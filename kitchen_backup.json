@@ -1,9 +1,120 @@
 {
   "version": "1.0",
-  "timestamp": "2025-12-10T06:36:21.349Z",
-  "backupTime": 1765348581349,
+  "timestamp": "2025-12-10T08:57:08.628Z",
+  "backupTime": 1765357028628,
   "data": {
     "orderHistory": [
+      {
+        "id": 1765348940176,
+        "date": "2025-12-10T06:42:20.176Z",
+        "itemName": "Cơm tấm",
+        "totalParts": 16,
+        "alvinFree": true,
+        "sellingPrice": 35,
+        "sellingPriceShip": 35,
+        "sellingPriceNonShip": 35,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 15,
+        "shipFee": 0,
+        "totalCost": 512,
+        "totalCostInput": 512,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 35,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 525,
+        "profit": 13,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 35,
+            "paid": true,
+            "unitPrice": 35
+          },
+          {
+            "name": "a Dave",
+            "qty": 6,
+            "shipQty": 0,
+            "nonShipQty": 6,
+            "due": 210,
+            "paid": true,
+            "unitPrice": 35
+          },
+          {
+            "name": "Kudo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 35,
+            "paid": true,
+            "unitPrice": 35
+          },
+          {
+            "name": "Nathan",
+            "qty": 2,
+            "shipQty": 0,
+            "nonShipQty": 2,
+            "due": 70,
+            "paid": true,
+            "unitPrice": 35
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 35,
+            "paid": false,
+            "unitPrice": 35
+          },
+          {
+            "name": "Ben",
+            "qty": 3,
+            "shipQty": 0,
+            "nonShipQty": 3,
+            "due": 105,
+            "paid": false,
+            "unitPrice": 35
+          },
+          {
+            "name": "Tùng",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 35,
+            "paid": true,
+            "unitPrice": 35
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            573
+          ],
+          [
+            "a Dave",
+            638
+          ],
+          [
+            "Nathan",
+            354
+          ],
+          [
+            "Kudo",
+            367
+          ],
+          [
+            "Tùng",
+            465
+          ]
+        ],
+        "signature": "{\"itemName\":\"Cơm tấm\",\"totalParts\":16,\"alvinFree\":true,\"totalCostInput\":512,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":35,\"priceShip\":35,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":35,\"unitPrice\":35},{\"name\":\"a Dave\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":210,\"unitPrice\":35},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":35,\"unitPrice\":35},{\"name\":\"Nathan\",\"qty\":2,\"shipQty\":0,\"paid\":true,\"due\":70,\"unitPrice\":35},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":35,\"unitPrice\":35},{\"name\":\"Ben\",\"qty\":3,\"shipQty\":0,\"paid\":false,\"due\":105,\"unitPrice\":35},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":35,\"unitPrice\":35}]}"
+      },
       {
         "id": 1765270799740,
         "date": "2025-12-09T08:59:59.740Z",
@@ -490,7 +601,7 @@
             "shipQty": 0,
             "nonShipQty": 1,
             "due": 28,
-            "paid": false,
+            "paid": true,
             "unitPrice": 28
           },
           {
@@ -1368,8 +1479,15 @@
         ]
       }
     ],
-    "vipList": "a Duck=608đ\na Dave=848đ\nNathan=424đ\nKudo=402đ\nTùng=500đ",
+    "vipList": "a Duck=1073đ\na Dave=638đ\nNathan=354đ\nKudo=367đ\nTùng=465đ",
     "vipTransactions": [
+      {
+        "id": 1765353605449,
+        "ts": "2025-12-10T08:00:05.449Z",
+        "name": "a Duck",
+        "amount": 500,
+        "type": "topup"
+      },
       {
         "id": 1765344548000,
         "ts": "2025-12-10T05:29:08.000Z",
@@ -1430,8 +1548,8 @@
   },
   "metadata": {
     "itemCount": {
-      "orders": 17,
-      "vipTransactions": 8
+      "orders": 18,
+      "vipTransactions": 9
     }
   }
 }
