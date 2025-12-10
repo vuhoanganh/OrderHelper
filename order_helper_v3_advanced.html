@@ -1870,6 +1870,51 @@
       container.innerHTML = html;
     }
 
+    // Extract order transactions for a specific VIP member
+    function getVipOrderTransactions(vipName) {
+      const orderTxs = [];
+
+      orderHistory.forEach(order => {
+        if (!order.details || !Array.isArray(order.details)) return;
+
+        order.details.forEach(detail => {
+          if (detail.name === vipName && detail.due) {
+            orderTxs.push({
+              id: order.ts + '_' + detail.name, // unique ID
+              ts: new Date(order.ts).toISOString(),
+              name: vipName,
+              amount: -Math.abs(detail.due), // negative (expense)
+              type: 'order',
+              itemName: order.itemName || 'Order',
+              paid: detail.paid || false
+            });
+          }
+        });
+      });
+
+      return orderTxs;
+    }
+
+    // Get icon for transaction type
+    function getTransactionIcon(type) {
+      switch (type) {
+        case 'topup': return '💰';
+        case 'cashout': return '💸';
+        case 'order': return '🍜';
+        default: return '📝';
+      }
+    }
+
+    // Get label for transaction
+    function getTransactionLabel(tx) {
+      switch (tx.type) {
+        case 'topup': return 'Nạp tiền';
+        case 'cashout': return 'Rút tiền';
+        case 'order': return 'Order món ăn';
+        default: return 'Giao dịch';
+      }
+    }
+
     // VIP Member Transaction History Functions
     function populateVipMemberSelect() {
       const select = document.getElementById('vipMemberSelect');
@@ -1893,7 +1938,6 @@
       select.innerHTML = '<option value="">-- Chọn VIP --</option>' +
         sortedNames.map(name => `<option value="${name}">${name}</option>`).join('');
     }
-
     function showVipMemberHistory() {
       const select = document.getElementById('vipMemberSelect');
       const container = document.getElementById('vipMemberHistoryContainer');
@@ -1905,19 +1949,24 @@
         return;
       }
 
-      // Filter transactions for this member
-      const memberTxs = vipTransactions
-        .filter(tx => tx.name === selectedName)
+      // Get cash transactions (topup/cashout)
+      const cashTxs = vipTransactions.filter(tx => tx.name === selectedName);
+
+      // Get order transactions (NEW)
+      const orderTxs = getVipOrderTransactions(selectedName);
+
+      // Combine all transactions
+      const allTxs = [...cashTxs, ...orderTxs]
         .sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
 
-      if (memberTxs.length === 0) {
+      if (allTxs.length === 0) {
         container.innerHTML = '<div class="empty-state" style="padding: 12px 0;">Chưa có giao dịch nào</div>';
         return;
       }
 
-      // Calculate running balance
+      // Calculate running balance (chronological order)
       let balance = 0;
-      const txsWithBalance = memberTxs.reverse().map(tx => {
+      const txsWithBalance = allTxs.reverse().map(tx => {
         balance += tx.amount;
         return { ...tx, balance };
       }).reverse();
@@ -1925,6 +1974,11 @@
       // Get current balance from VIP list
       const vipArea = document.getElementById('vipArea');
       const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
+
+      // Count transaction types
+      const topupCount = cashTxs.filter(tx => tx.type === 'topup').length;
+      const cashoutCount = cashTxs.filter(tx => tx.type === 'cashout').length;
+      const orderCount = orderTxs.length;
 
       // Render
       const html = `
@@ -1949,11 +2003,16 @@
                     📅 ${formatDate(tx.ts)}
                   </div>
                   <div style="font-size: 14px; margin-bottom: 4px;">
-                    ${tx.type === 'topup' ? '💰 Nạp tiền' : '💸 Rút tiền'}: 
+                    ${getTransactionIcon(tx.type)} ${getTransactionLabel(tx)}: 
                     <span style="color: ${tx.amount >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}; font-weight: 600;">
                       ${tx.amount >= 0 ? '+' : ''}${formatMoney(tx.amount)}
                     </span>
                   </div>
+                  ${tx.type === 'order' ? `
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">
+                      🍽️ ${tx.itemName} ${tx.paid ? '✅ Đã trả' : '⏳ Chưa trả'}
+                    </div>
+                  ` : ''}
                   <div style="font-size: 13px; color: var(--text-secondary);">
                     Số dư sau giao dịch: 
                     <span style="font-weight: 600; color: ${tx.balance >= 0 ? 'var(--accent-green-light)' : 'var(--accent-red)'};">
@@ -1966,7 +2025,12 @@
           </div>
           
           <div style="margin-top: 16px; padding: 12px; background: var(--glass-bg); border-radius: 8px; font-size: 13px; color: var(--text-muted);">
-            Tổng số giao dịch: ${memberTxs.length}
+            <div>Tổng số giao dịch: ${allTxs.length}</div>
+            <div style="margin-top: 4px;">
+              💰 Nạp: ${topupCount} lần | 
+              💸 Rút: ${cashoutCount} lần | 
+              🍜 Order: ${orderCount} lần
+            </div>
           </div>
         </div>
       `;
