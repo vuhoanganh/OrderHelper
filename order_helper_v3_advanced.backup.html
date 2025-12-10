@@ -7,36 +7,25 @@
   <title>Order Helper Pro - Advanced Edition</title>
   <style>
     :root {
-      --bg-start: #1a1a2e;
-      --bg-end: #16213e;
+      --bg-dark: #0a0e27;
+      --bg-gradient-1: #1a1f3a;
+      --bg-gradient-2: #2d1b4e;
       --glass-bg: rgba(255, 255, 255, 0.05);
-      --glass-border: rgba(255, 255, 255, 0.1);
-      --text-primary: #eee;
-      --text-secondary: #bbb;
-      --text-muted: #888;
-      --accent: #00d4ff;
-      --accent-hover: #00b8e6;
+      --glass-bg-hover: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.15);
+      --glass-shadow: rgba(0, 0, 0, 0.3);
+      --text-primary: #e8edf5;
+      --text-secondary: #a0aec0;
+      --text-muted: #6b7b93;
       --accent-green: #10b981;
       --accent-green-light: #34d399;
-      --accent-red: #ef4444;
-      --accent-yellow: #f59e0b;
       --accent-blue: #3b82f6;
       --accent-purple: #8b5cf6;
-
-      /* Status colors */
-      --color-paid: #10b981;
-      --color-unpaid: #ef4444;
-      --color-partial: #f59e0b;
-
-      /* VIP balance colors */
-      --color-credit: #10b981;
-      --color-debit: #ef4444;
-      --color-inactive: #6b7280;
-
-      /* Transaction types */
-      --color-topup: #3b82f6;
-      --color-cashout: #8b5cf6;
-      --color-order: #f59e0b;
+      --accent-yellow: #fbbf24;
+      --accent-red: #ef4444;
+      --accent-orange: #f97316;
+      --input-bg: rgba(15, 23, 42, 0.6);
+      --input-border: rgba(148, 163, 184, 0.2);
     }
 
     * {
@@ -45,95 +34,42 @@
       box-sizing: border-box;
     }
 
+    html,
     body {
-      font-family: 'Inter', 'SF Pro Display', -apple-system, sans-serif;
-      background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-gradient-1) 50%, var(--bg-gradient-2) 100%);
+      background-attachment: fixed;
       color: var(--text-primary);
       min-height: 100vh;
-      padding: 20px;
+      line-height: 1.6;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
     }
 
     .container {
-      max-width: 1400px;
+      max-width: 1600px;
       margin: 0 auto;
+      padding: 32px 20px 120px;
+      position: relative;
+      z-index: 1;
     }
 
+    /* Header */
     .header {
       text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .header h1 {
-      font-size: 2.5rem;
-      background: linear-gradient(135deg, var(--accent) 0%, #b06ab3 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 16px;
-      background: var(--glass-bg);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-
-    /* Status badges */
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      border: 1px solid;
-    }
-
-    .status-badge.paid {
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--color-paid);
-      border-color: var(--color-paid);
-    }
-
-    .status-badge.unpaid {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--color-unpaid);
-      border-color: var(--color-unpaid);
-    }
-
-    /* Balance badges */
-    .balance-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      font-weight: 700;
-    }
-
-    .balance-badge.positive {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--color-credit);
-    }
-
-    .balance-badge.negative {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--color-debit);
-    }
-
-    /* Count badges */
-    .count-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      background: rgba(59, 130, 246, 0.15);
-      color: var(--accent-blue);
-      border-radius: 10px;
-      font-size: 0.7rem;
-      font-weight: 600;
+      margin-bottom: 48px;
     }
 
     .header h1 {
@@ -259,158 +195,6 @@
 
     .grid-3 {
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    }
-
-    /* Global Search */
-    .global-search-container {
-      position: sticky;
-      top: 20px;
-      z-index: 1000;
-      margin-bottom: 24px;
-    }
-
-    .global-search-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border: 2px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 4px;
-      transition: all 0.3s ease;
-    }
-
-    .global-search-wrapper:focus-within {
-      border-color: var(--accent-blue);
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3);
-    }
-
-    .search-icon {
-      padding: 0 12px;
-      font-size: 1.2rem;
-      opacity: 0.5;
-    }
-
-    .global-search-input {
-      flex: 1;
-      padding: 14px 8px;
-      background: transparent;
-      border: none;
-      color: var(--text-primary);
-      font-size: 16px;
-      outline: none;
-    }
-
-    .global-search-input::placeholder {
-      color: var(--text-muted);
-    }
-
-    .search-clear {
-      padding: 8px 12px;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 1.2rem;
-      border-radius: 8px;
-      transition: all 0.2s;
-    }
-
-    .search-clear:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-primary);
-    }
-
-    .search-results-dropdown {
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 0;
-      right: 0;
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      max-height: 400px;
-      overflow-y: auto;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-      display: none;
-    }
-
-    .search-results-dropdown.show {
-      display: block;
-      animation: slideDown 0.2s ease-out;
-    }
-
-    .search-result-section {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--glass-border);
-    }
-
-    .search-result-section:last-child {
-      border-bottom: none;
-    }
-
-    .search-section-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 8px;
-    }
-
-    .search-result-item {
-      padding: 10px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .search-result-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .search-result-icon {
-      font-size: 1.2rem;
-    }
-
-    .search-result-content {
-      flex: 1;
-    }
-
-    .search-result-title {
-      color: var(--text-primary);
-      font-weight: 500;
-      font-size: 0.95rem;
-    }
-
-    .search-result-subtitle {
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      margin-top: 2px;
-    }
-
-    .search-no-results {
-      padding: 24px;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
     }
 
     /* Form Elements */
@@ -1188,18 +972,6 @@
       <div class="badge">Advanced Edition - Quick Parse + History + Debt Tracking</div>
     </div>
 
-    <!-- Global Search Bar -->
-    <div class="global-search-container">
-      <div class="global-search-wrapper">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="globalSearch" class="global-search-input"
-          placeholder="Tìm kiếm order, VIP, món ăn... (Ctrl+K)" oninput="handleGlobalSearch(this.value)"
-          onfocus="this.select()">
-        <button class="search-clear" onclick="clearGlobalSearch()" style="display: none;">✕</button>
-      </div>
-      <div id="searchResults" class="search-results-dropdown"></div>
-    </div>
-
     <!-- Tabs -->
     <div class="tabs">
       <div class="tab active" onclick="switchTab(event, 'newOrder')">
@@ -1461,47 +1233,6 @@
           </div>
         </div>
 
-        <!-- Filter Controls -->
-        <div class="history-filters" style="margin-bottom: 20px;">
-          <div
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px;">
-            <div>
-              <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">📅 Từ
-                ngày</label>
-              <input type="date" id="filterFromDate" class="form-input" style="padding: 8px 12px;"
-                onchange="applyHistoryFilters()">
-            </div>
-            <div>
-              <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">📅 Đến
-                ngày</label>
-              <input type="date" id="filterToDate" class="form-input" style="padding: 8px 12px;"
-                onchange="applyHistoryFilters()">
-            </div>
-            <div>
-              <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">👤
-                VIP</label>
-              <select id="filterVIP" class="form-select" style="padding: 8px 12px;" onchange="applyHistoryFilters()">
-                <option value="">Tất cả</option>
-              </select>
-            </div>
-            <div>
-              <label style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">🍜 Món
-                ăn</label>
-              <input type="text" id="filterItem" class="form-input" style="padding: 8px 12px;" placeholder="Tìm món..."
-                oninput="applyHistoryFilters()">
-            </div>
-          </div>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <button class="btn btn-primary" onclick="applyHistoryFilters()" style="padding: 8px 16px;">
-              🔍 Lọc
-            </button>
-            <button class="btn btn-secondary" onclick="clearHistoryFilters()" style="padding: 8px 16px;">
-              ✕ Xóa bộ lọc
-            </button>
-            <div id="filterSummary" style="flex: 1; font-size: 0.85rem; color: var(--text-muted);"></div>
-          </div>
-        </div>
-
         <div id="historyList"></div>
       </div>
     </div>
@@ -1516,20 +1247,6 @@
       <div class="glass-card" style="margin-top: 24px;">
         <div class="section-title">📋 Chi tiết từng người</div>
         <div id="debtDetails"></div>
-      </div>
-
-      <!-- VIP Transaction History -->
-      <div class="glass-card" style="margin-top: 24px;">
-        <div class="section-title">📊 Lịch sử giao dịch VIP</div>
-
-        <div class="form-group">
-          <label class="form-label">Chọn VIP member</label>
-          <select id="vipMemberSelect" class="form-input" onchange="showVipMemberHistory()">
-            <option value="">-- Chọn VIP --</option>
-          </select>
-        </div>
-
-        <div id="vipMemberHistoryContainer"></div>
       </div>
     </div>
 
@@ -2109,7 +1826,6 @@
       vipTransactions = vipTransactions.slice(0, 200);
       localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
       renderVipHistory();
-      populateVipMemberSelect();
     }
 
     function renderVipHistory() {
@@ -2138,438 +1854,6 @@
   `;
       container.innerHTML = html;
     }
-
-    // Extract order transactions for a specific VIP member
-    function getVipOrderTransactions(vipName) {
-      const orderTxs = [];
-      const normalizedVipName = vipName.trim().toLowerCase();
-
-      console.log('=== DEBUG getVipOrderTransactions ===');
-      console.log('Looking for VIP:', vipName, '(normalized:', normalizedVipName + ')');
-      console.log('Total orders in history:', orderHistory.length);
-
-      orderHistory.forEach((order, idx) => {
-        // Debug first order structure
-        if (idx === 0) {
-          console.log('First order structure:', {
-            id: order.id,
-            ts: order.ts,
-            itemName: order.itemName,
-            hasDetails: !!order.details,
-            detailsIsArray: Array.isArray(order.details),
-            detailsLength: order.details?.length
-          });
-        }
-
-        if (!order.details || !Array.isArray(order.details)) {
-          if (idx < 3) console.log(`Order ${idx}: No details array`);
-          return;
-        }
-
-        // Use order.id as timestamp (that's where it's stored)
-        const timestamp = order.id;
-        if (!timestamp || isNaN(parseInt(timestamp))) {
-          if (idx < 3) console.log(`Order ${idx}: Invalid ID/timestamp`);
-          return;
-        }
-
-        order.details.forEach((detail, detailIdx) => {
-          const detailName = (detail.name || '').trim();
-          const normalizedDetailName = detailName.toLowerCase();
-
-          // Debug: log all detail names to see what we have
-          if (idx < 3) {
-            console.log(`Order ${idx}, Detail ${detailIdx}: name="${detailName}", due=${detail.due}, paid=${detail.paid}`);
-          }
-
-          if (normalizedDetailName === normalizedVipName && detail.due) {
-            const date = new Date(parseInt(timestamp));
-            if (isNaN(date.getTime())) return;
-
-            console.log('✅ MATCH FOUND:', detailName, 'due:', detail.due);
-
-            orderTxs.push({
-              id: timestamp + '_' + detailName,
-              ts: date.toISOString(),
-              name: vipName,
-              amount: -Math.abs(detail.due),
-              type: 'order',
-              itemName: order.itemName || 'Order',
-              paid: detail.paid || false
-            });
-          }
-        });
-      });
-
-      console.log('Total order transactions found:', orderTxs.length);
-      console.log('=== END DEBUG ===');
-
-      return orderTxs;
-    }
-
-    // Get icon for transaction type
-    function getTransactionIcon(type) {
-      switch (type) {
-        case 'topup': return '💰';
-        case 'cashout': return '💸';
-        case 'order': return '🍜';
-        default: return '📝';
-      }
-    }
-
-    // Get label for transaction
-    function getTransactionLabel(tx) {
-      switch (tx.type) {
-        case 'topup': return 'Nạp tiền';
-        case 'cashout': return 'Rút tiền';
-        case 'order': return 'Order món ăn';
-        default: return 'Giao dịch';
-      }
-    }
-
-    // VIP Member Transaction History Functions
-    function populateVipMemberSelect() {
-      const select = document.getElementById('vipMemberSelect');
-      if (!select) return;
-
-      // Get unique VIP names from transactions
-      const vipNames = new Set();
-      vipTransactions.forEach(tx => {
-        if (tx.name) vipNames.add(tx.name);
-      });
-
-      // Also add VIP names from current VIP list
-      const vipArea = document.getElementById('vipArea');
-      if (vipArea) {
-        const vipMap = parseVip(vipArea.value);
-        vipMap.forEach((_, name) => vipNames.add(name));
-      }
-
-      // Sort and populate
-      const sortedNames = Array.from(vipNames).sort();
-      select.innerHTML = '<option value="">-- Chọn VIP --</option>' +
-        sortedNames.map(name => `<option value="${name}">${name}</option>`).join('');
-    }
-    function showVipMemberHistory() {
-      const select = document.getElementById('vipMemberSelect');
-      const container = document.getElementById('vipMemberHistoryContainer');
-      if (!select || !container) return;
-
-      const selectedName = select.value;
-      if (!selectedName) {
-        container.innerHTML = '';
-        return;
-      }
-
-      // Get cash transactions (topup/cashout)
-      const cashTxs = vipTransactions.filter(tx => tx.name === selectedName);
-
-      // Get order transactions (NEW)
-      const orderTxs = getVipOrderTransactions(selectedName);
-
-      // Combine all transactions
-      const allTxs = [...cashTxs, ...orderTxs]
-        .sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
-
-      if (allTxs.length === 0) {
-        container.innerHTML = '<div class="empty-state" style="padding: 12px 0;">Chưa có giao dịch nào</div>';
-        return;
-      }
-
-      // Get current balance from VIP list FIRST
-      const vipArea = document.getElementById('vipArea');
-      const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
-
-      // Count transaction types
-      const topupCount = cashTxs.filter(tx => tx.type === 'topup').length;
-      const cashoutCount = cashTxs.filter(tx => tx.type === 'cashout').length;
-      const orderCount = orderTxs.length;
-
-      // Calculate running balance CORRECTLY
-      // Strategy: Work backwards from current balance
-      // Sort newest first, then calculate what balance was BEFORE each transaction
-      let balance = currentBalance;
-      const txsWithBalance = allTxs.map(tx => {
-        // Balance AFTER this transaction
-        const balanceAfter = balance;
-        // Calculate balance BEFORE by reversing the transaction
-        balance = balance - tx.amount; // Undo the transaction
-        return { ...tx, balance: balanceAfter };
-      });
-
-      // Now reverse to show chronological order (oldest first)
-      txsWithBalance.reverse();
-
-      // Render
-      const html = `
-        <div class="info-list" style="margin-top: 16px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 16px; padding: 12px; background: var(--glass-bg); border-radius: 8px;">
-            <div>
-              <strong style="color: var(--text-primary);">Tên:</strong> ${selectedName}
-            </div>
-            <div>
-              <strong style="color: var(--text-primary);">Số dư hiện tại:</strong> 
-              <span style="color: ${currentBalance >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}; font-weight: 600;">
-                ${formatMoney(currentBalance)}
-              </span>
-            </div>
-          </div>
-          
-          <div style="max-height: 500px; overflow-y: auto;">
-            ${txsWithBalance.map(tx => `
-              <div class="info-item" style="padding: 12px; margin-bottom: 8px; background: var(--glass-bg); border-radius: 8px;">
-                <div>
-                  <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">
-                    📅 ${formatDate(tx.ts)}
-                  </div>
-                  <div style="font-size: 14px; margin-bottom: 4px;">
-                    ${getTransactionIcon(tx.type)} ${getTransactionLabel(tx)}: 
-                    <span style="color: ${tx.amount >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}; font-weight: 600;">
-                      ${tx.amount >= 0 ? '+' : ''}${formatMoney(tx.amount)}
-                    </span>
-                  </div>
-                  ${tx.type === 'order' ? `
-                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">
-                      🍽️ ${tx.itemName} ${tx.paid ? '✅ Đã trả' : '⏳ Chưa trả'}
-                    </div>
-                  ` : ''}
-                  <div style="font-size: 13px; color: var(--text-secondary);">
-                    Số dư sau giao dịch: 
-                    <span style="font-weight: 600; color: ${tx.balance >= 0 ? 'var(--accent-green-light)' : 'var(--accent-red)'};">
-                      ${formatMoney(tx.balance)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-          
-          <div style="margin-top: 16px; padding: 12px; background: var(--glass-bg); border-radius: 8px; font-size: 13px; color: var(--text-muted);">
-            <div>Tổng số giao dịch: ${allTxs.length}</div>
-            <div style="margin-top: 4px;">
-              💰 Nạp: ${topupCount} lần | 
-              💸 Rút: ${cashoutCount} lần | 
-              🍜 Order: ${orderCount} lần
-            </div>
-          </div>
-        </div>
-      `;
-
-      container.innerHTML = html;
-    }
-
-    // ========== Global Search Functions ==========
-
-    let searchTimeout = null;
-
-    function handleGlobalSearch(query) {
-      const resultsContainer = document.getElementById('searchResults');
-      const clearBtn = document.querySelector('.search-clear');
-
-      // Show/hide clear button
-      clearBtn.style.display = query ? 'block' : 'none';
-
-      if (!query || query.trim().length < 2) {
-        resultsContainer.classList.remove('show');
-        return;
-      }
-
-      // Debounce search
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => {
-        const results = searchAllData(query.trim());
-        renderSearchResults(results);
-      }, 200);
-    }
-
-    function searchAllData(query) {
-      const lowerQuery = query.toLowerCase();
-      const results = {
-        vips: [],
-        orders: [],
-        items: []
-      };
-
-      // Search VIPs
-      const vipArea = document.getElementById('vipArea');
-      if (vipArea) {
-        const vipMap = parseVip(vipArea.value);
-        vipMap.forEach((balance, name) => {
-          if (name.toLowerCase().includes(lowerQuery)) {
-            results.vips.push({ name, balance });
-          }
-        });
-      }
-
-      // Search Orders
-      orderHistory.forEach(order => {
-        const itemMatch = order.itemName && order.itemName.toLowerCase().includes(lowerQuery);
-        const dateStr = formatDate(order.date || order.id);
-        const dateMatch = dateStr.toLowerCase().includes(lowerQuery);
-
-        // Search in order details (VIP names)
-        let detailMatch = false;
-        if (order.details && Array.isArray(order.details)) {
-          detailMatch = order.details.some(d =>
-            d.name && d.name.toLowerCase().includes(lowerQuery)
-          );
-        }
-
-        if (itemMatch || dateMatch || detailMatch) {
-          results.orders.push(order);
-        }
-      });
-
-      // Search unique item names
-      const itemCounts = new Map();
-      orderHistory.forEach(order => {
-        if (order.itemName) {
-          const itemLower = order.itemName.toLowerCase();
-          if (itemLower.includes(lowerQuery)) {
-            itemCounts.set(order.itemName, (itemCounts.get(order.itemName) || 0) + 1);
-          }
-        }
-      });
-
-      itemCounts.forEach((count, item) => {
-        results.items.push({ name: item, count });
-      });
-
-      // Limit results
-      results.vips = results.vips.slice(0, 5);
-      results.orders = results.orders.slice(0, 5);
-      results.items = results.items.slice(0, 5);
-
-      return results;
-    }
-
-    function renderSearchResults(results) {
-      const container = document.getElementById('searchResults');
-      const hasResults = results.vips.length > 0 || results.orders.length > 0 || results.items.length > 0;
-
-      if (!hasResults) {
-        container.innerHTML = '<div class="search-no-results">❌ Không tìm thấy kết quả</div>';
-        container.classList.add('show');
-        return;
-      }
-
-      let html = '';
-
-      // VIP Results
-      if (results.vips.length > 0) {
-        html += '<div class="search-result-section">';
-        html += '<div class="search-section-title">👥 VIP Members</div>';
-        results.vips.forEach(vip => {
-          const balanceClass = vip.balance >= 0 ? 'positive' : 'negative';
-          html += `
-            <div class="search-result-item" onclick="goToVip('${vip.name}')">
-              <span class="search-result-icon">👤</span>
-              <div class="search-result-content">
-                <div class="search-result-title">${vip.name}</div>
-                <div class="search-result-subtitle">
-                  <span class="balance-badge ${balanceClass}">${formatMoney(vip.balance)}</span>
-                </div>
-              </div>
-            </div>
-          `;
-        });
-        html += '</div>';
-      }
-
-      // Order Results
-      if (results.orders.length > 0) {
-        html += '<div class="search-result-section">';
-        html += '<div class="search-section-title">📋 Orders</div>';
-        results.orders.forEach(order => {
-          const dateStr = formatDate(order.date || order.id);
-          html += `
-            <div class="search-result-item" onclick="goToOrder(${order.id})">
-              <span class="search-result-icon">🍜</span>
-              <div class="search-result-content">
-                <div class="search-result-title">${order.itemName}</div>
-                <div class="search-result-subtitle">${dateStr}</div>
-              </div>
-            </div>
-          `;
-        });
-        html += '</div>';
-      }
-
-      // Item Results
-      if (results.items.length > 0) {
-        html += '<div class="search-result-section">';
-        html += '<div class="search-section-title">🍽️ Items</div>';
-        results.items.forEach(item => {
-          html += `
-            <div class="search-result-item" onclick="searchOrdersByItem('${item.name}')">
-              <span class="search-result-icon">🔍</span>
-              <div class="search-result-content">
-                <div class="search-result-title">${item.name}</div>
-                <div class="search-result-subtitle">
-                  <span class="count-badge">${item.count} đơn</span>
-                </div>
-              </div>
-            </div>
-          `;
-        });
-        html += '</div>';
-      }
-
-      container.innerHTML = html;
-      container.classList.add('show');
-    }
-
-    function clearGlobalSearch() {
-      document.getElementById('globalSearch').value = '';
-      document.getElementById('searchResults').classList.remove('show');
-      document.querySelector('.search-clear').style.display = 'none';
-    }
-
-    function goToVip(vipName) {
-      clearGlobalSearch();
-      switchTab(null, 'debt');
-
-      // Select VIP in dropdown
-      setTimeout(() => {
-        const select = document.getElementById('vipMemberSelect');
-        if (select) {
-          select.value = vipName;
-          showVipMemberHistory();
-          select.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 100);
-    }
-
-    function goToOrder(orderId) {
-      clearGlobalSearch();
-      switchTab(null, 'history');
-
-      // Highlight and scroll to order
-      setTimeout(() => {
-        viewOrderDetails(orderId);
-      }, 100);
-    }
-
-    function searchOrdersByItem(itemName) {
-      clearGlobalSearch();
-      switchTab(null, 'history');
-
-      // TODO: Could add filter functionality here
-      console.log('Search orders for item:', itemName);
-    }
-
-    // Keyboard shortcut: Ctrl+K to focus search
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        document.getElementById('globalSearch').focus();
-      }
-
-      // ESC to close search results
-      if (e.key === 'Escape') {
-        clearGlobalSearch();
-      }
-    });
 
     // ========== GitHub Settings & Main Functions ==========
 
@@ -2696,17 +1980,27 @@
 
         const timestamp = new Date().toISOString();
 
-        // Prepare combined backup data in a single file
+        // Prepare backup data
         const backupData = {
-          version: '1.0',
-          timestamp,
-          backupTime: Date.now(),
-          data: {
-            orderHistory: orderHistory,
-            vipList: localStorage.getItem('vipList') || '',
-            vipTransactions: vipTransactions
+          orderHistory: {
+            version: '1.0',
+            timestamp,
+            data: orderHistory
+          },
+          vipList: {
+            version: '1.0',
+            timestamp,
+            data: localStorage.getItem('vipList') || ''
+          },
+          vipTransactions: {
+            version: '1.0',
+            timestamp,
+            data: vipTransactions
           },
           metadata: {
+            version: '1.0',
+            timestamp,
+            backupTime: Date.now(),
             itemCount: {
               orders: orderHistory.length,
               vipTransactions: vipTransactions.length
@@ -2714,16 +2008,49 @@
           }
         };
 
-        // Upload single combined file
-        addBackupLog('📤 Đang upload kitchen_backup.json...');
-        const backupFile = await getGithubFile(owner, repoName, 'kitchen_backup.json', branch);
+        // Upload each file
+        addBackupLog('📤 Đang upload order_history.json...');
+        const orderHistoryFile = await getGithubFile(owner, repoName, 'order_history.json', branch);
+        await createOrUpdateGithubFile(
+          owner,
+          repoName,
+          'order_history.json',
+          JSON.stringify(backupData.orderHistory, null, 2),
+          `Backup order history - ${timestamp}`,
+          orderHistoryFile?.sha
+        );
+
+        addBackupLog('📤 Đang upload vip_list.json...');
+        const vipListFile = await getGithubFile(owner, repoName, 'vip_list.json', branch);
+        await createOrUpdateGithubFile(
+          owner,
+          repoName,
+          'vip_list.json',
+          JSON.stringify(backupData.vipList, null, 2),
+          `Backup VIP list - ${timestamp}`,
+          vipListFile?.sha
+        );
+
+        addBackupLog('📤 Đang upload vip_transactions.json...');
+        const vipTxFile = await getGithubFile(owner, repoName, 'vip_transactions.json', branch);
+        await createOrUpdateGithubFile(
+          owner,
+          repoName,
+          'vip_transactions.json',
+          JSON.stringify(backupData.vipTransactions, null, 2),
+          `Backup VIP transactions - ${timestamp}`,
+          vipTxFile?.sha
+        );
+
+        addBackupLog('📤 Đang upload metadata.json...');
+        const metadataFile = await getGithubFile(owner, repoName, 'metadata.json', branch);
         const result = await createOrUpdateGithubFile(
           owner,
           repoName,
-          'kitchen_backup.json',
-          JSON.stringify(backupData, null, 2),
-          `Backup data - ${timestamp}`,
-          backupFile?.sha
+          'metadata.json',
+          JSON.stringify(backupData.metadata, null, 2),
+          `Backup metadata - ${timestamp}`,
+          metadataFile?.sha
         );
 
         // Save backup info
@@ -2735,6 +2062,7 @@
         updateBackupStatusDisplay();
         addBackupLog(`✅ Backup thành công! (${orderHistory.length} orders, ${vipTransactions.length} VIP transactions)`);
         showBackupStatus('✅ Backup thành công!', 'success');
+        alert('✅ Đã backup thành công lên GitHub!');
 
       } catch (err) {
         const errorMsg = `❌ Lỗi backup: ${err.message}`;
@@ -2763,35 +2091,48 @@
 
         const [owner, repoName] = repo.split('/');
 
-        // Fetch combined backup file
-        addBackupLog('📥 Đang tải kitchen_backup.json...');
-        const backupFile = await getGithubFile(owner, repoName, 'kitchen_backup.json', branch);
+        // Fetch all backup files
+        addBackupLog('📥 Đang tải order_history.json...');
+        const orderHistoryFile = await getGithubFile(owner, repoName, 'order_history.json', branch);
 
-        if (!backupFile) {
-          throw new Error('Không tìm thấy backup file trên GitHub');
+        addBackupLog('📥 Đang tải vip_list.json...');
+        const vipListFile = await getGithubFile(owner, repoName, 'vip_list.json', branch);
+
+        addBackupLog('📥 Đang tải vip_transactions.json...');
+        const vipTxFile = await getGithubFile(owner, repoName, 'vip_transactions.json', branch);
+
+        if (!orderHistoryFile && !vipListFile && !vipTxFile) {
+          throw new Error('Không tìm thấy backup nào trên GitHub');
         }
 
-        const backupData = JSON.parse(backupFile.content);
-
         // Restore order history
-        if (backupData.data?.orderHistory && Array.isArray(backupData.data.orderHistory)) {
-          orderHistory = backupData.data.orderHistory;
-          localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-          addBackupLog(`✅ Đã restore ${orderHistory.length} orders`);
+        if (orderHistoryFile) {
+          const data = JSON.parse(orderHistoryFile.content);
+          if (data.data && Array.isArray(data.data)) {
+            orderHistory = data.data;
+            localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+            addBackupLog(`✅ Đã restore ${orderHistory.length} orders`);
+          }
         }
 
         // Restore VIP list
-        if (backupData.data?.vipList) {
-          localStorage.setItem('vipList', backupData.data.vipList);
-          document.getElementById('vipArea').value = backupData.data.vipList;
-          addBackupLog('✅ Đã restore VIP list');
+        if (vipListFile) {
+          const data = JSON.parse(vipListFile.content);
+          if (data.data) {
+            localStorage.setItem('vipList', data.data);
+            document.getElementById('vipArea').value = data.data;
+            addBackupLog('✅ Đã restore VIP list');
+          }
         }
 
         // Restore VIP transactions
-        if (backupData.data?.vipTransactions && Array.isArray(backupData.data.vipTransactions)) {
-          vipTransactions = backupData.data.vipTransactions;
-          localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
-          addBackupLog(`✅ Đã restore ${vipTransactions.length} VIP transactions`);
+        if (vipTxFile) {
+          const data = JSON.parse(vipTxFile.content);
+          if (data.data && Array.isArray(data.data)) {
+            vipTransactions = data.data;
+            localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
+            addBackupLog(`✅ Đã restore ${vipTransactions.length} VIP transactions`);
+          }
         }
 
         // Refresh UI
@@ -3913,129 +3254,16 @@
         if (!res) return;
       }
 
+      if (!finalMsgArea.value.trim()) {
+        alert('⚠️ Vui lòng tính đơn trước khi copy');
+        return;
+      }
+
       copyMsg('finalMsg', event);
-      updateData('orderValue', formatMoney(totalPayable));
     }
 
-    // ========== Order History Filters ==========
-
-    let historyFilters = {
-      fromDate: null,
-      toDate: null,
-      vip: '',
-      itemName: ''
-    };
-
-    function populateVIPFilterDropdown() {
-      const select = document.getElementById('filterVIP');
-      if (!select) return;
-
-      // Get unique VIP names from orders
-      const vipNames = new Set();
-      orderHistory.forEach(order => {
-        if (order.details && Array.isArray(order.details)) {
-          order.details.forEach(detail => {
-            if (detail.name) vipNames.add(detail.name);
-          });
-        }
-      });
-
-      // Also add from VIP list
-      const vipArea = document.getElementById('vipArea');
-      if (vipArea) {
-        const vipMap = parseVip(vipArea.value);
-        vipMap.forEach((_, name) => vipNames.add(name));
-      }
-
-      // Populate dropdown
-      const options = '<option value="">Tất cả</option>' +
-        Array.from(vipNames).sort().map(name =>
-          `<option value="${name}">${name}</option>`
-        ).join('');
-      select.innerHTML = options;
-    }
-
-    function applyHistoryFilters() {
-      // Get filter values
-      historyFilters.fromDate = document.getElementById('filterFromDate').value;
-      historyFilters.toDate = document.getElementById('filterToDate').value;
-      historyFilters.vip = document.getElementById('filterVIP').value;
-      historyFilters.itemName = document.getElementById('filterItem').value.toLowerCase();
-
-      // Re-render with filters
-      renderHistory();
-
-      // Update summary
-      updateFilterSummary();
-    }
-
-    function clearHistoryFilters() {
-      document.getElementById('filterFromDate').value = '';
-      document.getElementById('filterToDate').value = '';
-      document.getElementById('filterVIP').value = '';
-      document.getElementById('filterItem').value = '';
-
-      historyFilters = {
-        fromDate: null,
-        toDate: null,
-        vip: '',
-        itemName: ''
-      };
-
-      renderHistory();
-      updateFilterSummary();
-    }
-
-    function updateFilterSummary() {
-      const summary = document.getElementById('filterSummary');
-      if (!summary) return;
-
-      const activeFilters = [];
-      if (historyFilters.fromDate) activeFilters.push(`Từ ${historyFilters.fromDate}`);
-      if (historyFilters.toDate) activeFilters.push(`đến ${historyFilters.toDate}`);
-      if (historyFilters.vip) activeFilters.push(`VIP: ${historyFilters.vip}`);
-      if (historyFilters.itemName) activeFilters.push(`Món: ${historyFilters.itemName}`);
-
-      if (activeFilters.length > 0) {
-        summary.textContent = '🔍 ' + activeFilters.join(' • ');
-      } else {
-        summary.textContent = '';
-      }
-    }
-
-    function filterOrderHistory(orders) {
-      return orders.filter(order => {
-        // Date filter
-        if (historyFilters.fromDate || historyFilters.toDate) {
-          const orderDate = new Date(order.date || order.id);
-          const orderDateStr = orderDate.toISOString().split('T')[0];
-
-          if (historyFilters.fromDate && orderDateStr < historyFilters.fromDate) {
-            return false;
-          }
-          if (historyFilters.toDate && orderDateStr > historyFilters.toDate) {
-            return false;
-          }
-        }
-
-        // VIP filter
-        if (historyFilters.vip) {
-          const hasVIP = order.details && order.details.some(d => d.name === historyFilters.vip);
-          if (!hasVIP) return false;
-        }
-
-        // Item name filter
-        if (historyFilters.itemName) {
-          const itemMatch = order.itemName && order.itemName.toLowerCase().includes(historyFilters.itemName);
-          if (!itemMatch) return false;
-        }
-
-        return true;
-      });
-    }
-
-    // Render History
-    function renderHistory() {
+    // History Management
+    function loadHistory() {
       const historyList = document.getElementById('historyList');
 
       if (orderHistory.length === 0) {
@@ -4044,16 +3272,7 @@
         return;
       }
 
-      // Apply filters
-      const filteredOrders = filterOrderHistory(orderHistory);
-
-      if (filteredOrders.length === 0) {
-        historyList.innerHTML = '<div class="empty-state">❌ Không tìm thấy đơn hàng nào phù hợp với bộ lọc</div>';
-        refreshQuickOrderList();
-        return;
-      }
-
-      historyList.innerHTML = filteredOrders.map(order => {
+      historyList.innerHTML = orderHistory.map(order => {
         const paidCount = order.details.filter(d => d.paid).length;
         const totalCount = order.details.length;
         const statusClass = paidCount === totalCount ? 'status-paid' : (paidCount > 0 ? 'status-partial' : 'status-unpaid');
@@ -4682,8 +3901,6 @@
       refreshQuickOrderList();
       updateDishNameSuggestions();
       loadGithubSettings();
-      populateVipMemberSelect();
-      populateVIPFilterDropdown(); // Populate filter dropdown
 
       initDraftAutosave();
 
