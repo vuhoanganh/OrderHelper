@@ -2099,27 +2099,17 @@
 
         const timestamp = new Date().toISOString();
 
-        // Prepare backup data
+        // Prepare combined backup data in a single file
         const backupData = {
-          orderHistory: {
-            version: '1.0',
-            timestamp,
-            data: orderHistory
-          },
-          vipList: {
-            version: '1.0',
-            timestamp,
-            data: localStorage.getItem('vipList') || ''
-          },
-          vipTransactions: {
-            version: '1.0',
-            timestamp,
-            data: vipTransactions
+          version: '1.0',
+          timestamp,
+          backupTime: Date.now(),
+          data: {
+            orderHistory: orderHistory,
+            vipList: localStorage.getItem('vipList') || '',
+            vipTransactions: vipTransactions
           },
           metadata: {
-            version: '1.0',
-            timestamp,
-            backupTime: Date.now(),
             itemCount: {
               orders: orderHistory.length,
               vipTransactions: vipTransactions.length
@@ -2127,49 +2117,16 @@
           }
         };
 
-        // Upload each file
-        addBackupLog('📤 Đang upload order_history.json...');
-        const orderHistoryFile = await getGithubFile(owner, repoName, 'order_history.json', branch);
-        await createOrUpdateGithubFile(
-          owner,
-          repoName,
-          'order_history.json',
-          JSON.stringify(backupData.orderHistory, null, 2),
-          `Backup order history - ${timestamp}`,
-          orderHistoryFile?.sha
-        );
-
-        addBackupLog('📤 Đang upload vip_list.json...');
-        const vipListFile = await getGithubFile(owner, repoName, 'vip_list.json', branch);
-        await createOrUpdateGithubFile(
-          owner,
-          repoName,
-          'vip_list.json',
-          JSON.stringify(backupData.vipList, null, 2),
-          `Backup VIP list - ${timestamp}`,
-          vipListFile?.sha
-        );
-
-        addBackupLog('📤 Đang upload vip_transactions.json...');
-        const vipTxFile = await getGithubFile(owner, repoName, 'vip_transactions.json', branch);
-        await createOrUpdateGithubFile(
-          owner,
-          repoName,
-          'vip_transactions.json',
-          JSON.stringify(backupData.vipTransactions, null, 2),
-          `Backup VIP transactions - ${timestamp}`,
-          vipTxFile?.sha
-        );
-
-        addBackupLog('📤 Đang upload metadata.json...');
-        const metadataFile = await getGithubFile(owner, repoName, 'metadata.json', branch);
+        // Upload single combined file
+        addBackupLog('📤 Đang upload kitchen_backup.json...');
+        const backupFile = await getGithubFile(owner, repoName, 'kitchen_backup.json', branch);
         const result = await createOrUpdateGithubFile(
           owner,
           repoName,
-          'metadata.json',
-          JSON.stringify(backupData.metadata, null, 2),
-          `Backup metadata - ${timestamp}`,
-          metadataFile?.sha
+          'kitchen_backup.json',
+          JSON.stringify(backupData, null, 2),
+          `Backup data - ${timestamp}`,
+          backupFile?.sha
         );
 
         // Save backup info
@@ -2181,7 +2138,6 @@
         updateBackupStatusDisplay();
         addBackupLog(`✅ Backup thành công! (${orderHistory.length} orders, ${vipTransactions.length} VIP transactions)`);
         showBackupStatus('✅ Backup thành công!', 'success');
-        alert('✅ Đã backup thành công lên GitHub!');
 
       } catch (err) {
         const errorMsg = `❌ Lỗi backup: ${err.message}`;
@@ -2210,48 +2166,35 @@
 
         const [owner, repoName] = repo.split('/');
 
-        // Fetch all backup files
-        addBackupLog('📥 Đang tải order_history.json...');
-        const orderHistoryFile = await getGithubFile(owner, repoName, 'order_history.json', branch);
+        // Fetch combined backup file
+        addBackupLog('📥 Đang tải kitchen_backup.json...');
+        const backupFile = await getGithubFile(owner, repoName, 'kitchen_backup.json', branch);
 
-        addBackupLog('📥 Đang tải vip_list.json...');
-        const vipListFile = await getGithubFile(owner, repoName, 'vip_list.json', branch);
-
-        addBackupLog('📥 Đang tải vip_transactions.json...');
-        const vipTxFile = await getGithubFile(owner, repoName, 'vip_transactions.json', branch);
-
-        if (!orderHistoryFile && !vipListFile && !vipTxFile) {
-          throw new Error('Không tìm thấy backup nào trên GitHub');
+        if (!backupFile) {
+          throw new Error('Không tìm thấy backup file trên GitHub');
         }
 
+        const backupData = JSON.parse(backupFile.content);
+
         // Restore order history
-        if (orderHistoryFile) {
-          const data = JSON.parse(orderHistoryFile.content);
-          if (data.data && Array.isArray(data.data)) {
-            orderHistory = data.data;
-            localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-            addBackupLog(`✅ Đã restore ${orderHistory.length} orders`);
-          }
+        if (backupData.data?.orderHistory && Array.isArray(backupData.data.orderHistory)) {
+          orderHistory = backupData.data.orderHistory;
+          localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+          addBackupLog(`✅ Đã restore ${orderHistory.length} orders`);
         }
 
         // Restore VIP list
-        if (vipListFile) {
-          const data = JSON.parse(vipListFile.content);
-          if (data.data) {
-            localStorage.setItem('vipList', data.data);
-            document.getElementById('vipArea').value = data.data;
-            addBackupLog('✅ Đã restore VIP list');
-          }
+        if (backupData.data?.vipList) {
+          localStorage.setItem('vipList', backupData.data.vipList);
+          document.getElementById('vipArea').value = backupData.data.vipList;
+          addBackupLog('✅ Đã restore VIP list');
         }
 
         // Restore VIP transactions
-        if (vipTxFile) {
-          const data = JSON.parse(vipTxFile.content);
-          if (data.data && Array.isArray(data.data)) {
-            vipTransactions = data.data;
-            localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
-            addBackupLog(`✅ Đã restore ${vipTransactions.length} VIP transactions`);
-          }
+        if (backupData.data?.vipTransactions && Array.isArray(backupData.data.vipTransactions)) {
+          vipTransactions = backupData.data.vipTransactions;
+          localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
+          addBackupLog(`✅ Đã restore ${vipTransactions.length} VIP transactions`);
         }
 
         // Refresh UI
