@@ -1315,9 +1315,6 @@
           </div>
 
           <div class="btn-group">
-            <button class="btn btn-primary" onclick="saveVIPOnly()" style="flex: 1;">
-              💾 Lưu VIP
-            </button>
             <button class="btn btn-secondary" onclick="addNewVIP()">
               ➕ Nạp VIP
             </button>
@@ -4993,6 +4990,15 @@
       populateVipMemberSelect();
       populateVIPFilterDropdown(); // Populate filter dropdown
 
+      // Lock VIP textarea to prevent manual editing
+      const vipArea = document.getElementById('vipArea');
+      if (vipArea) {
+        vipArea.setAttribute('readonly', true);
+        vipArea.style.cursor = 'not-allowed';
+        vipArea.style.opacity = '0.8';
+        vipArea.title = 'Chỉ có thể thay đổi qua Nạp VIP, Cash Out, hoặc Order';
+      }
+
       initDraftAutosave();
 
       // Add listener for alvinFree checkbox to adjust min value of n
@@ -5027,17 +5033,6 @@
     });
 
     // VIP Management Functions
-    function saveVIPOnly() {
-      const vipText = document.getElementById('vipArea').value.trim();
-      if (!vipText) {
-        alert('⚠️ Danh sách VIP trống!');
-        return;
-      }
-
-      persistVipList(vipText);
-      alert('✅ Đã lưu danh sách VIP!');
-    }
-
     function addNewVIP() {
       const name = prompt('Nhập tên VIP:');
       if (!name || !name.trim()) return;
