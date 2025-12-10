@@ -1873,13 +1873,18 @@
     // Extract order transactions for a specific VIP member
     function getVipOrderTransactions(vipName) {
       const orderTxs = [];
+      const normalizedVipName = vipName.trim().toLowerCase();
 
       orderHistory.forEach(order => {
         if (!order.details || !Array.isArray(order.details)) return;
         if (!order.ts) return; // Skip if no timestamp
 
         order.details.forEach(detail => {
-          if (detail.name === vipName && detail.due) {
+          // More flexible name matching (case-insensitive, trim whitespace)
+          const detailName = (detail.name || '').trim();
+          const normalizedDetailName = detailName.toLowerCase();
+
+          if (normalizedDetailName === normalizedVipName && detail.due) {
             // Ensure timestamp is valid
             const timestamp = typeof order.ts === 'number' ? order.ts : parseInt(order.ts);
             if (!timestamp || isNaN(timestamp)) return; // Skip invalid timestamps
@@ -1888,7 +1893,7 @@
             if (isNaN(date.getTime())) return; // Skip if invalid date
 
             orderTxs.push({
-              id: timestamp + '_' + detail.name, // unique ID
+              id: timestamp + '_' + detailName, // unique ID
               ts: date.toISOString(),
               name: vipName,
               amount: -Math.abs(detail.due), // negative (expense)
