@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "timestamp": "2025-12-10T09:51:29.752Z",
-  "backupTime": 1765360289752,
+  "timestamp": "2025-12-10T12:02:35.770Z",
+  "backupTime": 1765368155770,
   "data": {
     "orderHistory": [
       {
@@ -1479,7 +1479,7 @@
         ]
       }
     ],
-    "vipList": "a Duck=1073đ\na Dave=638đ\nNathan=354đ\nKudo=367đ\nTùng=465đ",
+    "vipList": "a Duck=573đ\na Dave=638đ\nNathan=354đ\nKudo=367đ\nTùng=397đ",
     "vipTransactions": [
       {
         "id": 1765353605449,
