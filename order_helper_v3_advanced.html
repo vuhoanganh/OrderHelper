@@ -1558,8 +1558,9 @@
               </select>
             </div>
           </div>
-          <div style="display: flex; gap: 8px; margin-top: 12px;">
+          <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
             <button onclick="clearVipHistoryFilters()" class="btn-secondary" style="padding: 8px 16px; font-size: 13px;">🔄 Đặt lại</button>
+            <button onclick="exportVipHistoryToCSV()" class="btn-primary" style="padding: 8px 16px; font-size: 13px; background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));">📥 Xuất CSV</button>
             <div style="flex: 1;"></div>
             <span id="filterResultCount" style="font-size: 13px; color: var(--text-muted); line-height: 32px;"></span>
           </div>
@@ -2510,6 +2511,146 @@
       const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
 
       renderVipHistoryTable(selectedName, currentBalance, currentVipTransactions);
+    }
+
+    // Export VIP history to CSV
+    function exportVipHistoryToCSV() {
+      const select = document.getElementById('vipMemberSelect');
+      if (!select || !select.value) {
+        alert('⚠️ Vui lòng chọn VIP member trước khi xuất CSV');
+        return;
+      }
+
+      const selectedName = select.value;
+
+      // Get currently displayed transactions (respecting filters)
+      const vipArea = document.getElementById('vipArea');
+      const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
+
+      // Get filter values to determine which transactions to export
+      const dateFrom = document.getElementById('filterDateFrom')?.value;
+      const dateTo = document.getElementById('filterDateTo')?.value;
+      const txType = document.getElementById('filterTxType')?.value || 'all';
+      const paymentStatus = document.getElementById('filterPaymentStatus')?.value || 'all';
+
+      // Apply same filters as display
+      let transactions = [...currentVipTransactions];
+
+      if (dateFrom) {
+        const fromDate = new Date(dateFrom);
+        fromDate.setHours(0, 0, 0, 0);
+        transactions = transactions.filter(tx => new Date(tx.ts) >= fromDate);
+      }
+      if (dateTo) {
+        const toDate = new Date(dateTo);
+        toDate.setHours(23, 59, 59, 999);
+        transactions = transactions.filter(tx => new Date(tx.ts) <= toDate);
+      }
+      if (txType !== 'all') {
+        transactions = transactions.filter(tx => tx.type === txType);
+      }
+      if (paymentStatus !== 'all') {
+        transactions = transactions.filter(tx => {
+          if (tx.type !== 'order') return true;
+          return paymentStatus === 'paid' ? tx.paid : !tx.paid;
+        });
+      }
+
+      if (transactions.length === 0) {
+        alert('⚠️ Không có giao dịch nào để xuất');
+        return;
+      }
+
+      // Format date for CSV
+      const formatDateCSV = (dateStr) => {
+        const d = new Date(dateStr);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
+      };
+
+      // Get transaction type label
+      const getTypeLabel = (type) => {
+        if (type === 'topup') return 'Nạp tiền';
+        if (type === 'cashout') return 'Rút tiền';
+        if (type === 'order') return 'Order';
+        return 'Giao dịch';
+      };
+
+      // Format amount for CSV (remove 'đ' suffix)
+      const formatAmountCSV = (amount) => {
+        return amount.toFixed(0);
+      };
+
+      // Build CSV content
+      let csv = [];
+
+      // Add UTF-8 BOM for Excel compatibility with Vietnamese characters
+      csv.push('\uFEFF');
+
+      // Add header info
+      csv.push(`VIP Member: ${selectedName}\n`);
+      csv.push(`Số dư hiện tại: ${formatAmountCSV(currentBalance)}đ\n`);
+      csv.push(`Ngày xuất: ${formatDateCSV(new Date().toISOString())}\n`);
+      csv.push(`Tổng số giao dịch: ${transactions.length}\n`);
+      csv.push('\n');
+
+      // Add table header
+      csv.push('Ngày giờ,Loại,Số tiền (đ),Chi tiết,Số dư (đ)\n');
+
+      // Add transaction rows
+      transactions.forEach(tx => {
+        const date = formatDateCSV(tx.ts);
+        const type = getTypeLabel(tx.type);
+        const amount = formatAmountCSV(tx.amount);
+        const detail = tx.type === 'order'
+          ? `${tx.itemName} ${tx.paid ? '[Đã trả]' : '[Chưa trả]'}`
+          : '-';
+        const balance = formatAmountCSV(tx.balance);
+
+        // Escape commas and quotes in detail field
+        const escapedDetail = detail.replace(/"/g, '""');
+        const detailField = detail.includes(',') ? `"${escapedDetail}"` : detail;
+
+        csv.push(`${date},${type},${amount},${detailField},${balance}\n`);
+      });
+
+      // Add summary footer
+      csv.push('\n');
+      const topupCount = transactions.filter(tx => tx.type === 'topup').length;
+      const cashoutCount = transactions.filter(tx => tx.type === 'cashout').length;
+      const orderCount = transactions.filter(tx => tx.type === 'order').length;
+      csv.push(`Tổng hợp:,Nạp: ${topupCount} lần,Rút: ${cashoutCount} lần,Order: ${orderCount} lần,\n`);
+
+      // Create blob and download
+      const csvContent = csv.join('');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+
+      // Generate filename with date
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+      const filename = `vip_transactions_${selectedName.replace(/\s+/g, '_')}_${dateStr}.csv`;
+
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Show success message
+      const filterCount = document.getElementById('filterResultCount');
+      if (filterCount) {
+        const originalText = filterCount.textContent;
+        filterCount.innerHTML = `<span style="color: var(--accent-green);">✅ Đã xuất ${transactions.length} giao dịch</span>`;
+        setTimeout(() => {
+          filterCount.textContent = originalText;
+        }, 3000);
+      }
     }
 
     // ========== Global Search Functions ==========
