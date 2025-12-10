@@ -1876,12 +1876,20 @@
 
       orderHistory.forEach(order => {
         if (!order.details || !Array.isArray(order.details)) return;
+        if (!order.ts) return; // Skip if no timestamp
 
         order.details.forEach(detail => {
           if (detail.name === vipName && detail.due) {
+            // Ensure timestamp is valid
+            const timestamp = typeof order.ts === 'number' ? order.ts : parseInt(order.ts);
+            if (!timestamp || isNaN(timestamp)) return; // Skip invalid timestamps
+
+            const date = new Date(timestamp);
+            if (isNaN(date.getTime())) return; // Skip if invalid date
+
             orderTxs.push({
-              id: order.ts + '_' + detail.name, // unique ID
-              ts: new Date(order.ts).toISOString(),
+              id: timestamp + '_' + detail.name, // unique ID
+              ts: date.toISOString(),
               name: vipName,
               amount: -Math.abs(detail.due), // negative (expense)
               type: 'order',
