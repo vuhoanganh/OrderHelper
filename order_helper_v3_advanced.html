@@ -1875,28 +1875,55 @@
       const orderTxs = [];
       const normalizedVipName = vipName.trim().toLowerCase();
 
-      orderHistory.forEach(order => {
-        if (!order.details || !Array.isArray(order.details)) return;
-        if (!order.ts) return; // Skip if no timestamp
+      console.log('=== DEBUG getVipOrderTransactions ===');
+      console.log('Looking for VIP:', vipName, '(normalized:', normalizedVipName + ')');
+      console.log('Total orders in history:', orderHistory.length);
 
-        order.details.forEach(detail => {
-          // More flexible name matching (case-insensitive, trim whitespace)
+      orderHistory.forEach((order, idx) => {
+        // Debug first order structure
+        if (idx === 0) {
+          console.log('First order structure:', {
+            id: order.id,
+            ts: order.ts,
+            itemName: order.itemName,
+            hasDetails: !!order.details,
+            detailsIsArray: Array.isArray(order.details),
+            detailsLength: order.details?.length
+          });
+        }
+
+        if (!order.details || !Array.isArray(order.details)) {
+          if (idx < 3) console.log(`Order ${idx}: No details array`);
+          return;
+        }
+
+        // Use order.id as timestamp (that's where it's stored)
+        const timestamp = order.id;
+        if (!timestamp || isNaN(parseInt(timestamp))) {
+          if (idx < 3) console.log(`Order ${idx}: Invalid ID/timestamp`);
+          return;
+        }
+
+        order.details.forEach((detail, detailIdx) => {
           const detailName = (detail.name || '').trim();
           const normalizedDetailName = detailName.toLowerCase();
 
-          if (normalizedDetailName === normalizedVipName && detail.due) {
-            // Ensure timestamp is valid
-            const timestamp = typeof order.ts === 'number' ? order.ts : parseInt(order.ts);
-            if (!timestamp || isNaN(timestamp)) return; // Skip invalid timestamps
+          // Debug: log all detail names to see what we have
+          if (idx < 3) {
+            console.log(`Order ${idx}, Detail ${detailIdx}: name="${detailName}", due=${detail.due}, paid=${detail.paid}`);
+          }
 
-            const date = new Date(timestamp);
-            if (isNaN(date.getTime())) return; // Skip if invalid date
+          if (normalizedDetailName === normalizedVipName && detail.due) {
+            const date = new Date(parseInt(timestamp));
+            if (isNaN(date.getTime())) return;
+
+            console.log('✅ MATCH FOUND:', detailName, 'due:', detail.due);
 
             orderTxs.push({
-              id: timestamp + '_' + detailName, // unique ID
+              id: timestamp + '_' + detailName,
               ts: date.toISOString(),
               name: vipName,
-              amount: -Math.abs(detail.due), // negative (expense)
+              amount: -Math.abs(detail.due),
               type: 'order',
               itemName: order.itemName || 'Order',
               paid: detail.paid || false
@@ -1904,6 +1931,9 @@
           }
         });
       });
+
+      console.log('Total order transactions found:', orderTxs.length);
+      console.log('=== END DEBUG ===');
 
       return orderTxs;
     }
@@ -1977,14 +2007,7 @@
         return;
       }
 
-      // Calculate running balance (chronological order)
-      let balance = 0;
-      const txsWithBalance = allTxs.reverse().map(tx => {
-        balance += tx.amount;
-        return { ...tx, balance };
-      }).reverse();
-
-      // Get current balance from VIP list
+      // Get current balance from VIP list FIRST
       const vipArea = document.getElementById('vipArea');
       const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
 
@@ -1992,6 +2015,21 @@
       const topupCount = cashTxs.filter(tx => tx.type === 'topup').length;
       const cashoutCount = cashTxs.filter(tx => tx.type === 'cashout').length;
       const orderCount = orderTxs.length;
+
+      // Calculate running balance CORRECTLY
+      // Strategy: Work backwards from current balance
+      // Sort newest first, then calculate what balance was BEFORE each transaction
+      let balance = currentBalance;
+      const txsWithBalance = allTxs.map(tx => {
+        // Balance AFTER this transaction
+        const balanceAfter = balance;
+        // Calculate balance BEFORE by reversing the transaction
+        balance = balance - tx.amount; // Undo the transaction
+        return { ...tx, balance: balanceAfter };
+      });
+
+      // Now reverse to show chronological order (oldest first)
+      txsWithBalance.reverse();
 
       // Render
       const html = `
