@@ -1530,19 +1530,23 @@
         </div>
 
         <!-- Transaction Filters -->
-        <div id="vipHistoryFilters" style="display: none; margin-top: 16px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+        <div id="vipHistoryFilters"
+          style="display: none; margin-top: 16px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
             <div class="form-group" style="margin: 0;">
               <label class="form-label" style="font-size: 12px;">Từ ngày</label>
-              <input type="date" id="filterDateFrom" class="form-input" style="font-size: 13px; padding: 8px;" onchange="applyVipHistoryFilters()">
+              <input type="date" id="filterDateFrom" class="form-input" style="font-size: 13px; padding: 8px;"
+                onchange="applyVipHistoryFilters()">
             </div>
             <div class="form-group" style="margin: 0;">
               <label class="form-label" style="font-size: 12px;">Đến ngày</label>
-              <input type="date" id="filterDateTo" class="form-input" style="font-size: 13px; padding: 8px;" onchange="applyVipHistoryFilters()">
+              <input type="date" id="filterDateTo" class="form-input" style="font-size: 13px; padding: 8px;"
+                onchange="applyVipHistoryFilters()">
             </div>
             <div class="form-group" style="margin: 0;">
               <label class="form-label" style="font-size: 12px;">Loại giao dịch</label>
-              <select id="filterTxType" class="form-input" style="font-size: 13px; padding: 8px;" onchange="applyVipHistoryFilters()">
+              <select id="filterTxType" class="form-input" style="font-size: 13px; padding: 8px;"
+                onchange="applyVipHistoryFilters()">
                 <option value="all">Tất cả</option>
                 <option value="topup">💰 Nạp tiền</option>
                 <option value="cashout">💸 Rút tiền</option>
@@ -1551,7 +1555,8 @@
             </div>
             <div class="form-group" style="margin: 0;">
               <label class="form-label" style="font-size: 12px;">Trạng thái thanh toán</label>
-              <select id="filterPaymentStatus" class="form-input" style="font-size: 13px; padding: 8px;" onchange="applyVipHistoryFilters()">
+              <select id="filterPaymentStatus" class="form-input" style="font-size: 13px; padding: 8px;"
+                onchange="applyVipHistoryFilters()">
                 <option value="all">Tất cả</option>
                 <option value="paid">✅ Đã trả</option>
                 <option value="unpaid">⏳ Chưa trả</option>
@@ -1559,8 +1564,11 @@
             </div>
           </div>
           <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
-            <button onclick="clearVipHistoryFilters()" class="btn-secondary" style="padding: 8px 16px; font-size: 13px;">🔄 Đặt lại</button>
-            <button onclick="exportVipHistoryToCSV()" class="btn-primary" style="padding: 8px 16px; font-size: 13px; background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));">📥 Xuất CSV</button>
+            <button onclick="clearVipHistoryFilters()" class="btn-secondary"
+              style="padding: 8px 16px; font-size: 13px;">🔄 Đặt lại</button>
+            <button onclick="exportVipHistoryToCSV()" class="btn-primary"
+              style="padding: 8px 16px; font-size: 13px; background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));">📥
+              Xuất CSV</button>
             <div style="flex: 1;"></div>
             <span id="filterResultCount" style="font-size: 13px; color: var(--text-muted); line-height: 32px;"></span>
           </div>
@@ -2325,16 +2333,21 @@
       const vipArea = document.getElementById('vipArea');
       const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
 
-      // Calculate running balance
-      let balance = currentBalance;
-      const txsWithBalance = allTxs.map(tx => {
-        const balanceAfter = balance;
-        balance = balance - tx.amount;
-        return { ...tx, balance: balanceAfter };
-      });
+      // Calculate running balance correctly
+      // Strategy: Sort oldest first, calculate initial balance, then forward
+      const sortedOldestFirst = [...allTxs].sort((a, b) =>
+        new Date(a.ts).getTime() - new Date(b.ts).getTime()
+      );
 
-      // Reverse to show chronological order (oldest first)
-      txsWithBalance.reverse();
+      // Calculate what initial balance should be to end up with currentBalance
+      const totalChange = sortedOldestFirst.reduce((sum, tx) => sum + tx.amount, 0);
+      let runningBalance = currentBalance - totalChange;
+
+      // Now calculate balance AFTER each transaction (chronological order)
+      const txsWithBalance = sortedOldestFirst.map(tx => {
+        runningBalance += tx.amount;
+        return { ...tx, balance: runningBalance };
+      });
 
       // Store for filtering
       currentVipTransactions = txsWithBalance;
@@ -2395,13 +2408,13 @@
                 </thead>
                 <tbody>
                   ${transactions.map((tx, idx) => {
-                    const isEven = idx % 2 === 0;
-                    const bgColor = isEven ? 'rgba(255,255,255,0.02)' : 'transparent';
-                    const typeLabel = tx.type === 'topup' ? '💰 Nạp' : tx.type === 'cashout' ? '💸 Rút' : '🍜 Order';
-                    const amountColor = tx.amount >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
-                    const balanceColor = tx.balance >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+        const isEven = idx % 2 === 0;
+        const bgColor = isEven ? 'rgba(255,255,255,0.02)' : 'transparent';
+        const typeLabel = tx.type === 'topup' ? '💰 Nạp' : tx.type === 'cashout' ? '💸 Rút' : '🍜 Order';
+        const amountColor = tx.amount >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+        const balanceColor = tx.balance >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
 
-                    return `
+        return `
                       <tr style="background: ${bgColor}; transition: background 0.2s;" onmouseover="this.style.background='rgba(99,102,241,0.08)'" onmouseout="this.style.background='${bgColor}'">
                         <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">${compactDate(tx.ts)}</td>
                         <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap;">${typeLabel}</td>
@@ -2416,7 +2429,7 @@
                         </td>
                       </tr>
                     `;
-                  }).join('')}
+      }).join('')}
                 </tbody>
               </table>
             </div>
@@ -2632,7 +2645,7 @@
 
       // Generate filename with date
       const now = new Date();
-      const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+      const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
       const filename = `vip_transactions_${selectedName.replace(/\s+/g, '_')}_${dateStr}.csv`;
 
       link.href = URL.createObjectURL(blob);
