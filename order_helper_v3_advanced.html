@@ -1315,10 +1315,10 @@
           </div>
 
           <div class="btn-group">
-            <button class="btn btn-secondary" onclick="addNewVIP()">
+            <button type="button" class="btn btn-secondary" onclick="addNewVIP()">
               ➕ Nạp VIP
             </button>
-            <button class="btn btn-warning" onclick="cashOutVIP()">
+            <button type="button" class="btn btn-warning" onclick="cashOutVIP()">
               💸 Cash Out
             </button>
           </div>
@@ -1350,6 +1350,61 @@
         </div>
       </div>
 
+      <!-- VIP Top-up Modal -->
+      <div id="vipTopupModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+          <div class="modal-header">
+            <h2>➕ Nạp VIP</h2>
+            <button class="close-btn" onclick="closeVipTopupModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Tên VIP</label>
+              <input type="text" id="vipTopupName" class="form-input" placeholder="Nhập tên VIP..." autofocus>
+            </div>
+            <div class="form-group">
+              <label>Số tiền nạp (đ)</label>
+              <input type="number" id="vipTopupAmount" class="form-input" placeholder="Nhập số tiền..." min="1">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeVipTopupModal()">Hủy</button>
+            <button type="button" class="btn btn-primary" onclick="submitVipTopup()">Nạp tiền</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIP Cash Out Modal -->
+      <div id="vipCashOutModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+          <div class="modal-header">
+            <h2>💸 Cash Out VIP</h2>
+            <button class="close-btn" onclick="closeVipCashOutModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Chọn VIP</label>
+              <select id="vipCashOutName" class="form-input" onchange="updateCashOutBalance()">
+                <option value="">-- Chọn VIP --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Số dư hiện tại</label>
+              <input type="text" id="vipCashOutCurrentBalance" class="form-input" readonly disabled>
+            </div>
+            <div class="form-group">
+              <label>Số tiền rút (để trống để rút hết)</label>
+              <input type="number" id="vipCashOutAmount" class="form-input" placeholder="Nhập số tiền..." min="1">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeVipCashOutModal()">Hủy</button>
+            <button type="button" class="btn btn-warning" onclick="submitVipCashOut()">Rút tiền</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Detail Modal -->
       <!-- Order Table -->
       <div class="glass-card" style="margin-top: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -1669,7 +1724,13 @@
 
         <div class="btn-group">
           <button class="btn btn-primary" onclick="backupToGithub()" style="flex: 1;">
-            💾 Backup ngay
+            📤 Backup to Github
+          </button>
+          <button class="btn btn-success" onclick="downloadBackup()" style="flex: 1;">
+            💾 Download Backup
+          </button>
+          <button class="btn btn-info" onclick="restoreFromFile()" style="flex: 1;">
+            📥 Restore from File
           </button>
           <button class="btn btn-secondary" onclick="restoreFromGithub()" style="flex: 1;">
             📥 Restore
@@ -3003,6 +3064,79 @@
           detailElem.textContent = 'Auto-backup tắt';
         }
       }
+    }
+
+    function downloadBackup() {
+      try {
+        // Collect all data from localStorage
+        const backup = {
+          version: "1.0",
+          timestamp: new Date().toISOString(),
+          backupTime: Date.now(),
+          data: {
+            orderHistory: JSON.parse(localStorage.getItem('orderHistory') || '[]'),
+            vipTransactions: JSON.parse(localStorage.getItem('vipTransactions') || '[]'),
+            vipList: localStorage.getItem('vipList') || ''
+          },
+          metadata: {
+            orderCount: JSON.parse(localStorage.getItem('orderHistory') || '[]').length,
+            transactionCount: JSON.parse(localStorage.getItem('vipTransactions') || '[]').length,
+            exportedBy: 'Order Helper Pro',
+            exportDate: new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
+          }
+        };
+
+        // Create blob and download
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup-${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        alert('✅ Đã tải xuống file backup!');
+      } catch (err) {
+        alert('❌ Lỗi khi tạo backup: ' + err.message);
+        console.error(err);
+      }
+    }
+
+    function restoreFromFile() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+          const text = await file.text();
+          const backup = JSON.parse(text);
+
+          if (!backup.data || !backup.data.orderHistory || !backup.data.vipTransactions || !backup.data.vipList) {
+            alert('❌ File backup không hợp lệ!');
+            return;
+          }
+
+          const confirmMsg = `Restore từ:\n${file.name}\n\n${backup.data.orderHistory.length} orders\n${backup.data.vipTransactions.length} transactions\n\n⚠️ Dữ liệu hiện tại sẽ bị ghi đè!`;
+          if (!confirm(confirmMsg)) return;
+
+          localStorage.setItem('orderHistory', JSON.stringify(backup.data.orderHistory));
+          localStorage.setItem('vipTransactions', JSON.stringify(backup.data.vipTransactions));
+          localStorage.setItem('vipList', backup.data.vipList);
+
+          alert('✅ Restore thành công!');
+          setTimeout(() => location.reload(), 1000);
+        } catch (err) {
+          alert('❌ Lỗi: ' + err.message);
+        }
+      };
+
+      input.click();
     }
 
     async function backupToGithub() {
@@ -5071,80 +5205,156 @@
 
     // VIP Management Functions
     function addNewVIP() {
-      const name = prompt('Nhập tên VIP:');
-      if (!name || !name.trim()) return;
+      // Open modal
+      document.getElementById('vipTopupModal').classList.add('active');
+      // Clear previous values
+      document.getElementById('vipTopupName').value = '';
+      document.getElementById('vipTopupAmount').value = '';
+      // Focus on name input
+      setTimeout(() => document.getElementById('vipTopupName').focus(), 100);
+    }
 
-      const amount = prompt('Số tiền nạp:');
+    function closeVipTopupModal() {
+      document.getElementById('vipTopupModal').classList.remove('active');
+    }
+
+    function submitVipTopup() {
+      const name = document.getElementById('vipTopupName').value.trim();
+      const amount = document.getElementById('vipTopupAmount').value;
+
+      if (!name) {
+        alert('⚠️ Vui lòng nhập tên VIP!');
+        document.getElementById('vipTopupName').focus();
+        return;
+      }
+
       if (!amount || isNaN(amount) || Number(amount) <= 0) {
         alert('⚠️ Số tiền không hợp lệ!');
+        document.getElementById('vipTopupAmount').focus();
         return;
       }
 
       const vipMap = parseVip(document.getElementById('vipArea').value);
-      const currentBalance = vipMap.get(name.trim()) || 0;
+      const currentBalance = vipMap.get(name) || 0;
       const newBalance = currentBalance + Number(amount);
 
-      vipMap.set(name.trim(), newBalance);
+      vipMap.set(name, newBalance);
 
       const vipText = vipToText(vipMap);
       document.getElementById('vipArea').value = vipText;
       persistVipList(vipText);
 
-      recordVipTransaction({ name: name.trim(), amount: Number(amount), type: 'topup' });
-      alert(`✅ Đã nạp ${formatMoney(Number(amount))} cho ${name.trim()}\nSố dư mới: ${formatMoney(newBalance)}`);
+      recordVipTransaction({ name: name, amount: Number(amount), type: 'topup' });
+
+      // Close modal
+      closeVipTopupModal();
+
+      // Show success
+      alert(`✅ Đã nạp ${formatMoney(Number(amount))} cho ${name}\nSố dư mới: ${formatMoney(newBalance)}`);
     }
 
     function cashOutVIP() {
+      // Parse VIP list
       const vipMap = parseVip(document.getElementById('vipArea').value);
 
-      if (vipMap.size === 0) {
-        alert('⚠️ Không có VIP nào!');
+      // Populate dropdown
+      const select = document.getElementById('vipCashOutName');
+      select.innerHTML = '<option value="">-- Chọn VIP --</option>';
+
+      for (const [name, balance] of vipMap.entries()) {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = `${name} (${formatMoney(balance)})`;
+        select.appendChild(option);
+      }
+
+      // Clear previous values
+      document.getElementById('vipCashOutCurrentBalance').value = '';
+      document.getElementById('vipCashOutAmount').value = '';
+
+      // Open modal
+      document.getElementById('vipCashOutModal').classList.add('active');
+    }
+
+    function closeVipCashOutModal() {
+      document.getElementById('vipCashOutModal').classList.remove('active');
+    }
+
+    function updateCashOutBalance() {
+      const name = document.getElementById('vipCashOutName').value;
+      if (!name) {
+        document.getElementById('vipCashOutCurrentBalance').value = '';
         return;
       }
 
-      const vipList = Array.from(vipMap.keys()).join('\n');
-      const name = prompt(`Chọn VIP để cash out:\n\n${vipList}\n\nNhập tên:`);
-      if (!name || !name.trim()) return;
+      const vipMap = parseVip(document.getElementById('vipArea').value);
+      const balance = vipMap.get(name) || 0;
+      document.getElementById('vipCashOutCurrentBalance').value = formatMoney(balance);
+    }
 
-      const currentBalance = vipMap.get(name.trim());
-      if (currentBalance === undefined) {
-        alert('⚠️ Không tìm thấy VIP này!');
+    function submitVipCashOut() {
+      const name = document.getElementById('vipCashOutName').value;
+
+      if (!name) {
+        alert('⚠️ Vui lòng chọn VIP!');
         return;
       }
 
-      const amount = prompt(`Số dư hiện tại: ${formatMoney(currentBalance)}\n\nNhập số tiền rút (hoặc để trống để rút hết):`);
+      const vipMap = parseVip(document.getElementById('vipArea').value);
+      const currentBalance = vipMap.get(name) || 0;
 
-      let withdrawAmount;
-      if (!amount || amount.trim() === '') {
-        withdrawAmount = currentBalance;
+      if (currentBalance <= 0) {
+        alert('⚠️ VIP này không có số dư!');
+        return;
+      }
+
+      const amountInput = document.getElementById('vipCashOutAmount').value;
+      let amount = 0;
+
+      if (!amountInput || amountInput.trim() === '') {
+        // Rút hết
+        amount = currentBalance;
       } else {
-        withdrawAmount = Number(amount);
-        if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
+        amount = Number(amountInput);
+        if (isNaN(amount) || amount <= 0) {
           alert('⚠️ Số tiền không hợp lệ!');
+          document.getElementById('vipCashOutAmount').focus();
           return;
         }
-        if (withdrawAmount > currentBalance) {
-          alert('⚠️ Số tiền rút vượt quá số dư!');
+        if (amount > currentBalance) {
+          alert(`⚠️ Số tiền rút vượt quá số dư hiện tại (${formatMoney(currentBalance)})!`);
+          document.getElementById('vipCashOutAmount').focus();
           return;
         }
       }
 
-      const newBalance = currentBalance - withdrawAmount;
+      const newBalance = currentBalance - amount;
 
       if (newBalance === 0) {
-        vipMap.delete(name.trim());
+        if (!confirm(`Rút hết ${formatMoney(amount)} và xóa ${name} khỏi danh sách VIP?`)) {
+          return;
+        }
+        vipMap.delete(name);
       } else {
-        vipMap.set(name.trim(), newBalance);
+        vipMap.set(name, newBalance);
       }
 
       const vipText = vipToText(vipMap);
       document.getElementById('vipArea').value = vipText;
       persistVipList(vipText);
 
-      recordVipTransaction({ name: name.trim(), amount: -withdrawAmount, type: 'cashout' });
-      alert(`✅ Đã cash out ${formatMoney(withdrawAmount)} cho ${name.trim()}\nSố dư còn lại: ${formatMoney(newBalance)}`);
-    }
+      recordVipTransaction({ name: name, amount: amount, type: 'cashout' });
 
+      // Close modal
+      closeVipCashOutModal();
+
+      // Show success
+      if (newBalance === 0) {
+        alert(`✅ Đã rút ${formatMoney(amount)} và xóa ${name} khỏi danh sách VIP`);
+      } else {
+        alert(`✅ Đã rút ${formatMoney(amount)} cho ${name}\nSố dư mới: ${formatMoney(newBalance)}`);
+      }
+    }
     function importHistory() {
       const input = document.createElement('input');
       input.type = 'file';
