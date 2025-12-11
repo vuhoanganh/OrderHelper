@@ -2298,10 +2298,17 @@
           }
 
           if (normalizedDetailName === normalizedVipName && detail.due) {
+            // Only include orders paid with VIP or unpaid orders (debts)
+            // Skip orders paid with cash
+            if (detail.paid && detail.paymentMethod !== 'vip') {
+              if (idx < 3) console.log(`⏭️ SKIP (paid with cash):`, detailName, order.itemName);
+              return;
+            }
+
             const date = new Date(parseInt(timestamp));
             if (isNaN(date.getTime())) return;
 
-            console.log('✅ MATCH FOUND:', detailName, 'due:', detail.due);
+            console.log('✅ MATCH FOUND:', detailName, 'due:', detail.due, 'paymentMethod:', detail.paymentMethod);
 
             orderTxs.push({
               id: timestamp + '_' + detailName,
@@ -2310,7 +2317,8 @@
               amount: -Math.abs(detail.due),
               type: 'order',
               itemName: order.itemName || 'Order',
-              paid: detail.paid || false
+              paid: detail.paid || false,
+              paymentMethod: detail.paymentMethod || 'cash'
             });
           }
         });
@@ -2430,8 +2438,14 @@
       const totalChange = sortedOldestFirst.reduce((sum, tx) => sum + tx.amount, 0);
 
       // Now calculate balance AFTER each transaction (chronological order)
+      // Only count paid transactions in the running balance
       const txsWithBalance = sortedOldestFirst.map(tx => {
-        runningBalance += tx.amount;
+        // Only add to balance if:
+        // 1. It's a topup/cashout (always affects balance)
+        // 2. It's an order that has been paid
+        if (tx.type !== 'order' || tx.paid === true) {
+          runningBalance += tx.amount;
+        }
         return { ...tx, balance: runningBalance };
       });
 
@@ -4768,11 +4782,12 @@
         paymentMethod = 'vip';
       }
 
-      // Mark as paid
+      // Mark as paid and store payment method
       changes.forEach(change => {
         const order = orderHistory.find(o => o.id === change.orderId);
         if (order && order.details[change.detailIndex]) {
           order.details[change.detailIndex].paid = true;
+          order.details[change.detailIndex].paymentMethod = paymentMethod;
         }
       });
 
@@ -4833,6 +4848,7 @@
       }
 
       detail.paid = true;
+      detail.paymentMethod = paymentMethod;
       lastDebtorPaidSnapshot = {
         name: target,
         changes: [{ orderId, detailIndex, due: detail.due }]
