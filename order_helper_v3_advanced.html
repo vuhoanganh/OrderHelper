@@ -1377,6 +1377,36 @@
         </div>
       </div>
 
+      <!-- VIP Cash Out Modal -->
+      <div id="vipCashOutModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+          <div class="modal-header">
+            <h2>💸 Cash Out VIP</h2>
+            <button class="close-btn" onclick="closeVipCashOutModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Chọn VIP</label>
+              <select id="vipCashOutName" class="form-input" onchange="updateCashOutBalance()">
+                <option value="">-- Chọn VIP --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Số dư hiện tại</label>
+              <input type="text" id="vipCashOutCurrentBalance" class="form-input" readonly disabled>
+            </div>
+            <div class="form-group">
+              <label>Số tiền rút (để trống để rút hết)</label>
+              <input type="number" id="vipCashOutAmount" class="form-input" placeholder="Nhập số tiền..." min="1">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeVipCashOutModal()">Hủy</button>
+            <button type="button" class="btn btn-warning" onclick="submitVipCashOut()">Rút tiền</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Order Detail Modal -->
       <!-- Order Table -->
       <div class="glass-card" style="margin-top: 24px;">
@@ -5113,56 +5143,107 @@
     }
 
     function cashOutVIP() {
+      // Parse VIP list
       const vipMap = parseVip(document.getElementById('vipArea').value);
 
-      if (vipMap.size === 0) {
-        alert('⚠️ Không có VIP nào!');
+      // Populate dropdown
+      const select = document.getElementById('vipCashOutName');
+      select.innerHTML = '<option value="">-- Chọn VIP --</option>';
+
+      for (const [name, balance] of vipMap.entries()) {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = `${name} (${formatMoney(balance)})`;
+        select.appendChild(option);
+      }
+
+      // Clear previous values
+      document.getElementById('vipCashOutCurrentBalance').value = '';
+      document.getElementById('vipCashOutAmount').value = '';
+
+      // Open modal
+      document.getElementById('vipCashOutModal').classList.add('active');
+    }
+
+    function closeVipCashOutModal() {
+      document.getElementById('vipCashOutModal').classList.remove('active');
+    }
+
+    function updateCashOutBalance() {
+      const name = document.getElementById('vipCashOutName').value;
+      if (!name) {
+        document.getElementById('vipCashOutCurrentBalance').value = '';
         return;
       }
 
-      const vipList = Array.from(vipMap.keys()).join('\n');
-      const name = prompt(`Chọn VIP để cash out:\n\n${vipList}\n\nNhập tên:`);
-      if (!name || !name.trim()) return;
+      const vipMap = parseVip(document.getElementById('vipArea').value);
+      const balance = vipMap.get(name) || 0;
+      document.getElementById('vipCashOutCurrentBalance').value = formatMoney(balance);
+    }
 
-      const currentBalance = vipMap.get(name.trim());
-      if (currentBalance === undefined) {
-        alert('⚠️ Không tìm thấy VIP này!');
+    function submitVipCashOut() {
+      const name = document.getElementById('vipCashOutName').value;
+
+      if (!name) {
+        alert('⚠️ Vui lòng chọn VIP!');
         return;
       }
 
-      const amount = prompt(`Số dư hiện tại: ${formatMoney(currentBalance)}\n\nNhập số tiền rút (hoặc để trống để rút hết):`);
+      const vipMap = parseVip(document.getElementById('vipArea').value);
+      const currentBalance = vipMap.get(name) || 0;
 
-      let withdrawAmount;
-      if (!amount || amount.trim() === '') {
-        withdrawAmount = currentBalance;
+      if (currentBalance <= 0) {
+        alert('⚠️ VIP này không có số dư!');
+        return;
+      }
+
+      const amountInput = document.getElementById('vipCashOutAmount').value;
+      let amount = 0;
+
+      if (!amountInput || amountInput.trim() === '') {
+        // Rút hết
+        amount = currentBalance;
       } else {
-        withdrawAmount = Number(amount);
-        if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
+        amount = Number(amountInput);
+        if (isNaN(amount) || amount <= 0) {
           alert('⚠️ Số tiền không hợp lệ!');
+          document.getElementById('vipCashOutAmount').focus();
           return;
         }
-        if (withdrawAmount > currentBalance) {
-          alert('⚠️ Số tiền rút vượt quá số dư!');
+        if (amount > currentBalance) {
+          alert(`⚠️ Số tiền rút vượt quá số dư hiện tại (${formatMoney(currentBalance)})!`);
+          document.getElementById('vipCashOutAmount').focus();
           return;
         }
       }
 
-      const newBalance = currentBalance - withdrawAmount;
+      const newBalance = currentBalance - amount;
 
       if (newBalance === 0) {
-        vipMap.delete(name.trim());
+        if (!confirm(`Rút hết ${formatMoney(amount)} và xóa ${name} khỏi danh sách VIP?`)) {
+          return;
+        }
+        vipMap.delete(name);
       } else {
-        vipMap.set(name.trim(), newBalance);
+        vipMap.set(name, newBalance);
       }
 
       const vipText = vipToText(vipMap);
       document.getElementById('vipArea').value = vipText;
       persistVipList(vipText);
 
-      recordVipTransaction({ name: name.trim(), amount: -withdrawAmount, type: 'cashout' });
-      alert(`✅ Đã cash out ${formatMoney(withdrawAmount)} cho ${name.trim()}\nSố dư còn lại: ${formatMoney(newBalance)}`);
-    }
+      recordVipTransaction({ name: name, amount: amount, type: 'cashout' });
 
+      // Close modal
+      closeVipCashOutModal();
+
+      // Show success
+      if (newBalance === 0) {
+        alert(`✅ Đã rút ${formatMoney(amount)} và xóa ${name} khỏi danh sách VIP`);
+      } else {
+        alert(`✅ Đã rút ${formatMoney(amount)} cho ${name}\nSố dư mới: ${formatMoney(newBalance)}`);
+      }
+    }
     function importHistory() {
       const input = document.createElement('input');
       input.type = 'file';
