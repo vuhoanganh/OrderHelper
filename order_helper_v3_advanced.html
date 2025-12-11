@@ -1720,7 +1720,10 @@
 
         <div class="btn-group">
           <button class="btn btn-primary" onclick="backupToGithub()" style="flex: 1;">
-            💾 Backup ngay
+            📤 Backup to Github
+          </button>
+          <button class="btn btn-success" onclick="downloadBackup()" style="flex: 1;">
+            💾 Download Backup
           </button>
           <button class="btn btn-secondary" onclick="restoreFromGithub()" style="flex: 1;">
             📥 Restore
@@ -3037,6 +3040,44 @@
           statusElem.textContent = '⚪ Inactive';
           detailElem.textContent = 'Auto-backup tắt';
         }
+      }
+    }
+
+    function downloadBackup() {
+      try {
+        // Collect all data from localStorage
+        const backup = {
+          version: "1.0",
+          timestamp: new Date().toISOString(),
+          backupTime: Date.now(),
+          data: {
+            orderHistory: JSON.parse(localStorage.getItem('orderHistory') || '[]'),
+            vipTransactions: JSON.parse(localStorage.getItem('vipTransactions') || '[]'),
+            vipList: localStorage.getItem('vipList') || ''
+          },
+          metadata: {
+            orderCount: JSON.parse(localStorage.getItem('orderHistory') || '[]').length,
+            transactionCount: JSON.parse(localStorage.getItem('vipTransactions') || '[]').length,
+            exportedBy: 'Order Helper Pro',
+            exportDate: new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
+          }
+        };
+
+        // Create blob and download
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `kitchen_backup_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        alert('✅ Đã tải xuống file backup!');
+      } catch (err) {
+        alert('❌ Lỗi khi tạo backup: ' + err.message);
+        console.error(err);
       }
     }
 
