@@ -2295,6 +2295,21 @@
     // Store all transactions globally for filtering
     let currentVipTransactions = [];
 
+    // VIP History Functions
+    function saveInitialBalance() {
+      const vipName = document.getElementById('vipMemberSelect').value;
+      const balance = document.getElementById('vipInitialBalance').value;
+
+      if (!vipName) return;
+
+      // Save to localStorage
+      const key = `vipInitialBalance_${vipName}`;
+      localStorage.setItem(key, balance || '0');
+
+      // Recalculate history
+      showVipMemberHistory();
+    }
+
     function showVipMemberHistory() {
       const select = document.getElementById('vipMemberSelect');
       const container = document.getElementById('vipMemberHistoryContainer');
@@ -2331,7 +2346,9 @@
       const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
 
       // Calculate running balance correctly
-      // Strategy: Sort oldest first, calculate initial balance, then forward
+      // Start from initial balance
+      const initialBalance = parseFloat(localStorage.getItem(`vipInitialBalance_${selectedName}`) || '0');
+      let runningBalance = initialBalance;
       const sortedOldestFirst = [...allTxs].sort((a, b) =>
         new Date(a.ts).getTime() - new Date(b.ts).getTime()
       );
@@ -4949,6 +4966,20 @@
     function renderVipReport(name) {
       const content = document.getElementById('vipReportContent');
       if (!content) return;
+      const vipName = document.getElementById('vipMemberSelect').value;
+      if (!vipName) {
+        document.getElementById('vipHistoryContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Chọn VIP để xem lịch sử</p>';
+        return;
+      }
+
+      // Load saved initial balance
+      const savedBalance = localStorage.getItem(`vipInitialBalance_${vipName}`);
+      const initialBalanceInput = document.getElementById('vipInitialBalance');
+      if (initialBalanceInput) {
+        initialBalanceInput.value = savedBalance || '0';
+      }
+      const initialBalance = Number(savedBalance || 0);
+
       if (!name) {
         content.innerHTML = '<div class="empty-state" style="padding:12px 0;">Chọn VIP để xem lịch sử</div>';
         return;
