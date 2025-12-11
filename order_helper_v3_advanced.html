@@ -3084,6 +3084,41 @@
       }
     }
 
+    function restoreFromFile() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+          const text = await file.text();
+          const backup = JSON.parse(text);
+
+          if (!backup.data || !backup.data.orderHistory || !backup.data.vipTransactions || !backup.data.vipList) {
+            alert('❌ File backup không hợp lệ!');
+            return;
+          }
+
+          const confirmMsg = `Restore từ:\n${file.name}\n\n${backup.data.orderHistory.length} orders\n${backup.data.vipTransactions.length} transactions\n\n⚠️ Dữ liệu hiện tại sẽ bị ghi đè!`;
+          if (!confirm(confirmMsg)) return;
+
+          localStorage.setItem('orderHistory', JSON.stringify(backup.data.orderHistory));
+          localStorage.setItem('vipTransactions', JSON.stringify(backup.data.vipTransactions));
+          localStorage.setItem('vipList', backup.data.vipList);
+
+          alert('✅ Restore thành công!');
+          setTimeout(() => location.reload(), 1000);
+        } catch (err) {
+          alert('❌ Lỗi: ' + err.message);
+        }
+      };
+
+      input.click();
+    }
+
     async function backupToGithub() {
       try {
         addBackupLog('🚀 Bắt đầu backup...');
