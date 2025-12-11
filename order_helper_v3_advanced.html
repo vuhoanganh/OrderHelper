@@ -1526,6 +1526,13 @@
           </select>
         </div>
 
+        <div class="form-group">
+          <label class="form-label">Số dư ban đầu (đ)</label>
+          <input type="number" id="vipInitialBalance" class="form-input" placeholder="0" oninput="saveInitialBalance()"
+            onblur="saveInitialBalance()">
+          <div class="helper-text">Nhập số dư tại thời điểm bắt đầu tính (để trống = 0đ)</div>
+        </div>
+
         <!-- Transaction Filters -->
         <div id="vipHistoryFilters"
           style="display: none; margin-top: 16px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
