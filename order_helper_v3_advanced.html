@@ -4729,6 +4729,41 @@
       const confirmMsg = `Đánh dấu đã trả cho ${target}?\n${changes.length} mục, tổng ${formatMoney(totalCleared)}`;
       if (!confirm(confirmMsg)) return;
 
+      // Check if this person has VIP
+      const vipMap = parseVip(document.getElementById('vipArea').value);
+      const hasVIP = vipMap.has(target);
+      let paymentMethod = 'cash';
+
+      if (hasVIP) {
+        const currentBalance = vipMap.get(target);
+
+        // Deduct from VIP balance
+        const newBalance = currentBalance - totalCleared;
+        vipMap.set(target, newBalance);
+
+        // Update VIP textarea and persist
+        const vipText = vipToText(vipMap);
+        document.getElementById('vipArea').value = vipText;
+        persistVipList(vipText);
+
+        // Record VIP transaction for each debt
+        changes.forEach(change => {
+          const order = orderHistory.find(o => o.id === change.orderId);
+          if (order) {
+            recordVipTransaction({
+              name: target,
+              amount: -change.due,
+              type: 'order',
+              itemName: order.itemName,
+              orderId: order.id
+            });
+          }
+        });
+
+        paymentMethod = 'vip';
+      }
+
+      // Mark as paid
       changes.forEach(change => {
         const order = orderHistory.find(o => o.id === change.orderId);
         if (order && order.details[change.detailIndex]) {
@@ -4740,7 +4775,11 @@
       localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
       loadDebtManagement();
       loadHistory();
-      alert(`✅ Đã đánh dấu ${target} đã trả hết nợ`);
+      renderVipHistory();
+      populateVipMemberSelect();
+
+      const paymentText = paymentMethod === 'vip' ? 'từ VIP' : 'bằng tiền mặt';
+      alert(`✅ Đã đánh dấu ${target} đã trả hết nợ ${paymentText}\nTổng: ${formatMoney(totalCleared)}`);
     }
 
     function markSingleDebtPaid(orderId, detailIndex, name) {
@@ -4757,16 +4796,51 @@
         `${order.itemName} - ${formatMoney(detail.due)} (${detail.qty} phần)`;
       if (!confirm(confirmMsg)) return;
 
+      const target = (name || detail.name).trim();
+
+      // Check if this person has VIP
+      const vipMap = parseVip(document.getElementById('vipArea').value);
+      const hasVIP = vipMap.has(target);
+      let paymentMethod = 'cash';
+
+      if (hasVIP) {
+        const currentBalance = vipMap.get(target);
+
+        // Deduct from VIP balance
+        const newBalance = currentBalance - detail.due;
+        vipMap.set(target, newBalance);
+
+        // Update VIP textarea and persist
+        const vipText = vipToText(vipMap);
+        document.getElementById('vipArea').value = vipText;
+        persistVipList(vipText);
+
+        // Record VIP transaction
+        recordVipTransaction({
+          name: target,
+          amount: -detail.due,
+          type: 'order',
+          itemName: order.itemName,
+          orderId: order.id
+        });
+
+        paymentMethod = 'vip';
+      }
+
       detail.paid = true;
       lastDebtorPaidSnapshot = {
-        name: name || detail.name,
-        changes: [{ orderId, detailIndex }]
+        name: target,
+        changes: [{ orderId, detailIndex, due: detail.due }]
       };
 
       localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
       loadDebtManagement();
       loadHistory();
-      alert('✅ Đã đánh dấu đã trả');
+      renderVipHistory();
+      populateVipMemberSelect();
+
+      const paymentText = paymentMethod === 'vip' ? 'từ VIP' : 'bằng tiền mặt';
+      alert(`✅ Đã đánh dấu đã trả ${paymentText}`);
     }
 
     function undoLastDebtorPaid() {
@@ -4776,6 +4850,32 @@
       }
 
       const { name, changes } = lastDebtorPaidSnapshot;
+
+      // Check if this person has VIP - if so, refund the amount
+      const vipMap = parseVip(document.getElementById('vipArea').value);
+      const hasVIP = vipMap.has(name);
+
+      if (hasVIP) {
+        const currentBalance = vipMap.get(name);
+        let totalRefund = 0;
+
+        changes.forEach(change => {
+          if (change.due) {
+            totalRefund += change.due;
+          }
+        });
+
+        // Refund to VIP balance
+        const newBalance = currentBalance + totalRefund;
+        vipMap.set(name, newBalance);
+
+        // Update VIP textarea and persist
+        const vipText = vipToText(vipMap);
+        document.getElementById('vipArea').value = vipText;
+        persistVipList(vipText);
+      }
+
+      // Mark as unpaid
       changes.forEach(change => {
         const order = orderHistory.find(o => o.id === change.orderId);
         if (order && order.details[change.detailIndex]) {
@@ -4786,7 +4886,11 @@
       localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
       loadDebtManagement();
       loadHistory();
-      alert(`↩️ Đã hoàn tác đánh dấu đã trả cho ${name}`);
+      renderVipHistory();
+      populateVipMemberSelect();
+
+      const refundText = hasVIP ? ' (đã hoàn tiền vào VIP)' : '';
+      alert(`↩️ Đã hoàn tác đánh dấu đã trả cho ${name}${refundText}`);
       lastDebtorPaidSnapshot = null;
     }
 
