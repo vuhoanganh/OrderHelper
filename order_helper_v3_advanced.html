@@ -2206,7 +2206,7 @@
       });
     }
 
-    function recordVipTransaction({ name, amount, type }) {
+    function recordVipTransaction({ name, amount, type, itemName, orderId }) {
       if (!name || !Number.isFinite(amount)) return;
       const entry = {
         id: Date.now(),
@@ -2215,6 +2215,11 @@
         amount,
         type: type || (amount >= 0 ? 'topup' : 'cashout')
       };
+
+      // Add optional fields for order transactions
+      if (itemName) entry.itemName = itemName;
+      if (orderId) entry.orderId = orderId;
+
       vipTransactions.unshift(entry);
       vipTransactions = vipTransactions.slice(0, 200);
       localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
