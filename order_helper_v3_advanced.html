@@ -2355,7 +2355,6 @@
 
       // Calculate what initial balance should be to end up with currentBalance
       const totalChange = sortedOldestFirst.reduce((sum, tx) => sum + tx.amount, 0);
-      let runningBalance = currentBalance - totalChange;
 
       // Now calculate balance AFTER each transaction (chronological order)
       const txsWithBalance = sortedOldestFirst.map(tx => {
