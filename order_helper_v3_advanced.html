@@ -1353,6 +1353,31 @@
         </div>
       </div>
 
+      <!-- VIP Top-up Modal -->
+      <div id="vipTopupModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+          <div class="modal-header">
+            <h2>➕ Nạp VIP</h2>
+            <button class="close-btn" onclick="closeVipTopupModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Tên VIP</label>
+              <input type="text" id="vipTopupName" class="form-input" placeholder="Nhập tên VIP..." autofocus>
+            </div>
+            <div class="form-group">
+              <label>Số tiền nạp (đ)</label>
+              <input type="number" id="vipTopupAmount" class="form-input" placeholder="Nhập số tiền..." min="1">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeVipTopupModal()">Hủy</button>
+            <button type="button" class="btn btn-primary" onclick="submitVipTopup()">Nạp tiền</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Detail Modal -->
       <!-- Order Table -->
       <div class="glass-card" style="margin-top: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -5039,27 +5064,52 @@
     }
 
     function addNewVIP() {
-      const name = prompt('Nhập tên VIP:');
-      if (!name || !name.trim()) return;
+      // Open modal
+      document.getElementById('vipTopupModal').classList.add('active');
+      // Clear previous values
+      document.getElementById('vipTopupName').value = '';
+      document.getElementById('vipTopupAmount').value = '';
+      // Focus on name input
+      setTimeout(() => document.getElementById('vipTopupName').focus(), 100);
+    }
 
-      const amount = prompt('Số tiền nạp:');
+    function closeVipTopupModal() {
+      document.getElementById('vipTopupModal').classList.remove('active');
+    }
+
+    function submitVipTopup() {
+      const name = document.getElementById('vipTopupName').value.trim();
+      const amount = document.getElementById('vipTopupAmount').value;
+
+      if (!name) {
+        alert('⚠️ Vui lòng nhập tên VIP!');
+        document.getElementById('vipTopupName').focus();
+        return;
+      }
+
       if (!amount || isNaN(amount) || Number(amount) <= 0) {
         alert('⚠️ Số tiền không hợp lệ!');
+        document.getElementById('vipTopupAmount').focus();
         return;
       }
 
       const vipMap = parseVip(document.getElementById('vipArea').value);
-      const currentBalance = vipMap.get(name.trim()) || 0;
+      const currentBalance = vipMap.get(name) || 0;
       const newBalance = currentBalance + Number(amount);
 
-      vipMap.set(name.trim(), newBalance);
+      vipMap.set(name, newBalance);
 
       const vipText = vipToText(vipMap);
       document.getElementById('vipArea').value = vipText;
       persistVipList(vipText);
 
-      recordVipTransaction({ name: name.trim(), amount: Number(amount), type: 'topup' });
-      alert(`✅ Đã nạp ${formatMoney(Number(amount))} cho ${name.trim()}\nSố dư mới: ${formatMoney(newBalance)}`);
+      recordVipTransaction({ name: name, amount: Number(amount), type: 'topup' });
+
+      // Close modal
+      closeVipTopupModal();
+
+      // Show success
+      alert(`✅ Đã nạp ${formatMoney(Number(amount))} cho ${name}\nSố dư mới: ${formatMoney(newBalance)}`);
     }
 
     function cashOutVIP() {
