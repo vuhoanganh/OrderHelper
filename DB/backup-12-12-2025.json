@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "timestamp": "2025-12-11T17:47:12.858Z",
-  "backupTime": 1765475232858,
+  "timestamp": "2025-12-11T20:30:22.884Z",
+  "backupTime": 1765485022884,
   "data": {
     "orderHistory": [
       {
@@ -144,7 +144,7 @@
             "shipQty": 0,
             "nonShipQty": 1,
             "due": 60,
-            "paid": false,
+            "paid": true,
             "unitPrice": 60
           },
           {
@@ -1481,6 +1481,13 @@
     ],
     "vipTransactions": [
       {
+        "id": 1765483714771,
+        "ts": "2025-12-11T20:03:49.558Z",
+        "name": "Ryan",
+        "amount": -60,
+        "type": "order"
+      },
+      {
         "id": 1765474765697,
         "ts": "2025-12-11T17:39:25.697Z",
         "name": "Ryan",
@@ -1549,14 +1556,35 @@
         "name": "a Dave",
         "amount": 1000,
         "type": "topup"
+      },
+      {
+        "id": 1765484843939,
+        "ts": "2025-12-11T20:27:23.939Z",
+        "name": "Tùng",
+        "amount": -35,
+        "type": "order"
+      },
+      {
+        "id": 1765484843940,
+        "ts": "2025-12-11T20:27:23.939Z",
+        "name": "Tùng",
+        "amount": -38,
+        "type": "order"
+      },
+      {
+        "id": 1765484843941,
+        "ts": "2025-12-11T20:27:23.939Z",
+        "name": "Tùng",
+        "amount": -30,
+        "type": "order"
       }
     ],
-    "vipList": "a Duck=573đ\na Dave=638đ\nNathan=354đ\nKudo=367đ\nTùng=465đ\nRyan=300đ"
+    "vipList": "a Duck=573đ\na Dave=638đ\nNathan=354đ\nKudo=367đ\nTùng=362đ\nRyan=240đ"
   },
   "metadata": {
     "orderCount": 18,
-    "transactionCount": 10,
+    "transactionCount": 14,
     "exportedBy": "Order Helper Pro",
-    "exportDate": "00:47:12 12/12/2025"
+    "exportDate": "03:30:22 12/12/2025"
   }
 }

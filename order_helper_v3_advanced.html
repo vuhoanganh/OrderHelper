@@ -2206,7 +2206,7 @@
       });
     }
 
-    function recordVipTransaction({ name, amount, type }) {
+    function recordVipTransaction({ name, amount, type, itemName, orderId }) {
       if (!name || !Number.isFinite(amount)) return;
       const entry = {
         id: Date.now(),
@@ -2215,6 +2215,14 @@
         amount,
         type: type || (amount >= 0 ? 'topup' : 'cashout')
       };
+
+      // Add itemName and orderId for order transactions
+      if (type === 'order') {
+        if (itemName) entry.itemName = itemName;
+        if (orderId) entry.orderId = orderId;
+        entry.paid = true; // VIP order transactions are always paid
+      }
+
       vipTransactions.unshift(entry);
       vipTransactions = vipTransactions.slice(0, 200);
       localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
@@ -2394,14 +2402,30 @@
       // Show filters
       if (filtersDiv) filtersDiv.style.display = 'block';
 
-      // Get cash transactions (topup/cashout)
-      const cashTxs = vipTransactions.filter(tx => tx.name === selectedName);
+      // Get VIP transactions (topup/cashout/order)
+      const vipTxs = vipTransactions.filter(tx => tx.name === selectedName);
 
-      // Get order transactions
+      // Create a Set of order IDs that were paid with VIP
+      const vipOrderIds = new Set();
+      vipTxs.forEach(tx => {
+        if (tx.type === 'order' && tx.orderId) {
+          vipOrderIds.add(tx.orderId);
+        }
+      });
+
+      // Get ALL order transactions (for display)
       const orderTxs = getVipOrderTransactions(selectedName);
 
-      // Combine all transactions
-      const allTxs = [...cashTxs, ...orderTxs]
+      // Mark which orders are VIP vs Cash
+      const markedOrderTxs = orderTxs.map(tx => {
+        const idStr = tx.id ? String(tx.id) : '';
+        const orderId = idStr ? parseInt(idStr.split('_')[0]) : null;
+        const isVipPayment = orderId && vipOrderIds.has(orderId);
+        return { ...tx, isVipPayment };
+      });
+
+      // Combine all transactions for display
+      const allTxs = [...vipTxs, ...markedOrderTxs]
         .sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
 
       if (allTxs.length === 0) {
@@ -2413,20 +2437,20 @@
       const vipArea = document.getElementById('vipArea');
       const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
 
-      // Calculate running balance correctly
-      // Start from initial balance
-      const initialBalance = parseFloat(localStorage.getItem(`vipInitialBalance_${selectedName}`) || '0');
-      let runningBalance = initialBalance;
+      // Calculate running balance ONLY for VIP transactions
+      let runningBalance = 0;
       const sortedOldestFirst = [...allTxs].sort((a, b) =>
         new Date(a.ts).getTime() - new Date(b.ts).getTime()
       );
 
-      // Calculate what initial balance should be to end up with currentBalance
-      const totalChange = sortedOldestFirst.reduce((sum, tx) => sum + tx.amount, 0);
-
-      // Now calculate balance AFTER each transaction (chronological order)
+      // Calculate balance AFTER each transaction (chronological order)
+      // Only VIP transactions affect balance
       const txsWithBalance = sortedOldestFirst.map(tx => {
-        runningBalance += tx.amount;
+        // Only update balance for VIP transactions
+        // Check both: isVipPayment (from orderHistory) OR has orderId (from vipTransactions)
+        if (tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && (tx.isVipPayment || tx.orderId))) {
+          runningBalance += tx.amount;
+        }
         return { ...tx, balance: runningBalance };
       });
 
@@ -2445,6 +2469,14 @@
       const topupCount = transactions.filter(tx => tx.type === 'topup').length;
       const cashoutCount = transactions.filter(tx => tx.type === 'cashout').length;
       const orderCount = transactions.filter(tx => tx.type === 'order').length;
+
+      // Create a Set of order IDs that have actual VIP transactions
+      const vipOrderIds = new Set();
+      vipTransactions.forEach(tx => {
+        if (tx.type === 'order' && tx.name === selectedName && tx.orderId) {
+          vipOrderIds.add(tx.orderId);
+        }
+      });
 
       // Compact date format function
       const compactDate = (dateStr) => {
@@ -2482,6 +2514,7 @@
                   <tr>
                     <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">📅 Ngày giờ</th>
                     <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">Loại</th>
+                    <th style="padding: 10px 12px; text-align: center; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">💳 PT</th>
                     <th style="padding: 10px 12px; text-align: right; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">Số tiền</th>
                     <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1);">Chi tiết</th>
                     <th style="padding: 10px 12px; text-align: right; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">Số dư</th>
@@ -2492,6 +2525,27 @@
         const isEven = idx % 2 === 0;
         const bgColor = isEven ? 'rgba(255,255,255,0.02)' : 'transparent';
         const typeLabel = tx.type === 'topup' ? '💰 Nạp' : tx.type === 'cashout' ? '💸 Rút' : '🍜 Order';
+
+        // Check if this order has actual VIP transaction
+        let paymentMethod = '-';
+        if (tx.type === 'order') {
+          // VIP transactions (from recordVipTransaction) are always paid
+          // Only orderHistory transactions can be unpaid
+          const isVipTransaction = tx.orderId !== undefined;
+
+          if (!isVipTransaction && !tx.paid) {
+            // Unpaid order from orderHistory - show Pending
+            paymentMethod = '<span style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">⏳ Pending</span>';
+          } else {
+            // Paid order - check payment method
+            if (tx.isVipPayment || isVipTransaction) {
+              paymentMethod = '<span style="background: linear-gradient(135deg, #10b981, #34d399); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">VIP</span>';
+            } else {
+              paymentMethod = '<span style="background: linear-gradient(135deg, #6b7280, #9ca3af); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Cash</span>';
+            }
+          }
+        }
+
         const amountColor = tx.amount >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
         const balanceColor = tx.balance >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
 
@@ -2499,6 +2553,7 @@
                       <tr style="background: ${bgColor}; transition: background 0.2s;" onmouseover="this.style.background='rgba(99,102,241,0.08)'" onmouseout="this.style.background='${bgColor}'">
                         <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">${compactDate(tx.ts)}</td>
                         <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap;">${typeLabel}</td>
+                        <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; white-space: nowrap;">${paymentMethod}</td>
                         <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: right; font-weight: 600; color: ${amountColor}; white-space: nowrap;">
                           ${tx.amount >= 0 ? '+' : ''}${formatMoney(tx.amount)}
                         </td>
@@ -5503,6 +5558,9 @@
       }
     });
   </script>
+
+</body>
+
 
 </body>
 

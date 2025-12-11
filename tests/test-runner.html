@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrderHelper Unit Tests</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #00ff88;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .test-suite {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #00ff88;
+        }
+
+        .test-suite h2 {
+            color: #00d9ff;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .test-case {
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-case.pass {
+            background: rgba(0, 255, 136, 0.1);
+            border-left: 3px solid #00ff88;
+        }
+
+        .test-case.fail {
+            background: rgba(255, 68, 68, 0.1);
+            border-left: 3px solid #ff4444;
+        }
+
+        .test-icon {
+            font-size: 16px;
+            min-width: 24px;
+        }
+
+        .test-name {
+            flex: 1;
+        }
+
+        .test-time {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 12px;
+            margin-left: 34px;
+            margin-top: 5px;
+            padding: 8px;
+            background: rgba(255, 68, 68, 0.05);
+            border-radius: 4px;
+        }
+
+        .summary {
+            background: #0f3460;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+        }
+
+        .pass-count {
+            color: #00ff88;
+        }
+
+        .fail-count {
+            color: #ff4444;
+        }
+
+        .total-count {
+            color: #00d9ff;
+        }
+
+        .time-count {
+            color: #ffa500;
+        }
+
+        #run-btn {
+            background: linear-gradient(135deg, #00ff88, #00d9ff);
+            color: #1a1a2e;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        #run-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+        }
+
+        #run-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 OrderHelper Unit Tests</h1>
+        <button id="run-btn" onclick="runAllTests()">▶ Run All Tests</button>
+        <div id="test-results"></div>
+        <div id="summary" class="summary" style="display: none;"></div>
+    </div>
+
+    <script>
+        let totalTests = 0;
+        let passedTests = 0;
+        let failedTests = 0;
+        let totalTime = 0;
+
+        // Test assertion utility
+        class Assert {
+            static equal(actual, expected, message = '') {
+                if (actual !== expected) {
+                    throw new Error(`Expected ${expected}, got ${actual}. ${message}`);
+                }
+            }
+
+            static deepEqual(actual, expected, message = '') {
+                if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+                    throw new Error(`Expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}. ${message}`);
+                }
+            }
+
+            static ok(value, message = '') {
+                if (!value) {
+                    throw new Error(`Expected truthy value. ${message}`);
+                }
+            }
+        }
+
+        // Test suite runner
+        class TestSuite {
+            constructor(name) {
+                this.name = name;
+                this.tests = [];
+            }
+
+            it(testName, testFn) {
+                this.tests.push({ name: testName, fn: testFn });
+            }
+
+            async run() {
+                const suiteDiv = document.createElement('div');
+                suiteDiv.className = 'test-suite';
+                suiteDiv.innerHTML = `<h2>📦 ${this.name}</h2>`;
+                document.getElementById('test-results').appendChild(suiteDiv);
+
+                for (const test of this.tests) {
+                    const start = performance.now();
+                    const testDiv = document.createElement('div');
+                    testDiv.className = 'test-case';
+
+                    try {
+                        await test.fn();
+                        const time = (performance.now() - start).toFixed(2);
+                        testDiv.classList.add('pass');
+                        testDiv.innerHTML = `
+              <span class="test-icon">✅</span>
+              <span class="test-name">${test.name}</span>
+              <span class="test-time">${time}ms</span>
+            `;
+                        passedTests++;
+                        totalTime += parseFloat(time);
+                    } catch (error) {
+                        const time = (performance.now() - start).toFixed(2);
+                        testDiv.classList.add('fail');
+                        testDiv.innerHTML = `
+              <span class="test-icon">❌</span>
+              <span class="test-name">${test.name}</span>
+              <span class="test-time">${time}ms</span>
+            `;
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'error-message';
+                        errorDiv.textContent = error.message;
+                        testDiv.appendChild(errorDiv);
+                        failedTests++;
+                        totalTime += parseFloat(time);
+                    }
+
+                    suiteDiv.appendChild(testDiv);
+                    totalTests++;
+                }
+            }
+        }
+
+        // ========== FORMATTER TESTS ==========
+        function formatMoney(x) {
+            const neg = x < 0;
+            const v = Math.round(Math.abs(x) * 100) / 100;
+            return (neg ? '-' : '') + (Number.isInteger(v) ? v.toString() : v.toFixed(2)) + 'đ';
+        }
+
+        function ceilInt(x) {
+            return Math.ceil(x);
+        }
+
+        function formatDate(date) {
+            const d = new Date(date);
+            return d.toLocaleDateString('vi-VN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // ========== HELPER TESTS ==========
+        function debounce(fn, wait) {
+            let t;
+            return (...args) => {
+                clearTimeout(t);
+                t = setTimeout(() => fn.apply(null, args), wait);
+            };
+        }
+
+        function throttle(fn, delay) {
+            let lastCall = 0;
+            return (...args) => {
+                const now = Date.now();
+                if (now - lastCall >= delay) {
+                    lastCall = now;
+                    fn(...args);
+                }
+            };
+        }
+
+        // ========== TEST SUITES ==========
+        async function runAllTests() {
+            // Reset
+            document.getElementById('test-results').innerHTML = '';
+            document.getElementById('summary').style.display = 'none';
+            document.getElementById('run-btn').disabled = true;
+            totalTests = 0;
+            passedTests = 0;
+            failedTests = 0;
+            totalTime = 0;
+
+            // Formatter Tests
+            const formatterSuite = new TestSuite('Formatter Utils');
+
+            formatterSuite.it('formatMoney: positive integers', () => {
+                Assert.equal(formatMoney(100), '100đ');
+                Assert.equal(formatMoney(1000), '1000đ');
+            });
+
+            formatterSuite.it('formatMoney: negative integers', () => {
+                Assert.equal(formatMoney(-50), '-50đ');
+                Assert.equal(formatMoney(-1000), '-1000đ');
+            });
+
+            formatterSuite.it('formatMoney: decimals with 2 places', () => {
+                Assert.equal(formatMoney(10.5), '10.50đ');
+                Assert.equal(formatMoney(99.99), '99.99đ');
+            });
+
+            formatterSuite.it('formatMoney: negative decimals', () => {
+                Assert.equal(formatMoney(-10.5), '-10.50đ');
+                Assert.equal(formatMoney(-99.99), '-99.99đ');
+            });
+
+            formatterSuite.it('formatMoney: zero', () => {
+                Assert.equal(formatMoney(0), '0đ');
+            });
+
+            formatterSuite.it('formatMoney: rounding', () => {
+                Assert.equal(formatMoney(10.556), '10.56đ');
+                Assert.equal(formatMoney(10.554), '10.55đ');
+            });
+
+            formatterSuite.it('ceilInt: positive numbers', () => {
+                Assert.equal(ceilInt(10.1), 11);
+                Assert.equal(ceilInt(10.9), 11);
+            });
+
+            formatterSuite.it('ceilInt: negative numbers', () => {
+                Assert.equal(ceilInt(-10.1), -10);
+                Assert.equal(ceilInt(-10.9), -10);
+            });
+
+            formatterSuite.it('ceilInt: integers', () => {
+                Assert.equal(ceilInt(10), 10);
+                Assert.equal(ceilInt(-10), -10);
+            });
+
+            formatterSuite.it('formatDate: correct formatting', () => {
+                const testDate = new Date('2025-12-11T10:30:00');
+                const formatted = formatDate(testDate);
+                Assert.ok(formatted.includes('2025'));
+                Assert.ok(formatted.includes('12'));
+                Assert.ok(formatted.includes('11'));
+            });
+
+            await formatterSuite.run();
+
+            // Helper Tests
+            const helperSuite = new TestSuite('Helper Utils');
+
+            helperSuite.it('debounce: calls only once', () => {
+                return new Promise((resolve) => {
+                    let callCount = 0;
+                    const fn = () => callCount++;
+                    const debounced = debounce(fn, 50);
+
+                    debounced();
+                    debounced();
+                    debounced();
+
+                    setTimeout(() => {
+                        Assert.equal(callCount, 1, 'Function should be called only once');
+                        resolve();
+                    }, 100);
+                });
+            });
+
+            helperSuite.it('debounce: passes arguments', () => {
+                return new Promise((resolve) => {
+                    let result = null;
+                    const fn = (x, y) => { result = x + y; };
+                    const debounced = debounce(fn, 50);
+
+                    debounced(5, 10);
+
+                    setTimeout(() => {
+                        Assert.equal(result, 15);
+                        resolve();
+                    }, 100);
+                });
+            });
+
+            helperSuite.it('throttle: limits calls', () => {
+                return new Promise((resolve) => {
+                    let callCount = 0;
+                    const fn = () => callCount++;
+                    const throttled = throttle(fn, 100);
+
+                    throttled(); // Should call
+                    setTimeout(() => throttled(), 50);  // Should not call
+                    setTimeout(() => throttled(), 150); // Should call
+
+                    setTimeout(() => {
+                        Assert.equal(callCount, 2, 'Function should be called twice');
+                        resolve();
+                    }, 250);
+                });
+            });
+
+            await helperSuite.run();
+
+            // Storage Tests
+            const storageSuite = new TestSuite('Storage Utils (LocalStorage)');
+
+            storageSuite.it('localStorage: set and get object', () => {
+                localStorage.setItem('test', JSON.stringify({ foo: 'bar' }));
+                const item = localStorage.getItem('test');
+                const parsed = JSON.parse(item);
+                Assert.deepEqual(parsed, { foo: 'bar' });
+                localStorage.removeItem('test');
+            });
+
+            storageSuite.it('localStorage: set and get array', () => {
+                const testArray = [1, 2, 3];
+                localStorage.setItem('testArray', JSON.stringify(testArray));
+                const retrieved = JSON.parse(localStorage.getItem('testArray'));
+                Assert.deepEqual(retrieved, testArray);
+                localStorage.removeItem('testArray');
+            });
+
+            storageSuite.it('localStorage: set and get string', () => {
+                localStorage.setItem('testString', JSON.stringify('hello'));
+                const retrieved = JSON.parse(localStorage.getItem('testString'));
+                Assert.equal(retrieved, 'hello');
+                localStorage.removeItem('testString');
+            });
+
+            storageSuite.it('localStorage: remove item', () => {
+                localStorage.setItem('toRemove', 'value');
+                localStorage.removeItem('toRemove');
+                Assert.equal(localStorage.getItem('toRemove'), null);
+            });
+
+            await storageSuite.run();
+
+            // Show summary
+            document.getElementById('summary').style.display = 'grid';
+            document.getElementById('summary').innerHTML = `
+        <div class="stat">
+          <div class="stat-value total-count">${totalTests}</div>
+          <div class="stat-label">Total Tests</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value pass-count">${passedTests}</div>
+          <div class="stat-label">Passed</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value fail-count">${failedTests}</div>
+          <div class="stat-label">Failed</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value time-count">${totalTime.toFixed(2)}ms</div>
+          <div class="stat-label">Total Time</div>
+        </div>
+      `;
+
+            document.getElementById('run-btn').disabled = false;
+
+            // Log to console
+            console.log(`
+╔═══════════════════════════════════════╗
+║      TEST SUMMARY                     ║
+╠═══════════════════════════════════════╣
+║  Total:  ${totalTests.toString().padEnd(27)} ║
+║  Passed: ${passedTests.toString().padEnd(27)} ║
+║  Failed: ${failedTests.toString().padEnd(27)} ║
+║  Time:   ${totalTime.toFixed(2)}ms${' '.repeat(27 - totalTime.toFixed(2).length - 2)}║
+╚═══════════════════════════════════════╝
+      `);
+        }
+
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            setTimeout(runAllTests, 500);
+        });
+    </script>
+</body>
+
+</html>
