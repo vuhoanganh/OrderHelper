@@ -1954,6 +1954,96 @@
       localStorage.setItem('vipUpdatedAt', String(timestamp));
     }
 
+    // Recompute VIP balances from current data to keep VIP management in sync with reports
+    function recomputeVipBalances() {
+      const vipAreaText = document.getElementById('vipArea')?.value || '';
+      const vipMap = parseVip(vipAreaText);
+      const baseNames = new Set(vipMap.keys()); // chỉ những ai đang là VIP
+      const txNames = new Set();
+      vipTransactions.forEach(tx => { if (tx.name) txNames.add(tx.name); });
+
+      // Chỉ giữ tên trong vip list hoặc có giao dịch VIP
+      const names = new Set([...baseNames, ...txNames]);
+      if (names.size === 0) return;
+
+      const newMap = new Map();
+
+      names.forEach(name => {
+        const entries = [];
+
+        const buildOrderKeys = (amt, item = '') => {
+          const amount = Math.abs(Number(amt) || 0);
+          const itemKey = (item || '').trim().toLowerCase();
+          const keys = [`${amount}|${itemKey}`];
+          // fallback: amount-only to dedupe vipTransactions (thường không có itemName)
+          keys.push(`amount|${amount}`);
+          return keys;
+        };
+
+        // VIP topup/cashout/order entries
+        vipTransactions
+          .filter(tx => tx.name === name)
+          .forEach(tx => entries.push({
+            ts: tx.ts || tx.id || Date.now(),
+            amount: tx.amount,
+            type: tx.type || (tx.amount >= 0 ? 'topup' : 'cashout'),
+            isVipPayment: true
+          }));
+
+        // Build set of order keys already in vipTransactions to avoid double-count
+        const vipOrderKeys = new Set();
+        vipTransactions
+          .filter(tx => tx.name === name && tx.type === 'order')
+          .forEach(tx => buildOrderKeys(tx.amount, tx.itemName).forEach(k => vipOrderKeys.add(k)));
+
+        // Orders for this VIP (chỉ tính nếu đã là VIP hoặc có tx VIP)
+        orderHistory.forEach(order => {
+          (order.details || []).forEach(d => {
+            if (d.name !== name) return;
+            const keys = buildOrderKeys(d.due, order.itemName);
+            if (keys.some(k => vipOrderKeys.has(k))) return; // tránh trùng với tx VIP đã ghi
+            entries.push({
+              ts: order.date || order.id || Date.now(),
+              amount: -Math.abs(d.due || 0),
+              type: 'order',
+              paid: !!d.paid,
+              isVipPayment: !!d.isVipPayment
+            });
+          });
+        });
+
+        entries.sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
+
+        let bal = getInitialBalanceForVip(name, { persistDefault: true });
+        let allowCredit = bal > 0;
+
+        entries.forEach(e => {
+          if (e.type === 'order') {
+            const need = Math.abs(e.amount || 0);
+            const payWithVip = e.isVipPayment || (e.paid && (bal >= need || allowCredit));
+            if (payWithVip && need > 0) {
+              bal += e.amount;
+            }
+          } else {
+            bal += e.amount;
+            if (e.amount > 0) allowCredit = true;
+          }
+        });
+
+        // Không thêm vào danh sách nếu balance bằng 0 và không có giao dịch VIP hoặc default
+        const hasVipTx = txNames.has(name);
+        const hasDefault = DEFAULT_INITIAL_BALANCE[name] && DEFAULT_INITIAL_BALANCE[name] !== 0;
+        if (bal === 0 && !hasVipTx && !hasDefault) return;
+        newMap.set(name, bal);
+      });
+
+      // Persist back to textarea/localStorage
+      const vipText = vipToText(newMap);
+      const vipArea = document.getElementById('vipArea');
+      if (vipArea) vipArea.value = vipText;
+      persistVipList(vipText);
+    }
+
     // Update dish name suggestions from order history
     function updateDishNameSuggestions() {
       const datalist = document.getElementById('dishNameHistory');
@@ -1977,6 +2067,23 @@
 
       items.sort((a, b) => b.ts - a.ts);
       datalist.innerHTML = items.map(i => `<option value="${i.name.replace(/"/g, '&quot;')}">`).join('');
+    }
+
+    // Ensure dish suggestion dropdown can be opened even khi giá trị hiện tại không khớp
+    function openDishSuggestions() {
+      const input = document.getElementById('itemName');
+      const datalist = document.getElementById('dishNameHistory');
+      if (!input || !datalist || !datalist.options?.length) return;
+      const prev = input.value;
+      input.value = ''; // clear để browser hiển thị toàn bộ options
+      if (typeof input.showPicker === 'function') {
+        input.showPicker();
+      }
+      setTimeout(() => {
+        if (document.activeElement === input) {
+          input.value = prev;
+        }
+      }, 100);
     }
 
     function getLatestVipFromHistory() {
@@ -2313,7 +2420,9 @@
               amount: -Math.abs(detail.due),
               type: 'order',
               itemName: order.itemName || 'Order',
-              paid: detail.paid || false
+              paid: detail.paid || false,
+              // Do not trust stale isVipPayment; will be recomputed by tx/vip matching + fallback
+              isVipPayment: false
             });
           }
         });
@@ -2372,6 +2481,11 @@
     let currentVipTransactions = [];
 
     // VIP History Functions
+    const DEFAULT_INITIAL_BALANCE = {
+      'a Duck': 145,
+      'a Dave': 1000
+    };
+
     function saveInitialBalance() {
       const vipName = document.getElementById('vipMemberSelect').value;
       const balance = document.getElementById('vipInitialBalance').value;
@@ -2384,6 +2498,19 @@
 
       // Recalculate history
       showVipMemberHistory();
+    }
+
+    function getInitialBalanceForVip(name, options = {}) {
+      if (!name) return 0;
+      const saved = localStorage.getItem(`vipInitialBalance_${name}`);
+      if (saved !== null && saved !== undefined && saved !== '') {
+        return Number(saved);
+      }
+      const def = DEFAULT_INITIAL_BALANCE[name];
+      if (options.persistDefault && def !== undefined) {
+        localStorage.setItem(`vipInitialBalance_${name}`, def);
+      }
+      return def || 0;
     }
 
     function showVipMemberHistory() {
@@ -2399,33 +2526,114 @@
         return;
       }
 
+      // Set initial balance input from saved/default
+      const initialBalanceInput = document.getElementById('vipInitialBalance');
+      const initialBalanceValue = getInitialBalanceForVip(selectedName, { persistDefault: true });
+      if (initialBalanceInput) {
+        initialBalanceInput.value = initialBalanceValue;
+      }
+
       // Show filters
       if (filtersDiv) filtersDiv.style.display = 'block';
+
+      // Helper to build a dedupe key for order transactions
+      const buildOrderKey = (tx) => {
+        if (tx.type !== 'order') return null;
+        if (tx.orderId) return `id:${tx.orderId}`;
+        const tsKey = new Date(tx.ts).getTime();
+        return `ts:${tsKey}|amt:${tx.amount}`;
+      };
+
+      // Helper to fingerprint an order by item/amount (used to drop legacy duplicates)
+      const fingerprintOrder = (tx) => {
+        if (tx.type !== 'order') return [];
+        const item = (tx.itemName || '').trim().toLowerCase();
+        const amount = Math.abs(Number(tx.amount) || 0);
+        return [`${item}|${amount}`, `amount|${amount}`];
+      };
 
       // Get VIP transactions (topup/cashout/order)
       const vipTxs = vipTransactions.filter(tx => tx.name === selectedName);
 
-      // Create a Set of order IDs that were paid with VIP
-      const vipOrderIds = new Set();
+      // Build a set of order keys already recorded as VIP transactions (avoid double counting)
+      const vipOrderKeys = new Set();
+      const vipOrderFingerprints = new Set();
       vipTxs.forEach(tx => {
-        if (tx.type === 'order' && tx.orderId) {
-          vipOrderIds.add(tx.orderId);
-        }
+        const key = buildOrderKey(tx);
+        if (key) vipOrderKeys.add(key);
+        fingerprintOrder(tx).forEach(fp => vipOrderFingerprints.add(fp));
       });
 
-      // Get ALL order transactions (for display)
-      const orderTxs = getVipOrderTransactions(selectedName);
+      // Get ALL order transactions from order history
+      let orderTxs = getVipOrderTransactions(selectedName);
 
-      // Mark which orders are VIP vs Cash
-      const markedOrderTxs = orderTxs.map(tx => {
-        const idStr = tx.id ? String(tx.id) : '';
-        const orderId = idStr ? parseInt(idStr.split('_')[0]) : null;
-        const isVipPayment = orderId && vipOrderIds.has(orderId);
+      // Mark orders as VIP-paid if they match a VIP transaction (even if deduped away)
+      orderTxs = orderTxs.map(tx => {
+        if (tx.type !== 'order') return tx;
+        const key = buildOrderKey(tx);
+        const fps = fingerprintOrder(tx);
+        const isVipPayment = (key && vipOrderKeys.has(key)) || fps.some(fp => vipOrderFingerprints.has(fp)) || !!tx.isVipPayment;
         return { ...tx, isVipPayment };
       });
 
-      // Combine all transactions for display
-      const allTxs = [...vipTxs, ...markedOrderTxs]
+      // Build fingerprint set from order history (authoritative)
+      const orderHistoryFingerprints = new Set();
+      orderTxs.forEach(tx => fingerprintOrder(tx).forEach(fp => orderHistoryFingerprints.add(fp)));
+
+      // Merge order history + vipTransactions without duplicating the same order
+      const mergedTxs = [];
+
+      // 1) Push order history first (authoritative for orders)
+      mergedTxs.push(...orderTxs);
+
+      // 2) Add vipTxs but skip duplicate orders that lack orderId and match history by item/amount
+      vipTxs.forEach(tx => {
+        if (tx.type === 'order') {
+          const key = buildOrderKey(tx);
+          const fps = fingerprintOrder(tx);
+          if ((key && vipOrderKeys.has(key)) || (fps.some(fp => orderHistoryFingerprints.has(fp)) && !tx.orderId)) return;
+        }
+        mergedTxs.push(tx);
+      });
+
+      // Mark which orders are VIP vs Cash
+      const markedTxs = mergedTxs.map(tx => {
+        if (tx.type !== 'order') return { ...tx, isVipPayment: !!tx.orderId };
+        const key = buildOrderKey(tx);
+        const fps = fingerprintOrder(tx);
+        const isVipPayment = tx.isVipPayment || (key && vipOrderKeys.has(key)) || fps.some(fp => vipOrderFingerprints.has(fp)) || !!tx.orderId;
+        return { ...tx, isVipPayment };
+      });
+
+      // Fallback: if order is paid and we still have VIP balance at that time, auto-mark as VIP (when no explicit vip tx exists)
+      const fallbackInitialBalance = getInitialBalanceForVip(selectedName, { persistDefault: true });
+      const sortedForFallback = [...markedTxs].sort((a, b) => new Date(a.ts) - new Date(b.ts));
+      let fallbackBalance = fallbackInitialBalance;
+      let allowCredit = fallbackInitialBalance > 0; // chỉ cho âm khi đã có dư/đã nạp
+      const adjustedTxs = sortedForFallback.map(tx => {
+        const copy = { ...tx };
+        const impactsVip = (t) => t.type === 'topup' || t.type === 'cashout' || (t.type === 'order' && t.isVipPayment);
+
+        if (copy.type === 'order' && !copy.isVipPayment) {
+          const needed = Math.abs(copy.amount || 0);
+          if ((fallbackBalance >= needed || allowCredit) && needed > 0) {
+            copy.isVipPayment = true;
+            copy.paid = true;
+          }
+        }
+
+        if (impactsVip(copy)) {
+          fallbackBalance += copy.amount;
+          if (copy.type === 'topup' && copy.amount > 0) {
+            allowCredit = true;
+          }
+        }
+
+        return copy;
+      });
+
+      // Combine all transactions for display (latest first)
+      const allTxs = [...adjustedTxs]
         .sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
 
       if (allTxs.length === 0) {
@@ -2433,32 +2641,31 @@
         return;
       }
 
-      // Get current balance from VIP list
-      const vipArea = document.getElementById('vipArea');
-      const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
+      // Initial balance (user can set manually)
+      const initialBalance = getInitialBalanceForVip(selectedName, { persistDefault: true });
 
-      // Calculate running balance ONLY for VIP transactions
-      let runningBalance = 0;
+      // Calculate running balance including only VIP-impacting transactions
+      let runningBalance = initialBalance;
       const sortedOldestFirst = [...allTxs].sort((a, b) =>
         new Date(a.ts).getTime() - new Date(b.ts).getTime()
       );
 
       // Calculate balance AFTER each transaction (chronological order)
-      // Only VIP transactions affect balance
       const txsWithBalance = sortedOldestFirst.map(tx => {
-        // Only update balance for VIP transactions
-        // Check both: isVipPayment (from orderHistory) OR has orderId (from vipTransactions)
-        if (tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && (tx.isVipPayment || tx.orderId))) {
+        const impactsVip = tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && tx.isVipPayment);
+        if (impactsVip) {
           runningBalance += tx.amount;
+          return { ...tx, balance: runningBalance };
         }
-        return { ...tx, balance: runningBalance };
+        // Cash orders should not change VIP balance; show 0 for their balance column
+        return { ...tx, balance: 0 };
       });
 
       // Store for filtering
       currentVipTransactions = txsWithBalance;
 
       // Render with current filters
-      renderVipHistoryTable(selectedName, currentBalance, txsWithBalance);
+      renderVipHistoryTable(selectedName, runningBalance, txsWithBalance);
     }
 
     function renderVipHistoryTable(selectedName, currentBalance, transactions) {
@@ -2529,20 +2736,12 @@
         // Check if this order has actual VIP transaction
         let paymentMethod = '-';
         if (tx.type === 'order') {
-          // VIP transactions (from recordVipTransaction) are always paid
-          // Only orderHistory transactions can be unpaid
-          const isVipTransaction = tx.orderId !== undefined;
-
-          if (!isVipTransaction && !tx.paid) {
-            // Unpaid order from orderHistory - show Pending
+          if (!tx.paid) {
             paymentMethod = '<span style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">⏳ Pending</span>';
+          } else if (tx.isVipPayment) {
+            paymentMethod = '<span style="background: linear-gradient(135deg, #10b981, #34d399); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">VIP</span>';
           } else {
-            // Paid order - check payment method
-            if (tx.isVipPayment || isVipTransaction) {
-              paymentMethod = '<span style="background: linear-gradient(135deg, #10b981, #34d399); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">VIP</span>';
-            } else {
-              paymentMethod = '<span style="background: linear-gradient(135deg, #6b7280, #9ca3af); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Cash</span>';
-            }
+            paymentMethod = '<span style="background: linear-gradient(135deg, #6b7280, #9ca3af); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Cash</span>';
           }
         }
 
@@ -2558,7 +2757,7 @@
                           ${tx.amount >= 0 ? '+' : ''}${formatMoney(tx.amount)}
                         </td>
                         <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                          ${tx.type === 'order' ? `${tx.itemName} ${tx.paid ? '✅' : '⏳'}` : '-'}
+                          ${tx.type === 'order' ? `${tx.itemName || 'Order'} ${tx.paid ? '✅' : '⏳'}` : '-'}
                         </td>
                         <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: right; font-weight: 600; color: ${balanceColor}; white-space: nowrap;">
                           ${formatMoney(tx.balance)}
@@ -2597,7 +2796,7 @@
       const select = document.getElementById('vipMemberSelect');
       const vipArea = document.getElementById('vipArea');
       const selectedName = select ? select.value : '';
-      const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
+      const initialBalance = getInitialBalanceForVip(selectedName, { persistDefault: true });
 
       // Get filter values
       const dateFrom = document.getElementById('filterDateFrom')?.value;
@@ -2639,8 +2838,21 @@
         countSpan.textContent = `Hiển thị ${filtered.length}/${currentVipTransactions.length} giao dịch`;
       }
 
-      // Render filtered results
-      renderVipHistoryTable(selectedName, currentBalance, filtered);
+      // Recalculate running balance for filtered list (chronological)
+      let runningBalance = initialBalance;
+      const recalculated = [...filtered]
+        .sort((a, b) => new Date(a.ts) - new Date(b.ts))
+        .map(tx => {
+          const impactsVip = tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && tx.isVipPayment);
+          if (impactsVip) {
+            runningBalance += tx.amount;
+            return { ...tx, balance: runningBalance };
+          }
+          return { ...tx, balance: 0 };
+        });
+
+      // Render filtered results (use final runningBalance for header)
+      renderVipHistoryTable(selectedName, runningBalance, recalculated);
     }
 
     // Clear all filters
@@ -3145,8 +3357,11 @@
         const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
+        const now = new Date();
+        const datePart = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+        const timePart = now.toLocaleTimeString('en-GB', { hour12: false }).replace(/:/g, '');
         a.href = url;
-        a.download = `backup-${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.json`;
+        a.download = `backup-${datePart}-${timePart}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -4812,6 +5027,10 @@
               itemName: order.itemName,
               orderId: order.id
             });
+            // Mark order detail as paid via VIP
+            if (order.details && order.details[change.detailIndex]) {
+              order.details[change.detailIndex].isVipPayment = true;
+            }
           }
         });
 
@@ -4823,6 +5042,9 @@
         const order = orderHistory.find(o => o.id === change.orderId);
         if (order && order.details[change.detailIndex]) {
           order.details[change.detailIndex].paid = true;
+          if (paymentMethod === 'vip') {
+            order.details[change.detailIndex].isVipPayment = true;
+          }
         }
       });
 
@@ -4878,6 +5100,7 @@
           itemName: order.itemName,
           orderId: order.id
         });
+        detail.isVipPayment = true;
 
         paymentMethod = 'vip';
       }
@@ -5274,10 +5497,10 @@
       // Load saved initial balance
       const savedBalance = localStorage.getItem(`vipInitialBalance_${vipName}`);
       const initialBalanceInput = document.getElementById('vipInitialBalance');
+      const initialBalance = getInitialBalanceForVip(vipName, { persistDefault: true });
       if (initialBalanceInput) {
-        initialBalanceInput.value = savedBalance || '0';
+        initialBalanceInput.value = savedBalance !== null ? savedBalance : initialBalance;
       }
-      const initialBalance = Number(savedBalance || 0);
 
       if (!name) {
         content.innerHTML = '<div class="empty-state" style="padding:12px 0;">Chọn VIP để xem lịch sử</div>';
@@ -5319,6 +5542,12 @@
       loadGithubSettings();
       populateVipMemberSelect();
       populateVIPFilterDropdown(); // Populate filter dropdown
+      recomputeVipBalances();
+      // Enable dish name suggestions dropdown
+      const itemNameInput = document.getElementById('itemName');
+      if (itemNameInput) {
+        ['focus', 'click'].forEach(evt => itemNameInput.addEventListener(evt, openDishSuggestions));
+      }
 
       // Lock VIP textarea to prevent manual editing
       const vipArea = document.getElementById('vipArea');
