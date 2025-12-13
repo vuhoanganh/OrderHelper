@@ -500,14 +500,19 @@
 
         <div class="form-group">
           <label class="form-label">GitHub Personal Access Token</label>
-          <input id="githubToken" class="form-input" type="password" placeholder="ghp_xxxxxxxxxxxx">
+          <input id="githubToken" class="form-input" type="password" placeholder="ghp_xxxxxxxxxxxx"
+            onblur="loadGithubRepos()">
           <div class="helper-text">Token sẽ được lưu trong localStorage của trình duyệt</div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Repository (owner/repo)</label>
-            <input id="githubRepo" class="form-input" placeholder="vuhoanganh/OrderHelper">
+            <select id="githubRepo" class="form-input">
+              <option value="">-- Select repository --</option>
+            </select>
+            <div class="helper-text" id="repoLoadingStatus" style="display:none; color: var(--accent-blue);">⏳ Loading
+              repositories...</div>
           </div>
           <div class="form-group">
             <label class="form-label">Branch</label>
@@ -2072,6 +2077,62 @@
 
     // ========== GitHub Settings & Main Functions ==========
 
+    /**
+     * Load user's GitHub repositories and populate dropdown
+     */
+    async function loadGithubRepos() {
+      const token = document.getElementById('githubToken').value.trim();
+      const repoSelect = document.getElementById('githubRepo');
+      const statusDiv = document.getElementById('repoLoadingStatus');
+
+      if (!token) {
+        // No token, reset dropdown
+        repoSelect.innerHTML = '<option value="">-- Nhập token trước --</option>';
+        return;
+      }
+
+      try {
+        statusDiv.style.display = 'block';
+        statusDiv.textContent = '⏳ Loading repositories...';
+
+        // Fetch user's repos
+        const repos = await githubApiRequest('/user/repos?per_page=100&sort=updated');
+
+        if (!repos || repos.length === 0) {
+          repoSelect.innerHTML = '<option value="">-- No repositories found --</option>';
+          statusDiv.textContent = 'ℹ️ No repositories found';
+          return;
+        }
+
+        // Populate dropdown with repos
+        repoSelect.innerHTML = '<option value="">-- Select repository --</option>';
+
+        repos.forEach(repo => {
+          const option = document.createElement('option');
+          option.value = repo.full_name; // e.g., "vuhoanganh/OrderHelper"
+          option.textContent = `${repo.full_name} ${repo.private ? '🔒' : ''}`;
+          repoSelect.appendChild(option);
+        });
+
+        // Auto-select if only one repo or if OrderHelper exists
+        const orderHelperRepo = repos.find(r => r.name.toLowerCase().includes('orderhelper'));
+        if (orderHelperRepo) {
+          repoSelect.value = orderHelperRepo.full_name;
+        } else if (repos.length === 1) {
+          repoSelect.value = repos[0].full_name;
+        }
+
+        statusDiv.textContent = `✅ Loaded ${repos.length} repositories`;
+        setTimeout(() => { statusDiv.style.display = 'none'; }, 3000);
+
+      } catch (err) {
+        console.error('Load repos error:', err);
+        repoSelect.innerHTML = '<option value="">-- Error loading repos --</option>';
+        statusDiv.textContent = `❌ ${err.message}`;
+        statusDiv.style.color = 'var(--accent-red)';
+      }
+    }
+
     function saveGithubSettings() {
       const token = document.getElementById('githubToken').value.trim();
       const repo = document.getElementById('githubRepo').value.trim();
@@ -2270,8 +2331,18 @@
         }
 
         const timestamp = new Date().toISOString();
+        const now = new Date();
 
-        // Prepare combined backup data in a single file
+        // Generate filename like: backup-13-12-2025-190912.json
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const versionedFilename = `backup-${day}-${month}-${year}-${hours}${minutes}${seconds}.json`;
+
+        // Prepare combined backup data
         const backupData = {
           version: '1.0',
           timestamp,
@@ -2282,24 +2353,41 @@
             vipTransactions: vipTransactions
           },
           metadata: {
-            itemCount: {
-              orders: orderHistory.length,
-              vipTransactions: vipTransactions.length
-            }
+            orderCount: orderHistory.length,
+            transactionCount: vipTransactions.length,
+            exportedBy: 'Order Helper Pro',
+            exportDate: `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`
           }
         };
 
-        // Upload single combined file
-        addBackupLog('📤 Đang upload kitchen_backup.json...');
-        const backupFile = await getGithubFile(owner, repoName, 'kitchen_backup.json', branch);
-        const result = await createOrUpdateGithubFile(
+        const backupJSON = JSON.stringify(backupData, null, 2);
+
+        // 1. Upload latest file (for sync)
+        addBackupLog('📤 Uploading kitchen_backup.json (latest)...');
+        const latestFile = await getGithubFile(owner, repoName, 'kitchen_backup.json', branch);
+        await createOrUpdateGithubFile(
           owner,
           repoName,
           'kitchen_backup.json',
-          JSON.stringify(backupData, null, 2),
+          backupJSON,
           `Backup data - ${timestamp}`,
-          backupFile?.sha
+          latestFile?.sha
         );
+        addBackupLog('✅ Latest file uploaded');
+
+        // 2. Upload versioned file (for history)
+        addBackupLog(`📤 Uploading DB/${versionedFilename} (history)...`);
+        const versionedPath = `DB/${versionedFilename}`;
+        const versionedFile = await getGithubFile(owner, repoName, versionedPath, branch);
+        const result = await createOrUpdateGithubFile(
+          owner,
+          repoName,
+          versionedPath,
+          backupJSON,
+          `Versioned backup - ${timestamp}`,
+          versionedFile?.sha
+        );
+        addBackupLog('✅ Versioned file uploaded');
 
         // Save backup info
         localStorage.setItem(GITHUB_LAST_BACKUP_KEY, Date.now());
@@ -2308,7 +2396,10 @@
         }
 
         updateBackupStatusDisplay();
-        addBackupLog(`✅ Backup thành công! (${orderHistory.length} orders, ${vipTransactions.length} VIP transactions)`);
+        addBackupLog(`✅ Hybrid backup complete!`);
+        addBackupLog(`   Latest: kitchen_backup.json`);
+        addBackupLog(`   History: DB/${versionedFilename}`);
+        addBackupLog(`   Data: ${orderHistory.length} orders, ${vipTransactions.length} VIP transactions`);
         showBackupStatus('✅ Backup thành công!', 'success');
 
       } catch (err) {
