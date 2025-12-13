@@ -3963,14 +3963,24 @@
         document.getElementById('vipArea').value = vipText;
         persistVipList(vipText);
 
-        // Record VIP transaction
-        recordVipTransaction({
-          name: target,
-          amount: -detail.due,
-          type: 'order',
-          itemName: order.itemName,
-          orderId: order.id
-        });
+        // Check if transaction already exists (prevent duplicates)
+        const existingTx = vipTransactions.find(tx =>
+          tx.orderId === order.id &&
+          tx.name === target &&
+          Math.abs(tx.amount) === detail.due
+        );
+
+        // Record VIP transaction only if it doesn't exist
+        if (!existingTx) {
+          recordVipTransaction({
+            name: target,
+            amount: -detail.due,
+            type: 'order',
+            itemName: order.itemName,
+            orderId: order.id,
+            paid: true
+          });
+        }
         detail.isVipPayment = true;
 
         paymentMethod = 'vip';
