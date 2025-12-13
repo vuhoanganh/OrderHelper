@@ -1,30 +1,48 @@
-/* CSS Variables - Design tokens */
+/* CSS Variables - Design Tokens */
 :root {
   /* Background Colors */
-  --bg-dark: #0a0e27;
+  --bg-start: #1a1a2e;
+  --bg-end: #16213e;
   --bg-gradient-1: #1a1f3a;
   --bg-gradient-2: #2d1b4e;
-  
+
   /* Glass Morphism */
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-bg-hover: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shadow: rgba(0, 0, 0, 0.3);
-  
+
   /* Text Colors */
-  --text-primary: #e8edf5;
-  --text-secondary: #a0aec0;
-  --text-muted: #6b7b93;
-  
+  --text-primary: #eee;
+  --text-secondary: #bbb;
+  --text-muted: #888;
+
   /* Accent Colors */
+  --accent: #00d4ff;
+  --accent-hover: #00b8e6;
   --accent-green: #10b981;
   --accent-green-light: #34d399;
   --accent-blue: #3b82f6;
   --accent-purple: #8b5cf6;
-  --accent-yellow: #fbbf24;
+  --accent-yellow: #f59e0b;
   --accent-red: #ef4444;
   --accent-orange: #f97316;
-  
+
+  /* Status Colors */
+  --color-paid: #10b981;
+  --color-unpaid: #ef4444;
+  --color-partial: #f59e0b;
+
+  /* VIP Balance Colors */
+  --color-credit: #10b981;
+  --color-debit: #ef4444;
+  --color-inactive: #6b7280;
+
+  /* Transaction Types */
+  --color-topup: #3b82f6;
+  --color-cashout: #8b5cf6;
+  --color-order: #f59e0b;
+
   /* Form Elements */
   --input-bg: rgba(15, 23, 42, 0.6);
   --input-border: rgba(148, 163, 184, 0.2);
