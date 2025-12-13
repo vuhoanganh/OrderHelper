@@ -508,7 +508,7 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Repository (owner/repo)</label>
-            <select id="githubRepo" class="form-input">
+            <select id="githubRepo" class="form-input" onchange="loadGithubBranches()">
               <option value="">-- Select repository --</option>
             </select>
             <div class="helper-text" id="repoLoadingStatus" style="display:none; color: var(--accent-blue);">⏳ Loading
@@ -516,7 +516,11 @@
           </div>
           <div class="form-group">
             <label class="form-label">Branch</label>
-            <input id="githubBranch" class="form-input" value="main" placeholder="main">
+            <select id="githubBranch" class="form-input">
+              <option value="main">main</option>
+            </select>
+            <div class="helper-text" id="branchLoadingStatus" style="display:none; color: var(--accent-blue);">⏳ Loading
+              branches...</div>
           </div>
         </div>
 
@@ -2134,6 +2138,74 @@
         repoSelect.innerHTML = '<option value="">-- Error loading repos --</option>';
         statusDiv.textContent = `❌ ${err.message}`;
         statusDiv.style.color = 'var(--accent-red)';
+      }
+    }
+
+    /**
+     * Load branches for selected repository
+     */
+    async function loadGithubBranches() {
+      const repo = document.getElementById('githubRepo').value.trim();
+      const branchSelect = document.getElementById('githubBranch');
+      const statusDiv = document.getElementById('branchLoadingStatus');
+
+      if (!repo) {
+        // No repo selected, reset to default
+        branchSelect.innerHTML = '<option value="main">main</option>';
+        return;
+      }
+
+      try {
+        statusDiv.style.display = 'block';
+        statusDiv.textContent = '⏳ Loading branches...';
+
+        const [owner, repoName] = repo.split('/');
+
+        // Fetch repo branches
+        const branches = await githubApiRequest(`/repos/${owner}/${repoName}/branches`);
+
+        if (!branches || branches.length === 0) {
+          branchSelect.innerHTML = '<option value="main">main</option>';
+          statusDiv.textContent = 'ℹ️ No branches found, using default: main';
+          setTimeout(() => { statusDiv.style.display = 'none'; }, 3000);
+          return;
+        }
+
+        // Populate dropdown with branches
+        branchSelect.innerHTML = '';
+
+        branches.forEach(branch => {
+          const option = document.createElement('option');
+          option.value = branch.name;
+          option.textContent = branch.name;
+          branchSelect.appendChild(option);
+        });
+
+        // Auto-select main or master if exists
+        const mainBranch = branches.find(b => b.name === 'main');
+        const masterBranch = branches.find(b => b.name === 'master');
+
+        if (mainBranch) {
+          branchSelect.value = 'main';
+        } else if (masterBranch) {
+          branchSelect.value = 'master';
+        } else {
+          // Select first branch
+          branchSelect.value = branches[0].name;
+        }
+
+        statusDiv.textContent = `✅ Loaded ${branches.length} branches`;
+        setTimeout(() => { statusDiv.style.display = 'none'; }, 2000);
+
+      } catch (err) {
+        console.error('Load branches error:', err);
+        branchSelect.innerHTML = '<option value="main">main</option>';
+        statusDiv.textContent = `❌ ${err.message}`;
+        statusDiv.style.color = 'var(--accent-red)';
+        setTimeout(() => {
+          statusDiv.style.display = 'none';
+          statusDiv.style.color = 'var(--accent-blue)';
+        }, 5000);
       }
     }
 
