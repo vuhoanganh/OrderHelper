@@ -557,9 +557,12 @@
           </div>
         </div>
 
-        <div class="btn-group">
+        <div class="btn-group" style="margin-bottom: 20px;">
           <button class="btn btn-primary" onclick="backupToGithub()" style="flex: 1;">
-            📤 Backup to Github
+            📤 Backup to GitHub
+          </button>
+          <button class="btn btn-success" onclick="syncNow()" style="flex: 1;">
+            🔄 Sync Now
           </button>
           <button class="btn btn-success" onclick="downloadBackup()" style="flex: 1;">
             💾 Download Backup
@@ -2403,6 +2406,186 @@
       }, interval * 60 * 1000);
 
       addBackupLog(`🔄 Auto-backup scheduled (every ${interval} minutes)`);
+    }
+
+    // ========== GitHub Sync Functions ==========
+
+    /**
+     * Pull latest data from GitHub
+     * @returns {Object} Remote data and metadata
+     */
+    async function pullFromGithub() {
+      try {
+        addBackupLog('📥 Pulling data from GitHub...');
+
+        const repo = localStorage.getItem(GITHUB_REPO_KEY);
+        const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'main';
+
+        if (!repo) {
+          throw new Error('Chưa cài đặt repository');
+        }
+
+        const [owner, repoName] = repo.split('/');
+        if (!owner || !repoName) {
+          throw new Error('Repository format không hợp lệ');
+        }
+
+        // Fetch remote backup file
+        const remoteFile = await getGithubFile(owner, repoName, 'kitchen_backup.json', branch);
+
+        if (!remoteFile || !remoteFile.content) {
+          addBackupLog('ℹ️ No remote data found');
+          return null;
+        }
+
+        // Parse remote data
+        const remoteData = JSON.parse(remoteFile.content);
+
+        addBackupLog(`✅ Pulled: ${remoteData.data?.orderHistory?.length || 0} orders, ${remoteData.data?.vipTransactions?.length || 0} transactions`);
+
+        return {
+          data: remoteData.data,
+          timestamp: remoteData.timestamp,
+          backupTime: remoteData.backupTime
+        };
+
+      } catch (err) {
+        addBackupLog(`❌ Pull failed: ${err.message}`);
+        throw err;
+      }
+    }
+
+    /**
+     * Merge local and remote data using last-write-wins strategy
+     * @param {Object} localData - Local data
+     * @param {Object} remoteData - Remote data
+     * @returns {Object} Merged data
+     */
+    function mergeData(localData, remoteData) {
+      addBackupLog('🔄 Merging data...');
+
+      // Merge orderHistory by ID (keep newest by timestamp)
+      const orderMap = new Map();
+
+      // Add local orders
+      (localData.orderHistory || []).forEach(order => {
+        orderMap.set(order.id, order);
+      });
+
+      // Add/update with remote orders (newer wins)
+      (remoteData.orderHistory || []).forEach(order => {
+        const existing = orderMap.get(order.id);
+        if (!existing) {
+          orderMap.set(order.id, order);
+        } else {
+          // Compare timestamps - newer wins
+          const existingTime = new Date(existing.date || existing.id).getTime();
+          const remoteTime = new Date(order.date || order.id).getTime();
+          if (remoteTime > existingTime) {
+            orderMap.set(order.id, order);
+          }
+        }
+      });
+
+      // Merge vipTransactions by ID (keep all unique)
+      const txMap = new Map();
+
+      (localData.vipTransactions || []).forEach(tx => {
+        txMap.set(tx.id, tx);
+      });
+
+      (remoteData.vipTransactions || []).forEach(tx => {
+        if (!txMap.has(tx.id)) {
+          txMap.set(tx.id, tx);
+        }
+      });
+
+      const merged = {
+        orderHistory: Array.from(orderMap.values())
+          .sort((a, b) => new Date(b.date || b.id) - new Date(a.date || a.id)),
+        vipTransactions: Array.from(txMap.values())
+          .sort((a, b) => new Date(b.ts || b.id) - new Date(a.ts || a.id))
+      };
+
+      addBackupLog(`✅ Merged: ${merged.orderHistory.length} orders, ${merged.vipTransactions.length} transactions`);
+
+      return merged;
+    }
+
+    /**
+     * Apply remote/merged data to local storage
+     * @param {Object} data - Data to apply
+     */
+    function applyRemoteData(data) {
+      addBackupLog('💾 Applying data to localStorage...');
+
+      // Update localStorage
+      orderHistory = data.orderHistory || [];
+      vipTransactions = data.vipTransactions || [];
+
+      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+      localStorage.setItem('vipTransactions', JSON.stringify(vipTransactions));
+
+      // Recalculate VIP balances from transactions
+      if (typeof recomputeVipBalances === 'function') {
+        recomputeVipBalances();
+      }
+
+      addBackupLog('✅ Data applied successfully');
+    }
+
+    /**
+     * Full sync: Pull from GitHub, merge with local, push back
+     */
+    async function syncNow() {
+      try {
+        addBackupLog('🔄 Starting full sync...');
+        showBackupStatus('🔄 Syncing...', 'info');
+
+        // 1. Pull remote data
+        const remote = await pullFromGithub();
+
+        if (!remote) {
+          // No remote data, just push local
+          addBackupLog('📤 No remote data, pushing local...');
+          await backupToGithub();
+          showBackupStatus('✅ Sync complete (pushed local)', 'success');
+          return;
+        }
+
+        // 2. Get local data
+        const local = {
+          orderHistory: orderHistory,
+          vipTransactions: vipTransactions
+        };
+
+        // 3. Merge
+        const merged = mergeData(local, remote.data);
+
+        // 4. Apply merged data locally
+        applyRemoteData(merged);
+
+        // 5. Push merged data back to GitHub
+        addBackupLog('📤 Pushing merged data...');
+        await backupToGithub();
+
+        // 6. Refresh UI
+        loadHistory();
+        loadDebtManagement();
+        renderVipHistory();
+        populateVipMemberSelect();
+
+        addBackupLog('✅ Full sync complete!');
+        showBackupStatus('✅ Sync complete!', 'success');
+
+        return merged;
+
+      } catch (err) {
+        const errorMsg = `❌ Sync failed: ${err.message}`;
+        addBackupLog(errorMsg);
+        showBackupStatus(errorMsg, 'warning');
+        throw err;
+      }
     }
 
     function refreshQuickOrderList() {
@@ -4469,6 +4652,52 @@
         setTimeout(() => {
           exportForAutomation({ download: false, silent: true });
         }, 1200);
+      }
+
+      // Auto-pull from GitHub on load (if configured)
+      const githubRepo = localStorage.getItem(GITHUB_REPO_KEY);
+      const githubToken = localStorage.getItem(GITHUB_TOKEN_KEY);
+
+      if (githubRepo && githubToken) {
+        setTimeout(async () => {
+          try {
+            addBackupLog('🔄 Auto-pull on load...');
+            const remote = await pullFromGithub();
+
+            if (remote) {
+              // Check if remote is newer than local
+              const localTimestamp = localStorage.getItem('lastDataTimestamp') || '0';
+              const remoteTimestamp = remote.backupTime || remote.timestamp;
+
+              if (remoteTimestamp > localTimestamp) {
+                const local = {
+                  orderHistory: orderHistory,
+                  vipTransactions: vipTransactions
+                };
+
+                const merged = mergeData(local, remote.data);
+                applyRemoteData(merged);
+
+                // Refresh UI
+                loadHistory();
+                loadDebtManagement();
+                renderVipHistory();
+                populateVipMemberSelect();
+
+                // Save timestamp
+                localStorage.setItem('lastDataTimestamp', remoteTimestamp);
+
+                addBackupLog(`✅ Auto-pull complete: synced ${merged.orderHistory.length} orders`);
+              } else {
+                addBackupLog('ℹ️ Local data is up to date');
+              }
+            }
+          } catch (err) {
+            // Silently fail - don't block app loading
+            console.warn('Auto-pull failed:', err);
+            addBackupLog(`⚠️ Auto-pull failed: ${err.message}`);
+          }
+        }, 2000); // Delay to not block initial load
       }
     });
 
