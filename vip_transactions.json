@@ -1,3 +1,0 @@
-{
-  "data": $(jq '.data.vipTransactions' kitchen_backup.json)
-}

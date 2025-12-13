@@ -1,3 +1,0 @@
-{
-  "data": $(jq '.data.orderHistory' kitchen_backup.json)
-}
