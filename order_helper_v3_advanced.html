@@ -517,7 +517,7 @@
           <div class="form-group">
             <label class="form-label">Branch</label>
             <select id="githubBranch" class="form-input">
-              <option value="main">main</option>
+              <option value="master">master</option>
             </select>
             <div class="helper-text" id="branchLoadingStatus" style="display:none; color: var(--accent-blue);">⏳ Loading
               branches...</div>
@@ -2255,7 +2255,7 @@
     function loadGithubSettings() {
       const token = localStorage.getItem(GITHUB_TOKEN_KEY) || '';
       const repo = localStorage.getItem(GITHUB_REPO_KEY) || '';
-      const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'main';
+      const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'master';
       const autoBackupEnabled = localStorage.getItem(GITHUB_AUTO_BACKUP_ENABLED_KEY) === 'true';
       const interval = parseInt(localStorage.getItem(GITHUB_BACKUP_INTERVAL_KEY)) || 30;
 
@@ -2395,7 +2395,7 @@
         showBackupStatus('⏳ Đang backup lên GitHub...', 'info');
 
         const repo = localStorage.getItem(GITHUB_REPO_KEY);
-        const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'main';
+        const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'master';
 
         if (!repo) {
           throw new Error('Chưa cài đặt repository');
@@ -2497,7 +2497,7 @@
         showBackupStatus('⏳ Đang restore từ GitHub...', 'info');
 
         const repo = localStorage.getItem(GITHUB_REPO_KEY);
-        const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'main';
+        const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'master';
 
         if (!repo) {
           throw new Error('Chưa cài đặt repository');
@@ -2586,7 +2586,7 @@
         addBackupLog('📥 Pulling data from GitHub...');
 
         const repo = localStorage.getItem(GITHUB_REPO_KEY);
-        const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'main';
+        const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'master';
 
         if (!repo) {
           throw new Error('Chưa cài đặt repository');
