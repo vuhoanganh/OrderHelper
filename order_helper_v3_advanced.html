@@ -3271,6 +3271,22 @@
           orderHistory.unshift(order);
         }
         localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+
+        // BUG FIX: Create VIP transactions for all VIP-paid details
+        // This was missing before, causing data inconsistency
+        orderDetails.forEach(detail => {
+          if (detail.paid && vipChanged.has(detail.name)) {
+            // This detail was paid with VIP, create transaction record
+            recordVipTransaction({
+              name: detail.name,
+              amount: -detail.due,
+              type: 'order',
+              itemName: order.itemName,
+              orderId: order.id
+            });
+          }
+        });
+
         lastSavedSignature = orderSignature;
         savedToHistory = true;
       } else if (saveHistory && skipSave) {
