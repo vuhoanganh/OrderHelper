@@ -3273,17 +3273,29 @@
         localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
 
         // BUG FIX: Create VIP transactions for all VIP-paid details
-        // This was missing before, causing data inconsistency
+        // This ensures transactions are created for both NEW and EDITED orders
         orderDetails.forEach(detail => {
-          if (detail.paid && vipChanged.has(detail.name)) {
-            // This detail was paid with VIP, create transaction record
-            recordVipTransaction({
-              name: detail.name,
-              amount: -detail.due,
-              type: 'order',
-              itemName: order.itemName,
-              orderId: order.id
-            });
+          // Check if this person is a VIP (not just if balance changed)
+          const isVIP = vipMap.has(detail.name);
+
+          if (detail.paid && isVIP) {
+            // VIP member paid - check if transaction already exists
+            const existingTx = vipTransactions.find(tx =>
+              tx.orderId === order.id &&
+              tx.name === detail.name &&
+              Math.abs(tx.amount) === detail.due
+            );
+
+            // Only create if transaction doesn't exist (prevents duplicates when editing)
+            if (!existingTx) {
+              recordVipTransaction({
+                name: detail.name,
+                amount: -detail.due,
+                type: 'order',
+                itemName: order.itemName,
+                orderId: order.id
+              });
+            }
           }
         });
 
