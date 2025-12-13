@@ -1082,8 +1082,8 @@
       try {
         const data = await githubApiRequest(`/repos/${owner}/${repo}/contents/${path}?ref=${branch}`);
         if (data && data.content) {
-          // Decode base64 content
-          const content = atob(data.content.replace(/\n/g, ''));
+          // Decode base64 content with UTF-8 support
+          const content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
           return {
             content,
             sha: data.sha
