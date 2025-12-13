@@ -2095,6 +2095,10 @@
         statusDiv.style.display = 'block';
         statusDiv.textContent = '⏳ Loading repositories...';
 
+        // Temporarily save token to localStorage for API call
+        // (it will be saved permanently when user clicks "Lưu cài đặt")
+        localStorage.setItem(GITHUB_TOKEN_KEY, token);
+
         // Fetch user's repos
         const repos = await githubApiRequest('/user/repos?per_page=100&sort=updated');
 
