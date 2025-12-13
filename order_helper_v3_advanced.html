@@ -4858,11 +4858,20 @@
               } else {
                 addBackupLog('ℹ️ Local data is up to date');
               }
+            } else {
+              addBackupLog('ℹ️ No remote data found (repo may be empty)');
             }
           } catch (err) {
-            // Silently fail - don't block app loading
-            console.warn('Auto-pull failed:', err);
-            addBackupLog(`⚠️ Auto-pull failed: ${err.message}`);
+            // Silently handle expected errors (empty repo, etc)
+            if (err.message && err.message.includes('No commit found')) {
+              addBackupLog('ℹ️ Repo is empty, will backup on first save');
+            } else if (err.message && err.message.includes('Not Found')) {
+              addBackupLog('ℹ️ Backup file not found, will create on first backup');
+            } else {
+              // Log unexpected errors
+              console.warn('Auto-pull failed:', err);
+              addBackupLog(`⚠️ Auto-pull skipped: ${err.message}`);
+            }
           }
         }, 2000); // Delay to not block initial load
       }
