@@ -1,0 +1,136 @@
+/* Utility Classes */
+
+/* Amount Formatting */
+.amount-positive {
+    color: var(--accent-green);
+    font-weight: 600;
+}
+
+.amount-negative {
+    color: var(--accent-red);
+    font-weight: 600;
+}
+
+.profit-positive {
+    color: var(--accent-green);
+}
+
+.profit-negative {
+    color: var(--accent-red);
+}
+
+/* Icon Utilities */
+.icon-sm {
+    font-size: 0.875rem;
+}
+
+.icon-md {
+    font-size: 1rem;
+}
+
+.icon-lg {
+    font-size: 1.25rem;
+}
+
+.icon-xl {
+    font-size: 1.5rem;
+}
+
+/* Text Utilities */
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
+/* Spacing Utilities */
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+.my-4 {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.p-4 {
+    padding: 1rem;
+}
+
+/* Display Utilities */
+.d-none {
+    display: none;
+}
+
+.d-block {
+    display: block;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.d-grid {
+    display: grid;
+}
+
+/* Flex Utilities */
+.flex-row {
+    flex-direction: row;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.gap-4 {
+    gap: 1rem;
+}
+
+.gap-6 {
+    gap: 1.5rem;
+}
+
+/* Border Utilities */
+.border-top {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.border-bottom {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Cursor Utilities */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.cursor-not-allowed {
+    cursor: not-allowed;
+}

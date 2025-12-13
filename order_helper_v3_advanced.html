@@ -5,1178 +5,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Order Helper Pro - Advanced Edition</title>
-  <style>
-    :root {
-      --bg-start: #1a1a2e;
-      --bg-end: #16213e;
-      --glass-bg: rgba(255, 255, 255, 0.05);
-      --glass-border: rgba(255, 255, 255, 0.1);
-      --text-primary: #eee;
-      --text-secondary: #bbb;
-      --text-muted: #888;
-      --accent: #00d4ff;
-      --accent-hover: #00b8e6;
-      --accent-green: #10b981;
-      --accent-green-light: #34d399;
-      --accent-red: #ef4444;
-      --accent-yellow: #f59e0b;
-      --accent-blue: #3b82f6;
-      --accent-purple: #8b5cf6;
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/utilities.css">
 
-      /* Status colors */
-      --color-paid: #10b981;
-      --color-unpaid: #ef4444;
-      --color-partial: #f59e0b;
-
-      /* VIP balance colors */
-      --color-credit: #10b981;
-      --color-debit: #ef4444;
-      --color-inactive: #6b7280;
-
-      /* Transaction types */
-      --color-topup: #3b82f6;
-      --color-cashout: #8b5cf6;
-      --color-order: #f59e0b;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', 'SF Pro Display', -apple-system, sans-serif;
-      background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
-      color: var(--text-primary);
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .header h1 {
-      font-size: 2.5rem;
-      background: linear-gradient(135deg, var(--accent) 0%, #b06ab3 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 16px;
-      background: var(--glass-bg);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-
-    /* Status badges */
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      border: 1px solid;
-    }
-
-    .status-badge.paid {
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--color-paid);
-      border-color: var(--color-paid);
-    }
-
-    .status-badge.unpaid {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--color-unpaid);
-      border-color: var(--color-unpaid);
-    }
-
-    /* Balance badges */
-    .balance-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      font-weight: 700;
-    }
-
-    .balance-badge.positive {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--color-credit);
-    }
-
-    .balance-badge.negative {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--color-debit);
-    }
-
-    /* Count badges */
-    .count-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      background: rgba(59, 130, 246, 0.15);
-      color: var(--accent-blue);
-      border-radius: 10px;
-      font-size: 0.7rem;
-      font-weight: 600;
-    }
-
-    .header h1 {
-      font-size: 42px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 50%, #34d399 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 12px;
-      letter-spacing: -0.02em;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 20px;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 100px;
-      font-size: 14px;
-      color: #6ee7b7;
-      backdrop-filter: blur(10px);
-    }
-
-    .badge::before {
-      content: '✨';
-      font-size: 16px;
-    }
-
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 32px;
-      overflow-x: auto;
-      padding-bottom: 8px;
-    }
-
-    .tab {
-      padding: 12px 24px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 12px;
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .tab:hover {
-      background: var(--glass-bg-hover);
-      color: var(--text-primary);
-    }
-
-    .tab.active {
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-      color: white;
-      border-color: transparent;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    /* Glass Card */
-    .glass-card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow:
-        0 8px 32px var(--glass-shadow),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .glass-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    }
-
-    .glass-card:hover {
-      background: var(--glass-bg-hover);
-      border-color: rgba(255, 255, 255, 0.2);
-      transform: translateY(-2px);
-      box-shadow:
-        0 12px 40px var(--glass-shadow),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    }
-
-    /* Grid Layout */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 24px;
-      margin-bottom: 24px;
-    }
-
-    .grid-2 {
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    }
-
-    .grid-3 {
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    }
-
-    /* Global Search */
-    .global-search-container {
-      position: sticky;
-      top: 20px;
-      z-index: 1000;
-      margin-bottom: 24px;
-    }
-
-    .global-search-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border: 2px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 4px;
-      transition: all 0.3s ease;
-    }
-
-    .global-search-wrapper:focus-within {
-      border-color: var(--accent-blue);
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 8px 24px rgba(0, 0, 0, 0.3);
-    }
-
-    .search-icon {
-      padding: 0 12px;
-      font-size: 1.2rem;
-      opacity: 0.5;
-    }
-
-    .global-search-input {
-      flex: 1;
-      padding: 14px 8px;
-      background: transparent;
-      border: none;
-      color: var(--text-primary);
-      font-size: 16px;
-      outline: none;
-    }
-
-    .global-search-input::placeholder {
-      color: var(--text-muted);
-    }
-
-    .search-clear {
-      padding: 8px 12px;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 1.2rem;
-      border-radius: 8px;
-      transition: all 0.2s;
-    }
-
-    .search-clear:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-primary);
-    }
-
-    .search-results-dropdown {
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 0;
-      right: 0;
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      max-height: 400px;
-      overflow-y: auto;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-      display: none;
-    }
-
-    .search-results-dropdown.show {
-      display: block;
-      animation: slideDown 0.2s ease-out;
-    }
-
-    .search-result-section {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--glass-border);
-    }
-
-    .search-result-section:last-child {
-      border-bottom: none;
-    }
-
-    .search-section-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 8px;
-    }
-
-    .search-result-item {
-      padding: 10px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .search-result-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .search-result-icon {
-      font-size: 1.2rem;
-    }
-
-    .search-result-content {
-      flex: 1;
-    }
-
-    .search-result-title {
-      color: var(--text-primary);
-      font-weight: 500;
-      font-size: 0.95rem;
-    }
-
-    .search-result-subtitle {
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      margin-top: 2px;
-    }
-
-    .search-no-results {
-      padding: 24px;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* Form Elements */
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-label {
-      display: block;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-      letter-spacing: 0.01em;
-    }
-
-    .form-input,
-    .form-textarea,
-    .form-select {
-      width: 100%;
-      padding: 12px 16px;
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 12px;
-      color: var(--text-primary);
-      font-size: 15px;
-      transition: all 0.2s ease;
-      font-family: inherit;
-    }
-
-    .form-input:focus,
-    .form-textarea:focus,
-    .form-select:focus {
-      outline: none;
-      border-color: var(--accent-blue);
-      background: rgba(15, 23, 42, 0.8);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    .form-textarea {
-      resize: vertical;
-      min-height: 100px;
-      line-height: 1.5;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 16px;
-    }
-
-    /* Checkbox */
-    .checkbox-wrapper {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 16px;
-      background: rgba(59, 130, 246, 0.05);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      border-radius: 12px;
-      margin-top: 12px;
-    }
-
-    .checkbox-wrapper input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-      accent-color: var(--accent-blue);
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    .checkbox-label {
-      font-size: 13px;
-      color: var(--text-secondary);
-      line-height: 1.5;
-    }
-
-    .checkbox-label strong {
-      color: var(--accent-blue);
-    }
-
-    /* Buttons */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-decoration: none;
-      font-family: inherit;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .btn::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      transform: translate(-50%, -50%);
-      transition: width 0.4s ease, height 0.4s ease;
-    }
-
-    .btn:hover::before {
-      width: 300px;
-      height: 300px;
-    }
-
-    .btn:active {
-      transform: scale(0.98);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-green-light) 100%);
-      color: white;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-    }
-
-    .btn-secondary {
-      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%);
-      color: white;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    }
-
-    .btn-secondary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-    }
-
-    .btn-warning {
-      background: linear-gradient(135deg, var(--accent-yellow) 0%, #f59e0b 100%);
-      color: #78350f;
-      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
-    }
-
-    .btn-ghost {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-secondary);
-      border: 1px dashed var(--glass-border);
-    }
-
-    .btn-ghost:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-primary);
-    }
-
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.1);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.2);
-    }
-
-    .btn-info {
-      background: rgba(59, 130, 246, 0.1);
-      color: #93c5fd;
-      border: 1px solid rgba(59, 130, 246, 0.3);
-    }
-
-    /* Draft Save */
-    .draft-save-card {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-
-    .draft-status {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      flex: 1;
-      min-width: 280px;
-    }
-
-    .draft-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      margin-top: 4px;
-      box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.06);
-      flex-shrink: 0;
-    }
-
-    .draft-dot.saved {
-      background: var(--accent-green);
-      box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.18);
-    }
-
-    .draft-dot.unsaved {
-      background: var(--accent-orange);
-      box-shadow: 0 0 0 6px rgba(249, 115, 22, 0.18);
-    }
-
-    .draft-status-text {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-primary);
-      line-height: 1.4;
-    }
-
-    .draft-meta {
-      color: var(--text-muted);
-      font-size: 13px;
-      margin-top: 4px;
-    }
-
-    .draft-banner {
-      color: var(--text-secondary);
-      font-size: 13px;
-      margin-top: 6px;
-    }
-
-    .draft-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      min-width: 260px;
-    }
-
-    @media (max-width: 768px) {
-      .draft-save-card {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .draft-actions {
-        width: 100%;
-        justify-content: flex-start;
-      }
-    }
-
-    .btn-group {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .btn-full {
-      width: 100%;
-    }
-
-    /* Table */
-    .table-wrapper {
-      overflow-x: auto;
-      margin-top: 16px;
-      border-radius: 12px;
-      background: rgba(15, 23, 42, 0.4);
-    }
-
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .table thead {
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .table th {
-      padding: 14px 16px;
-      text-align: left;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .table td {
-      padding: 12px 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      color: var(--text-primary);
-    }
-
-    .table tbody tr {
-      transition: background 0.2s ease;
-    }
-
-    .table tbody tr:hover {
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .table input {
-      width: 100%;
-      text-align: right;
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 8px;
-      padding: 8px 12px;
-      color: var(--text-primary);
-      font-size: 14px;
-    }
-
-    .table input:focus {
-      outline: none;
-      border-color: var(--accent-blue);
-    }
-
-    .table .name-input {
-      text-align: left;
-    }
-
-    .table input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-      accent-color: var(--accent-green);
-    }
-
-    /* Summary Section */
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
-    }
-
-    .summary-item {
-      padding: 16px;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .summary-item h3 {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin-bottom: 12px;
-      font-weight: 500;
-    }
-
-    .summary-value {
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .summary-detail {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-top: 6px;
-    }
-
-    .profit-positive {
-      color: var(--accent-green);
-    }
-
-    .profit-negative {
-      color: var(--accent-red);
-    }
-
-    /* Lists */
-    .info-list {
-      list-style: none;
-      padding: 0;
-    }
-
-    .info-list li {
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .info-list li:last-child {
-      border-bottom: none;
-    }
-
-    .info-list .name {
-      color: var(--text-primary);
-    }
-
-    .info-list .value {
-      font-weight: 600;
-      color: var(--accent-green);
-    }
-
-    .info-list .note {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-left: 8px;
-    }
-
-    /* Helper Text */
-    .helper-text {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 8px;
-      line-height: 1.5;
-    }
-
-    .helper-text strong {
-      color: var(--text-secondary);
-    }
-
-    /* Alert Box */
-    .alert {
-      padding: 14px 18px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .alert-info {
-      background: rgba(59, 130, 246, 0.1);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      color: #93c5fd;
-    }
-
-    .alert-success {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #6ee7b7;
-    }
-
-    .alert-warning {
-      background: rgba(251, 191, 36, 0.1);
-      border: 1px solid rgba(251, 191, 36, 0.3);
-      color: #fcd34d;
-    }
-
-    /* Price Suggestion */
-    .price-suggestion {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 16px;
-    }
-
-    .price-card {
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .price-card:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: var(--accent-blue);
-      transform: translateY(-2px);
-    }
-
-    .price-card.active {
-      border-color: var(--accent-green);
-      background: rgba(16, 185, 129, 0.1);
-    }
-
-    .price-card-label {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .price-card-value {
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .price-card-desc {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 8px;
-    }
-
-    /* Section Title */
-    .section-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .section-title::before {
-      content: '';
-      width: 4px;
-      height: 20px;
-      background: linear-gradient(180deg, var(--accent-blue), var(--accent-purple));
-      border-radius: 4px;
-    }
-
-    /* Stats Cards */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      text-align: center;
-    }
-
-    .stat-icon {
-      font-size: 32px;
-      margin-bottom: 12px;
-    }
-
-    .stat-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 4px;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    /* Badge Status */
-    .status-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 100px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .status-paid {
-      background: rgba(16, 185, 129, 0.2);
-      color: #6ee7b7;
-    }
-
-    .status-unpaid {
-      background: rgba(239, 68, 68, 0.2);
-      color: #fca5a5;
-    }
-
-    .status-partial {
-      background: rgba(251, 191, 36, 0.2);
-      color: #fcd34d;
-    }
-
-    /* Order History Item */
-    .history-item {
-      padding: 16px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      margin-bottom: 12px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .history-item:hover {
-      background: rgba(255, 255, 255, 0.06);
-      transform: translateX(4px);
-    }
-
-    .history-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .history-title {
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .history-date {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .history-details {
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    /* Empty State */
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-muted);
-      font-size: 14px;
-    }
-
-    .empty-state-icon {
-      font-size: 48px;
-      margin-bottom: 12px;
-      opacity: 0.5;
-    }
-
-    .mini-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .mini-list li {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--text-secondary);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      padding-bottom: 6px;
-    }
-
-    .mini-list .note {
-      color: var(--text-muted);
-    }
-
-    .amount-positive {
-      color: var(--accent-green);
-      font-weight: 600;
-    }
-
-    .amount-negative {
-      color: var(--accent-red);
-      font-weight: 600;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .header h1 {
-        font-size: 32px;
-      }
-
-      .grid,
-      .grid-2,
-      .grid-3 {
-        grid-template-columns: 1fr;
-      }
-
-      .price-suggestion {
-        grid-template-columns: 1fr;
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-
-      .tabs {
-        overflow-x: auto;
-      }
-    }
-
-    /* Animation */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .glass-card {
-      animation: fadeIn 0.5s ease-out;
-    }
-
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(8px);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      background: var(--bg-gradient-1);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 32px;
-      max-width: 600px;
-      width: 100%;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-
-    .modal-title {
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .modal-close {
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      color: var(--text-primary);
-      font-size: 24px;
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-    }
-
-    .modal-close:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-  </style>
 </head>
 
 <body>
@@ -1315,9 +150,6 @@
           </div>
 
           <div class="btn-group">
-            <button class="btn btn-primary" onclick="saveVIPOnly()" style="flex: 1;">
-              💾 Lưu VIP
-            </button>
             <button type="button" class="btn btn-secondary" onclick="addNewVIP()">
               ➕ Nạp VIP
             </button>
@@ -1584,6 +416,13 @@
           </select>
         </div>
 
+        <div class="form-group">
+          <label class="form-label">Số dư ban đầu (đ)</label>
+          <input type="number" id="vipInitialBalance" class="form-input" placeholder="0" oninput="saveInitialBalance()"
+            onblur="saveInitialBalance()">
+          <div class="helper-text">Nhập số dư tại thời điểm bắt đầu tính (để trống = 0đ)</div>
+        </div>
+
         <!-- Transaction Filters -->
         <div id="vipHistoryFilters"
           style="display: none; margin-top: 16px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
@@ -1661,18 +500,27 @@
 
         <div class="form-group">
           <label class="form-label">GitHub Personal Access Token</label>
-          <input id="githubToken" class="form-input" type="password" placeholder="ghp_xxxxxxxxxxxx">
+          <input id="githubToken" class="form-input" type="password" placeholder="ghp_xxxxxxxxxxxx"
+            onblur="loadGithubRepos()">
           <div class="helper-text">Token sẽ được lưu trong localStorage của trình duyệt</div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Repository (owner/repo)</label>
-            <input id="githubRepo" class="form-input" placeholder="vuhoanganh/OrderHelper">
+            <select id="githubRepo" class="form-input" onchange="loadGithubBranches()">
+              <option value="">-- Select repository --</option>
+            </select>
+            <div class="helper-text" id="repoLoadingStatus" style="display:none; color: var(--accent-blue);">⏳ Loading
+              repositories...</div>
           </div>
           <div class="form-group">
             <label class="form-label">Branch</label>
-            <input id="githubBranch" class="form-input" value="main" placeholder="main">
+            <select id="githubBranch" class="form-input">
+              <option value="master">master</option>
+            </select>
+            <div class="helper-text" id="branchLoadingStatus" style="display:none; color: var(--accent-blue);">⏳ Loading
+              branches...</div>
           </div>
         </div>
 
@@ -1718,9 +566,12 @@
           </div>
         </div>
 
-        <div class="btn-group">
+        <div class="btn-group" style="margin-bottom: 20px;">
           <button class="btn btn-primary" onclick="backupToGithub()" style="flex: 1;">
-            📤 Backup to Github
+            📤 Backup to GitHub
+          </button>
+          <button class="btn btn-success" onclick="syncNow()" style="flex: 1;">
+            🔄 Sync Now
           </button>
           <button class="btn btn-success" onclick="downloadBackup()" style="flex: 1;">
             💾 Download Backup
@@ -1950,6 +801,99 @@
       localStorage.setItem('vipUpdatedAt', String(timestamp));
     }
 
+    // Recompute VIP balances from current data to keep VIP management in sync with reports
+    function recomputeVipBalances() {
+      const vipAreaText = document.getElementById('vipArea')?.value || '';
+      const vipMapCurrent = parseVip(vipAreaText);
+      const baseNames = new Set(vipMapCurrent.keys()); // giữ tên đã có, nhưng không dùng balance cũ
+      const txNames = new Set();
+      vipTransactions.forEach(tx => { if (tx.name) txNames.add(tx.name); });
+
+      // Cộng thêm các VIP có default initial
+      const defaultNames = new Set(Object.keys(DEFAULT_INITIAL_BALANCE));
+
+      const names = new Set([...baseNames, ...txNames, ...defaultNames]);
+      if (names.size === 0) return;
+
+      const newMap = new Map();
+
+      names.forEach(name => {
+        const entries = [];
+
+        const buildOrderKeys = (amt, item = '') => {
+          const amount = Math.abs(Number(amt) || 0);
+          const itemKey = (item || '').trim().toLowerCase();
+          const keys = [`${amount}|${itemKey}`];
+          // fallback: amount-only to dedupe vipTransactions (thường không có itemName)
+          keys.push(`amount|${amount}`);
+          return keys;
+        };
+
+        // VIP topup/cashout/order entries
+        vipTransactions
+          .filter(tx => tx.name === name)
+          .forEach(tx => entries.push({
+            ts: tx.ts || tx.id || Date.now(),
+            amount: tx.amount,
+            type: tx.type || (tx.amount >= 0 ? 'topup' : 'cashout'),
+            isVipPayment: true
+          }));
+
+        // Build set of order keys already in vipTransactions to avoid double-count
+        const vipOrderKeys = new Set();
+        vipTransactions
+          .filter(tx => tx.name === name && tx.type === 'order')
+          .forEach(tx => buildOrderKeys(tx.amount, tx.itemName).forEach(k => vipOrderKeys.add(k)));
+
+        // Orders for this VIP (chỉ tính nếu đã là VIP hoặc có tx VIP)
+        orderHistory.forEach(order => {
+          (order.details || []).forEach(d => {
+            if (d.name !== name) return;
+            const keys = buildOrderKeys(d.due, order.itemName);
+            if (keys.some(k => vipOrderKeys.has(k))) return; // tránh trùng với tx VIP đã ghi
+            entries.push({
+              ts: order.date || order.id || Date.now(),
+              amount: -Math.abs(d.due || 0),
+              type: 'order',
+              paid: !!d.paid,
+              isVipPayment: !!d.isVipPayment
+            });
+          });
+        });
+
+        entries.sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
+
+        let bal = getInitialBalanceForVip(name, { persistDefault: true });
+        let allowCredit = bal > 0;
+
+        entries.forEach(e => {
+          if (e.type === 'order') {
+            const need = Math.abs(e.amount || 0);
+            const payWithVip = e.isVipPayment || (e.paid && (bal >= need || allowCredit));
+            if (payWithVip && need > 0) {
+              bal += e.amount;
+            }
+          } else {
+            bal += e.amount;
+            if (e.amount > 0) allowCredit = true;
+          }
+        });
+
+        // Không thêm vào danh sách nếu balance bằng 0 và không có giao dịch VIP, không có default, không nằm trong danh sách gốc
+        const hasVipTx = txNames.has(name);
+        const hasDefault = DEFAULT_INITIAL_BALANCE[name] && DEFAULT_INITIAL_BALANCE[name] !== 0;
+        const hasBase = baseNames.has(name);
+        if (bal === 0 && !hasVipTx && !hasDefault && !hasBase) return;
+        newMap.set(name, bal);
+      });
+
+      // Persist back to textarea/localStorage
+      const vipText = vipToText(newMap);
+      const vipArea = document.getElementById('vipArea');
+      if (vipArea) vipArea.value = vipText;
+      persistVipList(vipText);
+    }
+
     // Update dish name suggestions from order history
     function updateDishNameSuggestions() {
       const datalist = document.getElementById('dishNameHistory');
@@ -1973,6 +917,23 @@
 
       items.sort((a, b) => b.ts - a.ts);
       datalist.innerHTML = items.map(i => `<option value="${i.name.replace(/"/g, '&quot;')}">`).join('');
+    }
+
+    // Ensure dish suggestion dropdown can be opened even khi giá trị hiện tại không khớp
+    function openDishSuggestions() {
+      const input = document.getElementById('itemName');
+      const datalist = document.getElementById('dishNameHistory');
+      if (!input || !datalist || !datalist.options?.length) return;
+      const prev = input.value;
+      input.value = ''; // clear để browser hiển thị toàn bộ options
+      if (typeof input.showPicker === 'function') {
+        input.showPicker();
+      }
+      setTimeout(() => {
+        if (document.activeElement === input) {
+          input.value = prev;
+        }
+      }, 100);
     }
 
     function getLatestVipFromHistory() {
@@ -2202,7 +1163,7 @@
       });
     }
 
-    function recordVipTransaction({ name, amount, type }) {
+    function recordVipTransaction({ name, amount, type, itemName, orderId }) {
       if (!name || !Number.isFinite(amount)) return;
       const entry = {
         id: Date.now(),
@@ -2211,9 +1172,19 @@
         amount,
         type: type || (amount >= 0 ? 'topup' : 'cashout')
       };
+
+      // Add itemName and orderId for order transactions
+      if (type === 'order') {
+        if (itemName) entry.itemName = itemName;
+        if (orderId) entry.orderId = orderId;
+        entry.paid = true; // VIP order transactions are always paid
+      }
+
       vipTransactions.unshift(entry);
       vipTransactions = vipTransactions.slice(0, 200);
       localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
+      // Keep vip list in sync with recomputed balances after any VIP transaction
+      recomputeVipBalances();
       renderVipHistory();
       populateVipMemberSelect();
     }
@@ -2301,7 +1272,9 @@
               amount: -Math.abs(detail.due),
               type: 'order',
               itemName: order.itemName || 'Order',
-              paid: detail.paid || false
+              paid: detail.paid || false,
+              // Do not trust stale isVipPayment; will be recomputed by tx/vip matching + fallback
+              isVipPayment: false
             });
           }
         });
@@ -2359,6 +1332,39 @@
     // Store all transactions globally for filtering
     let currentVipTransactions = [];
 
+    // VIP History Functions
+    const DEFAULT_INITIAL_BALANCE = {
+      'a Duck': 145,
+      'a Dave': 1000
+    };
+
+    function saveInitialBalance() {
+      const vipName = document.getElementById('vipMemberSelect').value;
+      const balance = document.getElementById('vipInitialBalance').value;
+
+      if (!vipName) return;
+
+      // Save to localStorage
+      const key = `vipInitialBalance_${vipName}`;
+      localStorage.setItem(key, balance || '0');
+
+      // Recalculate history
+      showVipMemberHistory();
+    }
+
+    function getInitialBalanceForVip(name, options = {}) {
+      if (!name) return 0;
+      const saved = localStorage.getItem(`vipInitialBalance_${name}`);
+      if (saved !== null && saved !== undefined && saved !== '') {
+        return Number(saved);
+      }
+      const def = DEFAULT_INITIAL_BALANCE[name];
+      if (options.persistDefault && def !== undefined) {
+        localStorage.setItem(`vipInitialBalance_${name}`, def);
+      }
+      return def || 0;
+    }
+
     function showVipMemberHistory() {
       const select = document.getElementById('vipMemberSelect');
       const container = document.getElementById('vipMemberHistoryContainer');
@@ -2372,17 +1378,114 @@
         return;
       }
 
+      // Set initial balance input from saved/default
+      const initialBalanceInput = document.getElementById('vipInitialBalance');
+      const initialBalanceValue = getInitialBalanceForVip(selectedName, { persistDefault: true });
+      if (initialBalanceInput) {
+        initialBalanceInput.value = initialBalanceValue;
+      }
+
       // Show filters
       if (filtersDiv) filtersDiv.style.display = 'block';
 
-      // Get cash transactions (topup/cashout)
-      const cashTxs = vipTransactions.filter(tx => tx.name === selectedName);
+      // Helper to build a dedupe key for order transactions
+      const buildOrderKey = (tx) => {
+        if (tx.type !== 'order') return null;
+        if (tx.orderId) return `id:${tx.orderId}`;
+        const tsKey = new Date(tx.ts).getTime();
+        return `ts:${tsKey}|amt:${tx.amount}`;
+      };
 
-      // Get order transactions
-      const orderTxs = getVipOrderTransactions(selectedName);
+      // Helper to fingerprint an order by item/amount (used to drop legacy duplicates)
+      const fingerprintOrder = (tx) => {
+        if (tx.type !== 'order') return [];
+        const item = (tx.itemName || '').trim().toLowerCase();
+        const amount = Math.abs(Number(tx.amount) || 0);
+        return [`${item}|${amount}`, `amount|${amount}`];
+      };
 
-      // Combine all transactions
-      const allTxs = [...cashTxs, ...orderTxs]
+      // Get VIP transactions (topup/cashout/order)
+      const vipTxs = vipTransactions.filter(tx => tx.name === selectedName);
+
+      // Build a set of order keys already recorded as VIP transactions (avoid double counting)
+      const vipOrderKeys = new Set();
+      const vipOrderFingerprints = new Set();
+      vipTxs.forEach(tx => {
+        const key = buildOrderKey(tx);
+        if (key) vipOrderKeys.add(key);
+        fingerprintOrder(tx).forEach(fp => vipOrderFingerprints.add(fp));
+      });
+
+      // Get ALL order transactions from order history
+      let orderTxs = getVipOrderTransactions(selectedName);
+
+      // Mark orders as VIP-paid if they match a VIP transaction (even if deduped away)
+      orderTxs = orderTxs.map(tx => {
+        if (tx.type !== 'order') return tx;
+        const key = buildOrderKey(tx);
+        const fps = fingerprintOrder(tx);
+        const isVipPayment = (key && vipOrderKeys.has(key)) || fps.some(fp => vipOrderFingerprints.has(fp)) || !!tx.isVipPayment;
+        return { ...tx, isVipPayment };
+      });
+
+      // Build fingerprint set from order history (authoritative)
+      const orderHistoryFingerprints = new Set();
+      orderTxs.forEach(tx => fingerprintOrder(tx).forEach(fp => orderHistoryFingerprints.add(fp)));
+
+      // Merge order history + vipTransactions without duplicating the same order
+      const mergedTxs = [];
+
+      // 1) Push order history first (authoritative for orders)
+      mergedTxs.push(...orderTxs);
+
+      // 2) Add vipTxs but skip duplicate orders that lack orderId and match history by item/amount
+      vipTxs.forEach(tx => {
+        if (tx.type === 'order') {
+          const key = buildOrderKey(tx);
+          const fps = fingerprintOrder(tx);
+          if ((key && vipOrderKeys.has(key)) || (fps.some(fp => orderHistoryFingerprints.has(fp)) && !tx.orderId)) return;
+        }
+        mergedTxs.push(tx);
+      });
+
+      // Mark which orders are VIP vs Cash
+      const markedTxs = mergedTxs.map(tx => {
+        if (tx.type !== 'order') return { ...tx, isVipPayment: !!tx.orderId };
+        const key = buildOrderKey(tx);
+        const fps = fingerprintOrder(tx);
+        const isVipPayment = tx.isVipPayment || (key && vipOrderKeys.has(key)) || fps.some(fp => vipOrderFingerprints.has(fp)) || !!tx.orderId;
+        return { ...tx, isVipPayment };
+      });
+
+      // Fallback: if order is paid and we still have VIP balance at that time, auto-mark as VIP (when no explicit vip tx exists)
+      const fallbackInitialBalance = getInitialBalanceForVip(selectedName, { persistDefault: true });
+      const sortedForFallback = [...markedTxs].sort((a, b) => new Date(a.ts) - new Date(b.ts));
+      let fallbackBalance = fallbackInitialBalance;
+      let allowCredit = fallbackInitialBalance > 0; // chỉ cho âm khi đã có dư/đã nạp
+      const adjustedTxs = sortedForFallback.map(tx => {
+        const copy = { ...tx };
+        const impactsVip = (t) => t.type === 'topup' || t.type === 'cashout' || (t.type === 'order' && t.isVipPayment);
+
+        if (copy.type === 'order' && !copy.isVipPayment) {
+          const needed = Math.abs(copy.amount || 0);
+          if ((fallbackBalance >= needed || allowCredit) && needed > 0) {
+            copy.isVipPayment = true;
+            copy.paid = true;
+          }
+        }
+
+        if (impactsVip(copy)) {
+          fallbackBalance += copy.amount;
+          if (copy.type === 'topup' && copy.amount > 0) {
+            allowCredit = true;
+          }
+        }
+
+        return copy;
+      });
+
+      // Combine all transactions for display (latest first)
+      const allTxs = [...adjustedTxs]
         .sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
 
       if (allTxs.length === 0) {
@@ -2390,31 +1493,31 @@
         return;
       }
 
-      // Get current balance from VIP list
-      const vipArea = document.getElementById('vipArea');
-      const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
+      // Initial balance (user can set manually)
+      const initialBalance = getInitialBalanceForVip(selectedName, { persistDefault: true });
 
-      // Calculate running balance correctly
-      // Strategy: Sort oldest first, calculate initial balance, then forward
+      // Calculate running balance including only VIP-impacting transactions
+      let runningBalance = initialBalance;
       const sortedOldestFirst = [...allTxs].sort((a, b) =>
         new Date(a.ts).getTime() - new Date(b.ts).getTime()
       );
 
-      // Calculate what initial balance should be to end up with currentBalance
-      const totalChange = sortedOldestFirst.reduce((sum, tx) => sum + tx.amount, 0);
-      let runningBalance = currentBalance - totalChange;
-
-      // Now calculate balance AFTER each transaction (chronological order)
+      // Calculate balance AFTER each transaction (chronological order)
       const txsWithBalance = sortedOldestFirst.map(tx => {
-        runningBalance += tx.amount;
-        return { ...tx, balance: runningBalance };
+        const impactsVip = tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && tx.isVipPayment);
+        if (impactsVip) {
+          runningBalance += tx.amount;
+          return { ...tx, balance: runningBalance };
+        }
+        // Cash orders should not change VIP balance; show 0 for their balance column
+        return { ...tx, balance: 0 };
       });
 
       // Store for filtering
       currentVipTransactions = txsWithBalance;
 
       // Render with current filters
-      renderVipHistoryTable(selectedName, currentBalance, txsWithBalance);
+      renderVipHistoryTable(selectedName, runningBalance, txsWithBalance);
     }
 
     function renderVipHistoryTable(selectedName, currentBalance, transactions) {
@@ -2425,6 +1528,14 @@
       const topupCount = transactions.filter(tx => tx.type === 'topup').length;
       const cashoutCount = transactions.filter(tx => tx.type === 'cashout').length;
       const orderCount = transactions.filter(tx => tx.type === 'order').length;
+
+      // Create a Set of order IDs that have actual VIP transactions
+      const vipOrderIds = new Set();
+      vipTransactions.forEach(tx => {
+        if (tx.type === 'order' && tx.name === selectedName && tx.orderId) {
+          vipOrderIds.add(tx.orderId);
+        }
+      });
 
       // Compact date format function
       const compactDate = (dateStr) => {
@@ -2462,6 +1573,7 @@
                   <tr>
                     <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">📅 Ngày giờ</th>
                     <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">Loại</th>
+                    <th style="padding: 10px 12px; text-align: center; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">💳 PT</th>
                     <th style="padding: 10px 12px; text-align: right; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">Số tiền</th>
                     <th style="padding: 10px 12px; text-align: left; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1);">Chi tiết</th>
                     <th style="padding: 10px 12px; text-align: right; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid rgba(255,255,255,0.1); white-space: nowrap;">Số dư</th>
@@ -2472,6 +1584,19 @@
         const isEven = idx % 2 === 0;
         const bgColor = isEven ? 'rgba(255,255,255,0.02)' : 'transparent';
         const typeLabel = tx.type === 'topup' ? '💰 Nạp' : tx.type === 'cashout' ? '💸 Rút' : '🍜 Order';
+
+        // Check if this order has actual VIP transaction
+        let paymentMethod = '-';
+        if (tx.type === 'order') {
+          if (!tx.paid) {
+            paymentMethod = '<span style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">⏳ Pending</span>';
+          } else if (tx.isVipPayment) {
+            paymentMethod = '<span style="background: linear-gradient(135deg, #10b981, #34d399); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">VIP</span>';
+          } else {
+            paymentMethod = '<span style="background: linear-gradient(135deg, #6b7280, #9ca3af); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Cash</span>';
+          }
+        }
+
         const amountColor = tx.amount >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
         const balanceColor = tx.balance >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
 
@@ -2479,11 +1604,12 @@
                       <tr style="background: ${bgColor}; transition: background 0.2s;" onmouseover="this.style.background='rgba(99,102,241,0.08)'" onmouseout="this.style.background='${bgColor}'">
                         <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary); white-space: nowrap;">${compactDate(tx.ts)}</td>
                         <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap;">${typeLabel}</td>
+                        <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; white-space: nowrap;">${paymentMethod}</td>
                         <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: right; font-weight: 600; color: ${amountColor}; white-space: nowrap;">
                           ${tx.amount >= 0 ? '+' : ''}${formatMoney(tx.amount)}
                         </td>
                         <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                          ${tx.type === 'order' ? `${tx.itemName} ${tx.paid ? '✅' : '⏳'}` : '-'}
+                          ${tx.type === 'order' ? `${tx.itemName || 'Order'} ${tx.paid ? '✅' : '⏳'}` : '-'}
                         </td>
                         <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: right; font-weight: 600; color: ${balanceColor}; white-space: nowrap;">
                           ${formatMoney(tx.balance)}
@@ -2522,7 +1648,7 @@
       const select = document.getElementById('vipMemberSelect');
       const vipArea = document.getElementById('vipArea');
       const selectedName = select ? select.value : '';
-      const currentBalance = vipArea ? (parseVip(vipArea.value).get(selectedName) || 0) : 0;
+      const initialBalance = getInitialBalanceForVip(selectedName, { persistDefault: true });
 
       // Get filter values
       const dateFrom = document.getElementById('filterDateFrom')?.value;
@@ -2564,8 +1690,21 @@
         countSpan.textContent = `Hiển thị ${filtered.length}/${currentVipTransactions.length} giao dịch`;
       }
 
-      // Render filtered results
-      renderVipHistoryTable(selectedName, currentBalance, filtered);
+      // Recalculate running balance for filtered list (chronological)
+      let runningBalance = initialBalance;
+      const recalculated = [...filtered]
+        .sort((a, b) => new Date(a.ts) - new Date(b.ts))
+        .map(tx => {
+          const impactsVip = tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && tx.isVipPayment);
+          if (impactsVip) {
+            runningBalance += tx.amount;
+            return { ...tx, balance: runningBalance };
+          }
+          return { ...tx, balance: 0 };
+        });
+
+      // Render filtered results (use final runningBalance for header)
+      renderVipHistoryTable(selectedName, runningBalance, recalculated);
     }
 
     // Clear all filters
@@ -2942,6 +2081,134 @@
 
     // ========== GitHub Settings & Main Functions ==========
 
+    /**
+     * Load user's GitHub repositories and populate dropdown
+     */
+    async function loadGithubRepos() {
+      const token = document.getElementById('githubToken').value.trim();
+      const repoSelect = document.getElementById('githubRepo');
+      const statusDiv = document.getElementById('repoLoadingStatus');
+
+      if (!token) {
+        // No token, reset dropdown
+        repoSelect.innerHTML = '<option value="">-- Nhập token trước --</option>';
+        return;
+      }
+
+      try {
+        statusDiv.style.display = 'block';
+        statusDiv.textContent = '⏳ Loading repositories...';
+
+        // Temporarily save token to localStorage for API call
+        // (it will be saved permanently when user clicks "Lưu cài đặt")
+        localStorage.setItem(GITHUB_TOKEN_KEY, token);
+
+        // Fetch user's repos
+        const repos = await githubApiRequest('/user/repos?per_page=100&sort=updated');
+
+        if (!repos || repos.length === 0) {
+          repoSelect.innerHTML = '<option value="">-- No repositories found --</option>';
+          statusDiv.textContent = 'ℹ️ No repositories found';
+          return;
+        }
+
+        // Populate dropdown with repos
+        repoSelect.innerHTML = '<option value="">-- Select repository --</option>';
+
+        repos.forEach(repo => {
+          const option = document.createElement('option');
+          option.value = repo.full_name; // e.g., "vuhoanganh/OrderHelper"
+          option.textContent = `${repo.full_name} ${repo.private ? '🔒' : ''}`;
+          repoSelect.appendChild(option);
+        });
+
+        // Auto-select if only one repo or if OrderHelper exists
+        const orderHelperRepo = repos.find(r => r.name.toLowerCase().includes('orderhelper'));
+        if (orderHelperRepo) {
+          repoSelect.value = orderHelperRepo.full_name;
+        } else if (repos.length === 1) {
+          repoSelect.value = repos[0].full_name;
+        }
+
+        statusDiv.textContent = `✅ Loaded ${repos.length} repositories`;
+        setTimeout(() => { statusDiv.style.display = 'none'; }, 3000);
+
+      } catch (err) {
+        console.error('Load repos error:', err);
+        repoSelect.innerHTML = '<option value="">-- Error loading repos --</option>';
+        statusDiv.textContent = `❌ ${err.message}`;
+        statusDiv.style.color = 'var(--accent-red)';
+      }
+    }
+
+    /**
+     * Load branches for selected repository
+     */
+    async function loadGithubBranches() {
+      const repo = document.getElementById('githubRepo').value.trim();
+      const branchSelect = document.getElementById('githubBranch');
+      const statusDiv = document.getElementById('branchLoadingStatus');
+
+      if (!repo) {
+        // No repo selected, reset to default
+        branchSelect.innerHTML = '<option value="main">main</option>';
+        return;
+      }
+
+      try {
+        statusDiv.style.display = 'block';
+        statusDiv.textContent = '⏳ Loading branches...';
+
+        const [owner, repoName] = repo.split('/');
+
+        // Fetch repo branches
+        const branches = await githubApiRequest(`/repos/${owner}/${repoName}/branches`);
+
+        if (!branches || branches.length === 0) {
+          branchSelect.innerHTML = '<option value="main">main</option>';
+          statusDiv.textContent = 'ℹ️ No branches found, using default: main';
+          setTimeout(() => { statusDiv.style.display = 'none'; }, 3000);
+          return;
+        }
+
+        // Populate dropdown with branches
+        branchSelect.innerHTML = '';
+
+        branches.forEach(branch => {
+          const option = document.createElement('option');
+          option.value = branch.name;
+          option.textContent = branch.name;
+          branchSelect.appendChild(option);
+        });
+
+        // Auto-select main or master if exists
+        const mainBranch = branches.find(b => b.name === 'main');
+        const masterBranch = branches.find(b => b.name === 'master');
+
+        if (mainBranch) {
+          branchSelect.value = 'main';
+        } else if (masterBranch) {
+          branchSelect.value = 'master';
+        } else {
+          // Select first branch
+          branchSelect.value = branches[0].name;
+        }
+
+        statusDiv.textContent = `✅ Loaded ${branches.length} branches`;
+        setTimeout(() => { statusDiv.style.display = 'none'; }, 2000);
+
+      } catch (err) {
+        console.error('Load branches error:', err);
+        branchSelect.innerHTML = '<option value="main">main</option>';
+        statusDiv.textContent = `❌ ${err.message}`;
+        statusDiv.style.color = 'var(--accent-red)';
+        setTimeout(() => {
+          statusDiv.style.display = 'none';
+          statusDiv.style.color = 'var(--accent-blue)';
+        }, 5000);
+      }
+    }
+
     function saveGithubSettings() {
       const token = document.getElementById('githubToken').value.trim();
       const repo = document.getElementById('githubRepo').value.trim();
@@ -2988,7 +2255,7 @@
     function loadGithubSettings() {
       const token = localStorage.getItem(GITHUB_TOKEN_KEY) || '';
       const repo = localStorage.getItem(GITHUB_REPO_KEY) || '';
-      const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'main';
+      const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'master';
       const autoBackupEnabled = localStorage.getItem(GITHUB_AUTO_BACKUP_ENABLED_KEY) === 'true';
       const interval = parseInt(localStorage.getItem(GITHUB_BACKUP_INTERVAL_KEY)) || 30;
 
@@ -3070,8 +2337,11 @@
         const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
+        const now = new Date();
+        const datePart = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+        const timePart = now.toLocaleTimeString('en-GB', { hour12: false }).replace(/:/g, '');
         a.href = url;
-        a.download = `backup-${new Date().toLocaleDateString('en-GB').replace(/\//g, '-')}.json`;
+        a.download = `backup-${datePart}-${timePart}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -3125,7 +2395,7 @@
         showBackupStatus('⏳ Đang backup lên GitHub...', 'info');
 
         const repo = localStorage.getItem(GITHUB_REPO_KEY);
-        const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'main';
+        const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'master';
 
         if (!repo) {
           throw new Error('Chưa cài đặt repository');
@@ -3137,8 +2407,18 @@
         }
 
         const timestamp = new Date().toISOString();
+        const now = new Date();
 
-        // Prepare combined backup data in a single file
+        // Generate filename like: backup-13-12-2025-190912.json
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const versionedFilename = `backup-${day}-${month}-${year}-${hours}${minutes}${seconds}.json`;
+
+        // Prepare combined backup data
         const backupData = {
           version: '1.0',
           timestamp,
@@ -3149,24 +2429,41 @@
             vipTransactions: vipTransactions
           },
           metadata: {
-            itemCount: {
-              orders: orderHistory.length,
-              vipTransactions: vipTransactions.length
-            }
+            orderCount: orderHistory.length,
+            transactionCount: vipTransactions.length,
+            exportedBy: 'Order Helper Pro',
+            exportDate: `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`
           }
         };
 
-        // Upload single combined file
-        addBackupLog('📤 Đang upload kitchen_backup.json...');
-        const backupFile = await getGithubFile(owner, repoName, 'kitchen_backup.json', branch);
-        const result = await createOrUpdateGithubFile(
+        const backupJSON = JSON.stringify(backupData, null, 2);
+
+        // 1. Upload latest file (for sync)
+        addBackupLog('📤 Uploading kitchen_backup.json (latest)...');
+        const latestFile = await getGithubFile(owner, repoName, 'kitchen_backup.json', branch);
+        await createOrUpdateGithubFile(
           owner,
           repoName,
           'kitchen_backup.json',
-          JSON.stringify(backupData, null, 2),
+          backupJSON,
           `Backup data - ${timestamp}`,
-          backupFile?.sha
+          latestFile?.sha
         );
+        addBackupLog('✅ Latest file uploaded');
+
+        // 2. Upload versioned file (for history)
+        addBackupLog(`📤 Uploading DB/${versionedFilename} (history)...`);
+        const versionedPath = `DB/${versionedFilename}`;
+        const versionedFile = await getGithubFile(owner, repoName, versionedPath, branch);
+        const result = await createOrUpdateGithubFile(
+          owner,
+          repoName,
+          versionedPath,
+          backupJSON,
+          `Versioned backup - ${timestamp}`,
+          versionedFile?.sha
+        );
+        addBackupLog('✅ Versioned file uploaded');
 
         // Save backup info
         localStorage.setItem(GITHUB_LAST_BACKUP_KEY, Date.now());
@@ -3175,7 +2472,10 @@
         }
 
         updateBackupStatusDisplay();
-        addBackupLog(`✅ Backup thành công! (${orderHistory.length} orders, ${vipTransactions.length} VIP transactions)`);
+        addBackupLog(`✅ Hybrid backup complete!`);
+        addBackupLog(`   Latest: kitchen_backup.json`);
+        addBackupLog(`   History: DB/${versionedFilename}`);
+        addBackupLog(`   Data: ${orderHistory.length} orders, ${vipTransactions.length} VIP transactions`);
         showBackupStatus('✅ Backup thành công!', 'success');
 
       } catch (err) {
@@ -3197,7 +2497,7 @@
         showBackupStatus('⏳ Đang restore từ GitHub...', 'info');
 
         const repo = localStorage.getItem(GITHUB_REPO_KEY);
-        const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'main';
+        const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'master';
 
         if (!repo) {
           throw new Error('Chưa cài đặt repository');
@@ -3273,6 +2573,186 @@
       }, interval * 60 * 1000);
 
       addBackupLog(`🔄 Auto-backup scheduled (every ${interval} minutes)`);
+    }
+
+    // ========== GitHub Sync Functions ==========
+
+    /**
+     * Pull latest data from GitHub
+     * @returns {Object} Remote data and metadata
+     */
+    async function pullFromGithub() {
+      try {
+        addBackupLog('📥 Pulling data from GitHub...');
+
+        const repo = localStorage.getItem(GITHUB_REPO_KEY);
+        const branch = localStorage.getItem(GITHUB_BRANCH_KEY) || 'master';
+
+        if (!repo) {
+          throw new Error('Chưa cài đặt repository');
+        }
+
+        const [owner, repoName] = repo.split('/');
+        if (!owner || !repoName) {
+          throw new Error('Repository format không hợp lệ');
+        }
+
+        // Fetch remote backup file
+        const remoteFile = await getGithubFile(owner, repoName, 'kitchen_backup.json', branch);
+
+        if (!remoteFile || !remoteFile.content) {
+          addBackupLog('ℹ️ No remote data found');
+          return null;
+        }
+
+        // Parse remote data
+        const remoteData = JSON.parse(remoteFile.content);
+
+        addBackupLog(`✅ Pulled: ${remoteData.data?.orderHistory?.length || 0} orders, ${remoteData.data?.vipTransactions?.length || 0} transactions`);
+
+        return {
+          data: remoteData.data,
+          timestamp: remoteData.timestamp,
+          backupTime: remoteData.backupTime
+        };
+
+      } catch (err) {
+        addBackupLog(`❌ Pull failed: ${err.message}`);
+        throw err;
+      }
+    }
+
+    /**
+     * Merge local and remote data using last-write-wins strategy
+     * @param {Object} localData - Local data
+     * @param {Object} remoteData - Remote data
+     * @returns {Object} Merged data
+     */
+    function mergeData(localData, remoteData) {
+      addBackupLog('🔄 Merging data...');
+
+      // Merge orderHistory by ID (keep newest by timestamp)
+      const orderMap = new Map();
+
+      // Add local orders
+      (localData.orderHistory || []).forEach(order => {
+        orderMap.set(order.id, order);
+      });
+
+      // Add/update with remote orders (newer wins)
+      (remoteData.orderHistory || []).forEach(order => {
+        const existing = orderMap.get(order.id);
+        if (!existing) {
+          orderMap.set(order.id, order);
+        } else {
+          // Compare timestamps - newer wins
+          const existingTime = new Date(existing.date || existing.id).getTime();
+          const remoteTime = new Date(order.date || order.id).getTime();
+          if (remoteTime > existingTime) {
+            orderMap.set(order.id, order);
+          }
+        }
+      });
+
+      // Merge vipTransactions by ID (keep all unique)
+      const txMap = new Map();
+
+      (localData.vipTransactions || []).forEach(tx => {
+        txMap.set(tx.id, tx);
+      });
+
+      (remoteData.vipTransactions || []).forEach(tx => {
+        if (!txMap.has(tx.id)) {
+          txMap.set(tx.id, tx);
+        }
+      });
+
+      const merged = {
+        orderHistory: Array.from(orderMap.values())
+          .sort((a, b) => new Date(b.date || b.id) - new Date(a.date || a.id)),
+        vipTransactions: Array.from(txMap.values())
+          .sort((a, b) => new Date(b.ts || b.id) - new Date(a.ts || a.id))
+      };
+
+      addBackupLog(`✅ Merged: ${merged.orderHistory.length} orders, ${merged.vipTransactions.length} transactions`);
+
+      return merged;
+    }
+
+    /**
+     * Apply remote/merged data to local storage
+     * @param {Object} data - Data to apply
+     */
+    function applyRemoteData(data) {
+      addBackupLog('💾 Applying data to localStorage...');
+
+      // Update localStorage
+      orderHistory = data.orderHistory || [];
+      vipTransactions = data.vipTransactions || [];
+
+      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+      localStorage.setItem('vipTransactions', JSON.stringify(vipTransactions));
+
+      // Recalculate VIP balances from transactions
+      if (typeof recomputeVipBalances === 'function') {
+        recomputeVipBalances();
+      }
+
+      addBackupLog('✅ Data applied successfully');
+    }
+
+    /**
+     * Full sync: Pull from GitHub, merge with local, push back
+     */
+    async function syncNow() {
+      try {
+        addBackupLog('🔄 Starting full sync...');
+        showBackupStatus('🔄 Syncing...', 'info');
+
+        // 1. Pull remote data
+        const remote = await pullFromGithub();
+
+        if (!remote) {
+          // No remote data, just push local
+          addBackupLog('📤 No remote data, pushing local...');
+          await backupToGithub();
+          showBackupStatus('✅ Sync complete (pushed local)', 'success');
+          return;
+        }
+
+        // 2. Get local data
+        const local = {
+          orderHistory: orderHistory,
+          vipTransactions: vipTransactions
+        };
+
+        // 3. Merge
+        const merged = mergeData(local, remote.data);
+
+        // 4. Apply merged data locally
+        applyRemoteData(merged);
+
+        // 5. Push merged data back to GitHub
+        addBackupLog('📤 Pushing merged data...');
+        await backupToGithub();
+
+        // 6. Refresh UI
+        loadHistory();
+        loadDebtManagement();
+        renderVipHistory();
+        populateVipMemberSelect();
+
+        addBackupLog('✅ Full sync complete!');
+        showBackupStatus('✅ Sync complete!', 'success');
+
+        return merged;
+
+      } catch (err) {
+        const errorMsg = `❌ Sync failed: ${err.message}`;
+        addBackupLog(errorMsg);
+        showBackupStatus(errorMsg, 'warning');
+        throw err;
+      }
     }
 
     function refreshQuickOrderList() {
@@ -4141,6 +3621,34 @@
           orderHistory.unshift(order);
         }
         localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+
+        // BUG FIX: Create VIP transactions for all VIP-paid details
+        // This ensures transactions are created for both NEW and EDITED orders
+        orderDetails.forEach(detail => {
+          // Check if this person is a VIP (not just if balance changed)
+          const isVIP = vipMap.has(detail.name);
+
+          if (detail.paid && isVIP) {
+            // VIP member paid - check if transaction already exists
+            const existingTx = vipTransactions.find(tx =>
+              tx.orderId === order.id &&
+              tx.name === detail.name &&
+              Math.abs(tx.amount) === detail.due
+            );
+
+            // Only create if transaction doesn't exist (prevents duplicates when editing)
+            if (!existingTx) {
+              recordVipTransaction({
+                name: detail.name,
+                amount: -detail.due,
+                type: 'order',
+                itemName: order.itemName,
+                orderId: order.id
+              });
+            }
+          }
+        });
+
         lastSavedSignature = orderSignature;
         savedToHistory = true;
       } else if (saveHistory && skipSave) {
@@ -4292,6 +3800,9 @@
         } else {
           setDraftBanner('✅ Đã lưu đơn vào lịch sử');
         }
+
+        // After any save, refresh VIP balances so panel/report stay aligned
+        recomputeVipBalances();
       } else {
         setDraftBanner('ℹ️ Đã tính tạm, bấm "Lưu đơn" để ghi vào lịch sử');
       }
@@ -4709,10 +4220,52 @@
       const confirmMsg = `Đánh dấu đã trả cho ${target}?\n${changes.length} mục, tổng ${formatMoney(totalCleared)}`;
       if (!confirm(confirmMsg)) return;
 
+      // Check if this person has VIP
+      const vipMap = parseVip(document.getElementById('vipArea').value);
+      const hasVIP = vipMap.has(target);
+      let paymentMethod = 'cash';
+
+      if (hasVIP) {
+        const currentBalance = vipMap.get(target);
+
+        // Deduct from VIP balance
+        const newBalance = currentBalance - totalCleared;
+        vipMap.set(target, newBalance);
+
+        // Update VIP textarea and persist
+        const vipText = vipToText(vipMap);
+        document.getElementById('vipArea').value = vipText;
+        persistVipList(vipText);
+
+        // Record VIP transaction for each debt
+        changes.forEach(change => {
+          const order = orderHistory.find(o => o.id === change.orderId);
+          if (order) {
+            recordVipTransaction({
+              name: target,
+              amount: -change.due,
+              type: 'order',
+              itemName: order.itemName,
+              orderId: order.id
+            });
+            // Mark order detail as paid via VIP
+            if (order.details && order.details[change.detailIndex]) {
+              order.details[change.detailIndex].isVipPayment = true;
+            }
+          }
+        });
+
+        paymentMethod = 'vip';
+      }
+
+      // Mark as paid
       changes.forEach(change => {
         const order = orderHistory.find(o => o.id === change.orderId);
         if (order && order.details[change.detailIndex]) {
           order.details[change.detailIndex].paid = true;
+          if (paymentMethod === 'vip') {
+            order.details[change.detailIndex].isVipPayment = true;
+          }
         }
       });
 
@@ -4720,7 +4273,11 @@
       localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
       loadDebtManagement();
       loadHistory();
-      alert(`✅ Đã đánh dấu ${target} đã trả hết nợ`);
+      renderVipHistory();
+      populateVipMemberSelect();
+
+      const paymentText = paymentMethod === 'vip' ? 'từ VIP' : 'bằng tiền mặt';
+      alert(`✅ Đã đánh dấu ${target} đã trả hết nợ ${paymentText}\nTổng: ${formatMoney(totalCleared)}`);
     }
 
     function markSingleDebtPaid(orderId, detailIndex, name) {
@@ -4737,16 +4294,62 @@
         `${order.itemName} - ${formatMoney(detail.due)} (${detail.qty} phần)`;
       if (!confirm(confirmMsg)) return;
 
+      const target = (name || detail.name).trim();
+
+      // Check if this person has VIP
+      const vipMap = parseVip(document.getElementById('vipArea').value);
+      const hasVIP = vipMap.has(target);
+      let paymentMethod = 'cash';
+
+      if (hasVIP) {
+        const currentBalance = vipMap.get(target);
+
+        // Deduct from VIP balance
+        const newBalance = currentBalance - detail.due;
+        vipMap.set(target, newBalance);
+
+        // Update VIP textarea and persist
+        const vipText = vipToText(vipMap);
+        document.getElementById('vipArea').value = vipText;
+        persistVipList(vipText);
+
+        // Check if transaction already exists (prevent duplicates)
+        const existingTx = vipTransactions.find(tx =>
+          tx.orderId === order.id &&
+          tx.name === target &&
+          Math.abs(tx.amount) === detail.due
+        );
+
+        // Record VIP transaction only if it doesn't exist
+        if (!existingTx) {
+          recordVipTransaction({
+            name: target,
+            amount: -detail.due,
+            type: 'order',
+            itemName: order.itemName,
+            orderId: order.id,
+            paid: true
+          });
+        }
+        detail.isVipPayment = true;
+
+        paymentMethod = 'vip';
+      }
+
       detail.paid = true;
       lastDebtorPaidSnapshot = {
-        name: name || detail.name,
-        changes: [{ orderId, detailIndex }]
+        name: target,
+        changes: [{ orderId, detailIndex, due: detail.due }]
       };
 
       localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
       loadDebtManagement();
       loadHistory();
-      alert('✅ Đã đánh dấu đã trả');
+      renderVipHistory();
+      populateVipMemberSelect();
+
+      const paymentText = paymentMethod === 'vip' ? 'từ VIP' : 'bằng tiền mặt';
+      alert(`✅ Đã đánh dấu đã trả ${paymentText}`);
     }
 
     function undoLastDebtorPaid() {
@@ -4756,6 +4359,32 @@
       }
 
       const { name, changes } = lastDebtorPaidSnapshot;
+
+      // Check if this person has VIP - if so, refund the amount
+      const vipMap = parseVip(document.getElementById('vipArea').value);
+      const hasVIP = vipMap.has(name);
+
+      if (hasVIP) {
+        const currentBalance = vipMap.get(name);
+        let totalRefund = 0;
+
+        changes.forEach(change => {
+          if (change.due) {
+            totalRefund += change.due;
+          }
+        });
+
+        // Refund to VIP balance
+        const newBalance = currentBalance + totalRefund;
+        vipMap.set(name, newBalance);
+
+        // Update VIP textarea and persist
+        const vipText = vipToText(vipMap);
+        document.getElementById('vipArea').value = vipText;
+        persistVipList(vipText);
+      }
+
+      // Mark as unpaid
       changes.forEach(change => {
         const order = orderHistory.find(o => o.id === change.orderId);
         if (order && order.details[change.detailIndex]) {
@@ -4766,7 +4395,11 @@
       localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
       loadDebtManagement();
       loadHistory();
-      alert(`↩️ Đã hoàn tác đánh dấu đã trả cho ${name}`);
+      renderVipHistory();
+      populateVipMemberSelect();
+
+      const refundText = hasVIP ? ' (đã hoàn tiền vào VIP)' : '';
+      alert(`↩️ Đã hoàn tác đánh dấu đã trả cho ${name}${refundText}`);
       lastDebtorPaidSnapshot = null;
     }
 
@@ -5086,6 +4719,20 @@
     function renderVipReport(name) {
       const content = document.getElementById('vipReportContent');
       if (!content) return;
+      const vipName = document.getElementById('vipMemberSelect').value;
+      if (!vipName) {
+        document.getElementById('vipHistoryContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Chọn VIP để xem lịch sử</p>';
+        return;
+      }
+
+      // Load saved initial balance
+      const savedBalance = localStorage.getItem(`vipInitialBalance_${vipName}`);
+      const initialBalanceInput = document.getElementById('vipInitialBalance');
+      const initialBalance = getInitialBalanceForVip(vipName, { persistDefault: true });
+      if (initialBalanceInput) {
+        initialBalanceInput.value = savedBalance !== null ? savedBalance : initialBalance;
+      }
+
       if (!name) {
         content.innerHTML = '<div class="empty-state" style="padding:12px 0;">Chọn VIP để xem lịch sử</div>';
         return;
@@ -5126,6 +4773,21 @@
       loadGithubSettings();
       populateVipMemberSelect();
       populateVIPFilterDropdown(); // Populate filter dropdown
+      recomputeVipBalances();
+      // Enable dish name suggestions dropdown
+      const itemNameInput = document.getElementById('itemName');
+      if (itemNameInput) {
+        ['focus', 'click'].forEach(evt => itemNameInput.addEventListener(evt, openDishSuggestions));
+      }
+
+      // Lock VIP textarea to prevent manual editing
+      const vipArea = document.getElementById('vipArea');
+      if (vipArea) {
+        vipArea.setAttribute('readonly', true);
+        vipArea.style.cursor = 'not-allowed';
+        vipArea.style.opacity = '0.8';
+        vipArea.title = 'Chỉ có thể thay đổi qua Nạp VIP, Cash Out, hoặc Order';
+      }
 
       initDraftAutosave();
 
@@ -5158,20 +4820,64 @@
           exportForAutomation({ download: false, silent: true });
         }, 1200);
       }
+
+      // Auto-pull from GitHub on load (if configured)
+      const githubRepo = localStorage.getItem(GITHUB_REPO_KEY);
+      const githubToken = localStorage.getItem(GITHUB_TOKEN_KEY);
+
+      if (githubRepo && githubToken) {
+        setTimeout(async () => {
+          try {
+            addBackupLog('🔄 Auto-pull on load...');
+            const remote = await pullFromGithub();
+
+            if (remote) {
+              // Check if remote is newer than local
+              const localTimestamp = localStorage.getItem('lastDataTimestamp') || '0';
+              const remoteTimestamp = remote.backupTime || remote.timestamp;
+
+              if (remoteTimestamp > localTimestamp) {
+                const local = {
+                  orderHistory: orderHistory,
+                  vipTransactions: vipTransactions
+                };
+
+                const merged = mergeData(local, remote.data);
+                applyRemoteData(merged);
+
+                // Refresh UI
+                loadHistory();
+                loadDebtManagement();
+                renderVipHistory();
+                populateVipMemberSelect();
+
+                // Save timestamp
+                localStorage.setItem('lastDataTimestamp', remoteTimestamp);
+
+                addBackupLog(`✅ Auto-pull complete: synced ${merged.orderHistory.length} orders`);
+              } else {
+                addBackupLog('ℹ️ Local data is up to date');
+              }
+            } else {
+              addBackupLog('ℹ️ No remote data found (repo may be empty)');
+            }
+          } catch (err) {
+            // Silently handle expected errors (empty repo, etc)
+            if (err.message && err.message.includes('No commit found')) {
+              addBackupLog('ℹ️ Repo is empty, will backup on first save');
+            } else if (err.message && err.message.includes('Not Found')) {
+              addBackupLog('ℹ️ Backup file not found, will create on first backup');
+            } else {
+              // Log unexpected errors
+              console.warn('Auto-pull failed:', err);
+              addBackupLog(`⚠️ Auto-pull skipped: ${err.message}`);
+            }
+          }
+        }, 2000); // Delay to not block initial load
+      }
     });
 
     // VIP Management Functions
-    function saveVIPOnly() {
-      const vipText = document.getElementById('vipArea').value.trim();
-      if (!vipText) {
-        alert('⚠️ Danh sách VIP trống!');
-        return;
-      }
-
-      persistVipList(vipText);
-      alert('✅ Đã lưu danh sách VIP!');
-    }
-
     function addNewVIP() {
       // Open modal
       document.getElementById('vipTopupModal').classList.add('active');
@@ -5367,6 +5073,9 @@
       }
     });
   </script>
+
+</body>
+
 
 </body>
 

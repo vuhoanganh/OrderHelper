@@ -1,4 +1,11 @@
+# System Files
 .DS_Store
 *.log
+
+# Backup Files
+*backup*.html
+*.zip
+
+# Old gitignore pattern
 order helper.zip
 OrderHelper_MacOS_Backup/com.orderhelper.backup.plist
