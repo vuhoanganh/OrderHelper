@@ -1918,13 +1918,43 @@
         "name": "Tùng",
         "amount": -30,
         "type": "order"
+      },
+      {
+        "id": 1765607924882,
+        "ts": "2025-12-13T06:38:44.881Z",
+        "name": "Tùng",
+        "amount": -39,
+        "type": "order",
+        "itemName": "Bún chả",
+        "orderId": 1765607924881,
+        "paid": true
+      },
+      {
+        "id": 1765489133208,
+        "ts": "2025-12-11T21:38:53.207Z",
+        "name": "Tùng",
+        "amount": -36,
+        "type": "order",
+        "itemName": "Hủ tiếu sườn",
+        "orderId": 1765489133207,
+        "paid": true
+      },
+      {
+        "id": 1765257646122,
+        "ts": "2025-12-09T05:20:46.121Z",
+        "name": "Tùng",
+        "amount": -30,
+        "type": "order",
+        "itemName": "Bánh hỏi heo quay",
+        "orderId": 1765257646121,
+        "paid": true
       }
     ],
     "vipList": "a Duck=498đ\na Dave=38đ\nNathan=294đ\nKudo=262đ\nTùng=292đ\nRyan=102đ"
   },
   "metadata": {
     "orderCount": 21,
-    "transactionCount": 16,
+    "transactionCount": 19,
     "exportedBy": "Order Helper Pro",
     "exportDate": "22:09:12 13/12/2025"
   }
