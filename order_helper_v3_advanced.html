@@ -1115,7 +1115,7 @@
       }
 
       return await githubApiRequest(`/repos/${owner}/${repo}/contents/${path}`, 'PUT', body);
-    }    }
+    }
 
     function formatDraftTime(ts) {
       if (!ts) return '—';
