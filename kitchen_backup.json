@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "timestamp": "2025-12-13T20:29:43.160Z",
-  "backupTime": 1765657783161,
+  "timestamp": "2025-12-14T10:58:08.869Z",
+  "backupTime": 1765709888869,
   "data": {
     "orderHistory": [
       {
@@ -1797,6 +1797,7 @@
         ]
       }
     ],
+    "vipList": "a Duck=-2đ\na Dave=838đ\nNathan=294đ\nKudo=262đ\nTùng=292đ\nRyan=102đ",
     "vipTransactions": [
       {
         "id": 1765642471042,
@@ -1924,13 +1925,12 @@
         "amount": 500,
         "type": "topup"
       }
-    ],
-    "vipList": "a Duck=-2đ\na Dave=838đ\nNathan=294đ\nKudo=262đ\nTùng=292đ\nRyan=102đ"
+    ]
   },
   "metadata": {
     "orderCount": 21,
     "transactionCount": 18,
     "exportedBy": "Order Helper Pro",
-    "exportDate": "03:29:43 14/12/2025"
+    "exportDate": "14:58:08 14/12/2025"
   }
 }
