@@ -1173,8 +1173,12 @@
 
     function recordVipTransaction({ name, amount, type, itemName, orderId }) {
       if (!name || !Number.isFinite(amount)) return;
+
+      // Generate unique ID: timestamp + random 3-digit number to prevent collisions
+      const uniqueId = Date.now() * 1000 + Math.floor(Math.random() * 1000);
+
       const entry = {
-        id: Date.now(),
+        id: uniqueId,
         ts: new Date().toISOString(),
         name: name.trim(),
         amount,
