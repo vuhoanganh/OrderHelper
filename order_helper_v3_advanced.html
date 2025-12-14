@@ -2323,6 +2323,7 @@
 
     function downloadBackup() {
       try {
+        addBackupLog('📥 Starting local backup download...');
         // Collect all data from localStorage
         const backup = {
           version: "1.0",
@@ -2341,6 +2342,15 @@
           }
         };
 
+        addBackupLog(`📊 Data: ${backup.metadata.orderCount} orders, ${backup.metadata.transactionCount} transactions`);
+
+        // Check first item encoding
+        if (backup.data.orderHistory.length > 0) {
+          const firstItem = backup.data.orderHistory[0].itemName;
+          addBackupLog(`🔤 First item: ${firstItem}`);
+          addBackupLog(`🔍 Encoding check: ${firstItem.charCodeAt(0)} ${firstItem.charCodeAt(1)} ${firstItem.charCodeAt(2)}`);
+        }
+
         // Create blob and download
         const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -2355,6 +2365,7 @@
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
+        addBackupLog(`✅ Downloaded: backup-${datePart}-${timePart}.json`);
         alert('✅ Đã tải xuống file backup!');
       } catch (err) {
         alert('❌ Lỗi khi tạo backup: ' + err.message);
@@ -2372,8 +2383,16 @@
         if (!file) return;
 
         try {
+          addBackupLog(`📂 Restoring from: ${file.name}`);
           const text = await file.text();
           const backup = JSON.parse(text);
+
+          // Check encoding of restored data
+          if (backup.data.orderHistory.length > 0) {
+            const firstItem = backup.data.orderHistory[0].itemName;
+            addBackupLog(`🔤 File first item: ${firstItem}`);
+            addBackupLog(`🔍 Bytes: ${firstItem.split('').map(c => c.charCodeAt(0)).slice(0, 5).join(', ')}`);
+          }
 
           if (!backup.data || !backup.data.orderHistory || !backup.data.vipTransactions || !backup.data.vipList) {
             alert('❌ File backup không hợp lệ!');
@@ -2386,6 +2405,14 @@
           localStorage.setItem('orderHistory', JSON.stringify(backup.data.orderHistory));
           localStorage.setItem('vipTransactions', JSON.stringify(backup.data.vipTransactions));
           localStorage.setItem('vipList', backup.data.vipList);
+
+          addBackupLog(`✅ Restored: ${backup.data.orderHistory.length} orders, ${backup.data.vipTransactions.length} transactions`);
+
+          // Verify localStorage encoding
+          const restored = JSON.parse(localStorage.getItem('orderHistory'));
+          if (restored.length > 0) {
+            addBackupLog(`🔤 localStorage first item: ${restored[0].itemName}`);
+          }
 
           alert('✅ Restore thành công!');
           setTimeout(() => location.reload(), 1000);
