@@ -1923,13 +1923,20 @@
         "name": "Nathan",
         "amount": 500,
         "type": "topup"
+      },
+      {
+        "id": 1763971310362,
+        "ts": "2025-11-24T08:01:50.362Z",
+        "name": "a Duck",
+        "amount": 500,
+        "type": "topup"
       }
     ],
-    "vipList": "a Duck=-2đ\na Dave=838đ\nNathan=294đ\nKudo=262đ\nTùng=292đ\nRyan=102đ"
+    "vipList": "a Duck=353đ\na Dave=838đ\nNathan=294đ\nKudo=262đ\nTùng=292đ\nRyan=102đ"
   },
   "metadata": {
     "orderCount": 21,
-    "transactionCount": 18,
+    "transactionCount": 19,
     "exportedBy": "Order Helper Pro",
     "exportDate": "03:29:43 14/12/2025"
   }
