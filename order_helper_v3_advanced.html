@@ -1100,10 +1100,14 @@
     }
 
     async function createOrUpdateGithubFile(owner, repo, path, content, message, sha = null) {
+      // Proper UTF-8 to base64 encoding for Vietnamese characters
+      const utf8Bytes = new TextEncoder().encode(content);
+      const base64 = btoa(String.fromCharCode(...utf8Bytes));
+
       const body = {
         message,
-        content: btoa(unescape(encodeURIComponent(content))), // Encode to base64 with UTF-8 support
-        branch: localStorage.getItem(GITHUB_BRANCH_KEY) || 'main'
+        content: base64,
+        branch: localStorage.getItem(GITHUB_BRANCH_KEY) || 'master'
       };
 
       if (sha) {
@@ -1111,7 +1115,7 @@
       }
 
       return await githubApiRequest(`/repos/${owner}/${repo}/contents/${path}`, 'PUT', body);
-    }
+    }    }
 
     function formatDraftTime(ts) {
       if (!ts) return '—';
