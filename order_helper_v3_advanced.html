@@ -1378,12 +1378,20 @@
         return;
       }
 
-      // Set initial balance input from saved/default
-      const initialBalanceInput = document.getElementById('vipInitialBalance');
-      const initialBalanceValue = getInitialBalanceForVip(selectedName, { persistDefault: true });
-      if (initialBalanceInput) {
-        initialBalanceInput.value = initialBalanceValue;
-      }
+	      // Initial balance input (render-only): only use user-saved value; otherwise leave empty and use AUTO start balance.
+	      const initialBalanceInput = document.getElementById('vipInitialBalance');
+	      if (initialBalanceInput) {
+	        const saved = localStorage.getItem(`vipInitialBalance_${selectedName}`);
+	        if (saved !== null && saved !== undefined && String(saved).trim() !== '') {
+	          initialBalanceInput.value = saved;
+	        } else {
+	          initialBalanceInput.value = '';
+	          initialBalanceInput.placeholder = 'AUTO';
+	        }
+	      }
+	      const initialBalanceRaw = initialBalanceInput ? String(initialBalanceInput.value || '').trim() : '';
+	      const hasManualStartBalance = initialBalanceRaw !== '';
+	      const manualStartBalance = hasManualStartBalance ? Number(initialBalanceRaw) : 0;
 
 	      // Show filters
 	      if (filtersDiv) filtersDiv.style.display = 'block';
@@ -1431,18 +1439,19 @@
 	            detail?.paymentMethod === 'vip' ||
 	            (key && vipOrderKeysFromTx.has(key));
 
-		          orderTxs.push({
-		            id: `${String(orderId || 'noid')}|${detailIndex}|${name}`,
-		            ts: date.toISOString(),
-		            name,
-		            amount: -Math.abs(Number(detail.due) || 0),
-		            type: 'order',
-		            itemName: order?.itemName || 'Order',
-		            paid: detail?.paid === true,
-		            orderId,
-		            detailIndex,
-		            isVipPayment: isVipPayment === true
-		          });
+			          orderTxs.push({
+			            id: `${String(orderId || 'noid')}|${detailIndex}|${name}`,
+			            ts: date.toISOString(),
+			            name,
+			            amount: -Math.abs(Number(detail.due) || 0),
+			            type: 'order',
+			            itemName: order?.itemName || 'Order',
+			            paid: detail?.paid === true,
+			            orderId,
+			            detailIndex,
+			            isVipPayment: isVipPayment === true,
+			            paymentMethod: detail?.paymentMethod
+			          });
 
 	          if (key) orderKeys.add(key);
 	        });
@@ -1472,17 +1481,25 @@
 	        return;
 	      }
 
-		      // Running balance (no inference): only impacts on topup/cashout or VIP orders
-		      const sortedOldestFirst = [...allTxs].sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
-		      let runningBalance = Number(initialBalanceValue || 0);
-		      const txsWithBalance = sortedOldestFirst.map(tx => {
-		        const impacts =
-		          tx.type === 'topup' ||
-		          tx.type === 'cashout' ||
-		          (tx.type === 'order' && tx.isVipPayment === true);
-		        if (impacts) runningBalance += Number(tx.amount || 0);
-		        return { ...tx, balance: runningBalance };
-		      });
+			      // Running balance (render-only): impacts only on topup/cashout or VIP orders.
+			      // If initial balance input is empty => AUTO start so the final balance matches vipList currentBalance.
+			      const sortedOldestFirst = [...allTxs].sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
+			      const sumDeltaAll = sortedOldestFirst.reduce((sum, tx) => {
+			        const isVipOrder = tx.type === 'order' && (tx.isVipPayment === true || tx.paymentMethod === 'vip');
+			        const impacts = tx.type === 'topup' || tx.type === 'cashout' || isVipOrder;
+			        const delta = impacts ? Number(tx.amount || 0) : 0;
+			        return sum + delta;
+			      }, 0);
+			      const startBalance = hasManualStartBalance ? manualStartBalance : (currentBalance - sumDeltaAll);
+
+			      let runningBalance = startBalance;
+			      const txsWithBalance = sortedOldestFirst.map(tx => {
+			        const isVipOrder = tx.type === 'order' && (tx.isVipPayment === true || tx.paymentMethod === 'vip');
+			        const impacts = tx.type === 'topup' || tx.type === 'cashout' || isVipOrder;
+			        const delta = impacts ? Number(tx.amount || 0) : 0;
+			        runningBalance += delta;
+			        return { ...tx, balance: runningBalance };
+			      });
 
 	      // Store for filtering
 	      currentVipTransactions = txsWithBalance;
@@ -1548,15 +1565,23 @@
         const bgColor = isEven ? 'rgba(255,255,255,0.02)' : 'transparent';
         const typeLabel = tx.type === 'topup' ? '💰 Nạp' : tx.type === 'cashout' ? '💸 Rút' : '🍜 Order';
 
-	        // Check if this order has actual VIP transaction
-	        let paymentMethod = '-';
-	        if (tx.type === 'order') {
-	          if (tx.isVipPayment === true) {
-	            paymentMethod = '<span style="background: linear-gradient(135deg, #10b981, #34d399); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">VIP</span>';
-	          } else {
-	            paymentMethod = '-';
-	          }
-	        }
+		        // PT column (render-only; no inference "paid => VIP"):
+		        // - Order: VIP if isVipPayment===true or paymentMethod==='vip'
+		        //          Cash if paid===true and not VIP
+		        //          Unpaid if paid!==true
+		        // - Topup/Cashout: '-'
+		        let paymentMethod = '-';
+		        if (tx.type === 'order') {
+		          const isVip = tx.isVipPayment === true || tx.paymentMethod === 'vip';
+		          const isPaid = tx.paid === true;
+		          if (isVip) {
+		            paymentMethod = '<span style="background: linear-gradient(135deg, #10b981, #34d399); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">VIP</span>';
+		          } else if (isPaid) {
+		            paymentMethod = '<span style="background: rgba(255,255,255,0.12); color: var(--text-primary); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Cash</span>';
+		          } else {
+		            paymentMethod = '<span style="background: rgba(239,68,68,0.18); color: #fecaca; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Unpaid</span>';
+		          }
+		        }
 
         const amountColor = tx.amount >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
         const balanceColor = tx.balance >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
@@ -1603,15 +1628,17 @@
     }
 
     // Apply filters to VIP history
-	    function applyVipHistoryFilters() {
-	      if (currentVipTransactions.length === 0) return;
+		    function applyVipHistoryFilters() {
+		      if (currentVipTransactions.length === 0) return;
 
-	      const select = document.getElementById('vipMemberSelect');
-	      const vipArea = document.getElementById('vipArea');
-	      const selectedName = select ? select.value : '';
-	      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
-	      const currentBalance = Number(vipMap.get(selectedName) || 0);
-	      const initialBalanceValue = Number(document.getElementById('vipInitialBalance')?.value || 0);
+		      const select = document.getElementById('vipMemberSelect');
+		      const vipArea = document.getElementById('vipArea');
+		      const selectedName = select ? select.value : '';
+		      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
+		      const currentBalance = Number(vipMap.get(selectedName) || 0);
+		      const initialBalanceRaw = String(document.getElementById('vipInitialBalance')?.value || '').trim();
+		      const hasManualStartBalance = initialBalanceRaw !== '';
+		      const manualStartBalance = hasManualStartBalance ? Number(initialBalanceRaw) : 0;
 
       // Get filter values
       const dateFrom = document.getElementById('filterDateFrom')?.value;
@@ -1639,13 +1666,13 @@
         filtered = filtered.filter(tx => tx.type === txType);
       }
 
-      // Payment status filter (only for orders)
-      if (paymentStatus !== 'all') {
-        filtered = filtered.filter(tx => {
-          if (tx.type !== 'order') return true; // Keep non-order transactions
-          return paymentStatus === 'paid' ? tx.paid : !tx.paid;
-        });
-      }
+	      // Payment status filter (only for orders)
+	      if (paymentStatus !== 'all') {
+	        filtered = filtered.filter(tx => {
+	          if (tx.type !== 'order') return true; // Keep non-order transactions
+	          return paymentStatus === 'paid' ? tx.paid : !tx.paid;
+	        });
+	      }
 
       // Update result count
       const countSpan = document.getElementById('filterResultCount');
@@ -1653,17 +1680,36 @@
         countSpan.textContent = `Hiển thị ${filtered.length}/${currentVipTransactions.length} giao dịch`;
       }
 
-	      // Recalculate running balance for filtered list (chronological); only impacts on topup/cashout or VIP orders
-	      const sortedOldestFirst = [...filtered].sort((a, b) => new Date(a.ts) - new Date(b.ts));
-	      let runningBalance = initialBalanceValue;
-	      const recalculated = sortedOldestFirst.map(tx => {
-	        const impacts =
-	          tx.type === 'topup' ||
-	          tx.type === 'cashout' ||
-	          (tx.type === 'order' && tx.isVipPayment === true);
-	        if (impacts) runningBalance += Number(tx.amount || 0);
-	        return { ...tx, balance: runningBalance };
-	      });
+		      const hasActiveFilter =
+		        !!dateFrom ||
+		        !!dateTo ||
+		        txType !== 'all' ||
+		        paymentStatus !== 'all';
+
+		      // Recalculate running balance for filtered list (chronological)
+		      // - Manual start: use it
+		      // - AUTO start (only when no active filters): end at vipList currentBalance
+		      // - Filtered view + no manual start: do not force matching vipList, start at 0
+		      const sortedOldestFirst = [...filtered].sort((a, b) => new Date(a.ts) - new Date(b.ts));
+		      const sumDeltaFiltered = sortedOldestFirst.reduce((sum, tx) => {
+		        const isVipOrder = tx.type === 'order' && (tx.isVipPayment === true || tx.paymentMethod === 'vip');
+		        const impacts = tx.type === 'topup' || tx.type === 'cashout' || isVipOrder;
+		        const delta = impacts ? Number(tx.amount || 0) : 0;
+		        return sum + delta;
+		      }, 0);
+
+		      let runningBalance = 0;
+		      if (hasManualStartBalance) runningBalance = manualStartBalance;
+		      else if (!hasActiveFilter) runningBalance = currentBalance - sumDeltaFiltered;
+		      else runningBalance = 0;
+
+		      const recalculated = sortedOldestFirst.map(tx => {
+		        const isVipOrder = tx.type === 'order' && (tx.isVipPayment === true || tx.paymentMethod === 'vip');
+		        const impacts = tx.type === 'topup' || tx.type === 'cashout' || isVipOrder;
+		        const delta = impacts ? Number(tx.amount || 0) : 0;
+		        runningBalance += delta;
+		        return { ...tx, balance: runningBalance };
+		      });
 
 	      // Render filtered results (use final runningBalance for header)
 	      renderVipHistoryTable(selectedName, currentBalance, recalculated);
