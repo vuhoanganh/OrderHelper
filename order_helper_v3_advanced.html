@@ -4077,6 +4077,11 @@
       refreshQuickOrderList();
     }
 
+    // Backward-compatible alias for legacy calls
+    function loadHistory() {
+      renderHistory();
+    }
+
     function showOrderDetail(orderId) {
       const order = orderHistory.find(o => o.id === orderId);
       if (!order) return;
@@ -4602,7 +4607,7 @@
     }
 
     // Stats
-    function loadStats() {
+    function renderStats() {
       if (orderHistory.length === 0) {
         document.getElementById('statsContent').innerHTML = '<div class="empty-state"><div class="empty-state-icon">📊</div>Chưa có dữ liệu để thống kê</div>';
         return;
@@ -4662,6 +4667,9 @@
       document.getElementById('statsContent').innerHTML = statsHTML;
       initVipReportPanel();
     }
+
+    // Backward-compatible alias for stats tab
+    function loadStats() { renderStats(); }
 
     function getTopItems() {
       const itemMap = new Map();
@@ -4762,19 +4770,6 @@
     function renderVipReport(name) {
       const content = document.getElementById('vipReportContent');
       if (!content) return;
-      const vipName = document.getElementById('vipMemberSelect').value;
-      if (!vipName) {
-        document.getElementById('vipHistoryContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Chọn VIP để xem lịch sử</p>';
-        return;
-      }
-
-      // Load saved initial balance
-      const savedBalance = localStorage.getItem(`vipInitialBalance_${vipName}`);
-      const initialBalanceInput = document.getElementById('vipInitialBalance');
-      const initialBalance = getInitialBalanceForVip(vipName, { persistDefault: true });
-      if (initialBalanceInput) {
-        initialBalanceInput.value = savedBalance !== null ? savedBalance : initialBalance;
-      }
 
       if (!name) {
         content.innerHTML = '<div class="empty-state" style="padding:12px 0;">Chọn VIP để xem lịch sử</div>';
