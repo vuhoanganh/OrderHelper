@@ -626,6 +626,7 @@
       orderHistory.sort((a, b) => (Date.parse(a?.date) || 0) - (Date.parse(b?.date) || 0));
     }
     let selectedPrice = null;
+    let activeOrderModalId = null;
     const autoBackupMode = new URLSearchParams(window.location.search).get('autobackup') === 'true';
     const DRAFT_STORAGE_KEY = 'draftOrder';
     const DRAFT_META_KEY = 'draftBackupMeta';
@@ -828,6 +829,7 @@
 
         const type = tx?.type || (amount >= 0 ? 'topup' : 'cashout');
         if (type !== 'topup' && type !== 'cashout' && type !== 'order') return;
+        if (type === 'order' && tx?.isVipPayment !== true && tx?.paymentMethod !== 'vip') return;
 
         const current = Number(vipMap.get(name) || 0);
         vipMap.set(name, current + amount);
@@ -1126,14 +1128,14 @@
 	    }
 
     function buildOrderSignature(data = {}) {
-      const normalizedDetails = Array.isArray(data.details) ? data.details.map(d => ({
-        name: d.name,
-        qty: d.qty,
-        shipQty: d.shipQty || d.shipParts || 0,
-        paid: !!d.paid,
-        due: Number(d.due || 0),
-        unitPrice: d.unitPrice
-      })) : [];
+	      const normalizedDetails = Array.isArray(data.details) ? data.details.map(d => ({
+	        name: d.name,
+	        qty: d.qty,
+	        shipQty: d.shipQty || d.shipParts || 0,
+	        paid: d.paid === true,
+	        due: Number(d.due || 0),
+	        unitPrice: d.unitPrice
+	      })) : [];
 
       return JSON.stringify({
         itemName: data.itemName || '',
@@ -1150,14 +1152,14 @@
       });
     }
 
-	    function recordVipTransaction({ name, amount, type, itemName, orderId, detailIndex, paid, isVipPayment, paymentMethod }) {
+	    function recordVipTransaction({ name, amount, type, itemName, orderId, detailIndex, isVipPayment, paymentMethod, ts }) {
 	      console.log(`[${BUILD_TAG}] recordVipTransaction`);
 	      if (!name || !Number.isFinite(amount)) return;
 
 	      const txType = type || (amount >= 0 ? 'topup' : 'cashout');
 	      const entry = {
 	        id: crypto.randomUUID(),
-	        ts: new Date().toISOString(),
+	        ts: (typeof ts === 'string' && ts) ? ts : new Date().toISOString(),
 	        name: name.trim(),
 	        amount,
 	        type: txType
@@ -1176,7 +1178,7 @@
 	        entry.paymentMethod = 'vip';
 	      } else {
 	        if (paymentMethod !== undefined) entry.paymentMethod = paymentMethod;
-	        if (paid !== undefined) entry.paid = paid;
+	        if (isVipPayment !== undefined) entry.isVipPayment = isVipPayment;
 	      }
 
 	      vipTransactions.unshift(entry);
@@ -1259,19 +1261,19 @@
             console.log('✅ MATCH FOUND:', detailName, 'due:', detail.due);
 
             const isVipPayment = detail.isVipPayment === true || detail.paymentMethod === 'vip';
-            orderTxs.push({
-              id: (order.id ? String(order.id) : '') + '_' + detailName + '_' + detailIdx,
-              ts: date.toISOString(),
-              name: vipName,
-              amount: -Math.abs(detail.due),
-              type: 'order',
-              itemName: order.itemName || 'Order',
-              paid: detail.paid || false,
-              orderId: order.id,
-              detailIndex: detailIdx,
-              isVipPayment,
-              paymentMethod: isVipPayment ? 'vip' : (detail.paymentMethod !== undefined ? detail.paymentMethod : undefined)
-            });
+	            orderTxs.push({
+	              id: (order.id ? String(order.id) : '') + '_' + detailName + '_' + detailIdx,
+	              ts: date.toISOString(),
+	              name: vipName,
+	              amount: -Math.abs(detail.due),
+	              type: 'order',
+	              itemName: order.itemName || 'Order',
+	              paid: detail.paid === true,
+	              orderId: order.id,
+	              detailIndex: detailIdx,
+	              isVipPayment,
+	              paymentMethod: isVipPayment ? 'vip' : (detail.paymentMethod !== undefined ? detail.paymentMethod : undefined)
+	            });
           }
         });
       });
@@ -1361,11 +1363,12 @@
       return def || 0;
     }
 
-		    function showVipMemberHistory() {
-		      console.log(`[${BUILD_TAG}] showVipMemberHistory`);
-		      const select = document.getElementById('vipMemberSelect');
-		      const container = document.getElementById('vipMemberHistoryContainer');
-		      const filtersDiv = document.getElementById('vipHistoryFilters');
+			    function showVipMemberHistory() {
+			      console.log('[VIP-HISTORY-REAL v3]', Date.now());
+			      console.log(`[${BUILD_TAG}] showVipMemberHistory`);
+			      const select = document.getElementById('vipMemberSelect');
+			      const container = document.getElementById('vipMemberHistoryContainer');
+			      const filtersDiv = document.getElementById('vipHistoryFilters');
 	      if (!select || !container) return;
 
       const selectedName = select.value;
@@ -1397,14 +1400,14 @@
 	        return `${String(orderId)}|${detailIndex}|${name}`;
 	      };
 
-	      // Truth set: VIP-paid orders can be determined by vipTransactions matching key (no inference from orderId/paid/amount)
-	      const vipOrderKeysFromTx = new Set();
-	      (vipTransactions || []).forEach(tx => {
-	        if (!tx || tx.type !== 'order') return;
-	        if (tx.name !== selectedName) return;
-	        const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
-	        if (key) vipOrderKeysFromTx.add(key);
-	      });
+			      // Truth set: ORDER is VIP if vipTransactions has matching `${orderId}|${detailIndex}|${name}` (vipTransactions type 'order' is VIP by definition)
+			      const vipOrderKeysFromTx = new Set();
+			      (vipTransactions || []).forEach(tx => {
+			        if (!tx || tx.type !== 'order') return;
+			        if (tx.name !== selectedName) return;
+			        const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
+			        if (key) vipOrderKeysFromTx.add(key);
+			      });
 
 	      // 1) ORDER rows from orderHistory.details (authoritative source for orders)
 	      const orderTxs = [];
@@ -1428,18 +1431,18 @@
 	            detail?.paymentMethod === 'vip' ||
 	            (key && vipOrderKeysFromTx.has(key));
 
-	          orderTxs.push({
-	            id: `${String(orderId || 'noid')}|${detailIndex}|${name}`,
-	            ts: date.toISOString(),
-	            name,
-	            amount: -Math.abs(Number(detail.due) || 0),
-	            type: 'order',
-	            itemName: order?.itemName || 'Order',
-	            paid: !!detail?.paid,
-	            orderId,
-	            detailIndex,
-	            isVipPayment: isVipPayment === true
-	          });
+		          orderTxs.push({
+		            id: `${String(orderId || 'noid')}|${detailIndex}|${name}`,
+		            ts: date.toISOString(),
+		            name,
+		            amount: -Math.abs(Number(detail.due) || 0),
+		            type: 'order',
+		            itemName: order?.itemName || 'Order',
+		            paid: detail?.paid === true,
+		            orderId,
+		            detailIndex,
+		            isVipPayment: isVipPayment === true
+		          });
 
 	          if (key) orderKeys.add(key);
 	        });
@@ -1453,13 +1456,14 @@
 	          txOnly.push(tx);
 	          return;
 	        }
-	        if (tx.type === 'order') {
-	          const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
-	          // Skip order tx if no key (cannot dedupe safely) or already exists in orderHistory
-	          if (!key || orderKeys.has(key)) return;
-	          txOnly.push({ ...tx, isVipPayment: tx.isVipPayment === true });
-	        }
-	      });
+		        if (tx.type === 'order') {
+		          const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
+		          // Skip order tx if no key (cannot dedupe safely) or already exists in orderHistory
+		          if (!key || orderKeys.has(key)) return;
+		          // vipTransactions 'order' is VIP by definition
+		          txOnly.push({ ...tx, isVipPayment: true });
+		        }
+		      });
 
 	      const allTxs = [...orderTxs, ...txOnly].sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
 
@@ -1468,19 +1472,17 @@
 	        return;
 	      }
 
-	      // Ensure running balance ends at vipList current balance (no auto inference)
-	      const sortedOldestFirst = [...allTxs].sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
-	      const totalImpact = sortedOldestFirst.reduce((sum, tx) => {
-	        const impactsVip = tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && tx.isVipPayment === true);
-	        return impactsVip ? (sum + Number(tx.amount || 0)) : sum;
-	      }, 0);
-	      let runningBalance = currentBalance - totalImpact;
-
-	      const txsWithBalance = sortedOldestFirst.map(tx => {
-	        const impactsVip = tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && tx.isVipPayment === true);
-	        if (impactsVip) runningBalance += Number(tx.amount || 0);
-	        return { ...tx, balance: runningBalance };
-	      });
+		      // Running balance (no inference): only impacts on topup/cashout or VIP orders
+		      const sortedOldestFirst = [...allTxs].sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
+		      let runningBalance = Number(initialBalanceValue || 0);
+		      const txsWithBalance = sortedOldestFirst.map(tx => {
+		        const impacts =
+		          tx.type === 'topup' ||
+		          tx.type === 'cashout' ||
+		          (tx.type === 'order' && tx.isVipPayment === true);
+		        if (impacts) runningBalance += Number(tx.amount || 0);
+		        return { ...tx, balance: runningBalance };
+		      });
 
 	      // Store for filtering
 	      currentVipTransactions = txsWithBalance;
@@ -1568,7 +1570,7 @@
                           ${tx.amount >= 0 ? '+' : ''}${formatMoney(tx.amount)}
                         </td>
                         <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">
-                          ${tx.type === 'order' ? `${tx.itemName || 'Order'} ${tx.paid ? '✅' : '⏳'}` : '-'}
+	                          ${tx.type === 'order' ? `${tx.itemName || 'Order'} ${tx.paid === true ? '✅' : '⏳'}` : '-'}
                         </td>
                         <td style="padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: right; font-weight: 600; color: ${balanceColor}; white-space: nowrap;">
                           ${formatMoney(tx.balance)}
@@ -1601,14 +1603,15 @@
     }
 
     // Apply filters to VIP history
-    function applyVipHistoryFilters() {
-      if (currentVipTransactions.length === 0) return;
+	    function applyVipHistoryFilters() {
+	      if (currentVipTransactions.length === 0) return;
 
-      const select = document.getElementById('vipMemberSelect');
-      const vipArea = document.getElementById('vipArea');
-      const selectedName = select ? select.value : '';
-      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
-      const currentBalance = Number(vipMap.get(selectedName) || 0);
+	      const select = document.getElementById('vipMemberSelect');
+	      const vipArea = document.getElementById('vipArea');
+	      const selectedName = select ? select.value : '';
+	      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
+	      const currentBalance = Number(vipMap.get(selectedName) || 0);
+	      const initialBalanceValue = Number(document.getElementById('vipInitialBalance')?.value || 0);
 
       // Get filter values
       const dateFrom = document.getElementById('filterDateFrom')?.value;
@@ -1650,22 +1653,21 @@
         countSpan.textContent = `Hiển thị ${filtered.length}/${currentVipTransactions.length} giao dịch`;
       }
 
-      // Recalculate running balance for filtered list (chronological) and keep header = vipList
-      const sortedOldestFirst = [...filtered].sort((a, b) => new Date(a.ts) - new Date(b.ts));
-      const totalImpact = sortedOldestFirst.reduce((sum, tx) => {
-        const impactsVip = tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && tx.isVipPayment === true);
-        return impactsVip ? (sum + Number(tx.amount || 0)) : sum;
-      }, 0);
-      let runningBalance = currentBalance - totalImpact;
-      const recalculated = sortedOldestFirst.map(tx => {
-        const impactsVip = tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && tx.isVipPayment === true);
-        if (impactsVip) runningBalance += Number(tx.amount || 0);
-        return { ...tx, balance: runningBalance };
-      });
+	      // Recalculate running balance for filtered list (chronological); only impacts on topup/cashout or VIP orders
+	      const sortedOldestFirst = [...filtered].sort((a, b) => new Date(a.ts) - new Date(b.ts));
+	      let runningBalance = initialBalanceValue;
+	      const recalculated = sortedOldestFirst.map(tx => {
+	        const impacts =
+	          tx.type === 'topup' ||
+	          tx.type === 'cashout' ||
+	          (tx.type === 'order' && tx.isVipPayment === true);
+	        if (impacts) runningBalance += Number(tx.amount || 0);
+	        return { ...tx, balance: runningBalance };
+	      });
 
-      // Render filtered results (use final runningBalance for header)
-      renderVipHistoryTable(selectedName, currentBalance, recalculated);
-    }
+	      // Render filtered results (use final runningBalance for header)
+	      renderVipHistoryTable(selectedName, currentBalance, recalculated);
+	    }
 
     // Clear all filters
     function clearVipHistoryFilters() {
@@ -1779,9 +1781,9 @@
         const date = formatDateCSV(tx.ts);
         const type = getTypeLabel(tx.type);
         const amount = formatAmountCSV(tx.amount);
-        const detail = tx.type === 'order'
-          ? `${tx.itemName} ${tx.paid ? '[Đã trả]' : '[Chưa trả]'}`
-          : '-';
+	        const detail = tx.type === 'order'
+	          ? `${tx.itemName} ${tx.paid === true ? '[Đã trả]' : '[Chưa trả]'}`
+	          : '-';
         const balance = formatAmountCSV(tx.balance);
 
         // Escape commas and quotes in detail field
@@ -2811,7 +2813,7 @@
       <td><input class="name-input" value="${p.name || ''}" placeholder="Nhập tên..."></td>
       <td><input type="number" min="1" step="1" value="${p.qty || 1}"></td>
       <td><input type="number" min="0" step="1" value="${p.shipParts || 0}" class="ship-count-input" placeholder="0"></td>
-      <td style="text-align: center;"><input type="checkbox" class="payment-check" ${p.paid ? 'checked' : ''}></td>
+	      <td style="text-align: center;"><input type="checkbox" class="payment-check" ${p.paid === true ? 'checked' : ''}></td>
       <td style="text-align: center;"><button class="btn btn-danger" onclick="delRow(this)">✕</button></td>
     `;
         tbody.appendChild(tr);
@@ -3521,16 +3523,18 @@
             });
           }
 
-          orderDetails.push({
-            name: originalName, // Use original VIP name
-            qty: r.qty,
-            shipQty,
-            nonShipQty,
-            due: due,
-            paid: true, // VIP auto-paid
-            unitPrice: shipQty > 0 && nonShipQty > 0 ? `${formatMoney(priceNonShip)} / ${formatMoney(priceShip)}` : (shipQty > 0 ? priceShip : priceNonShip)
-          });
-        } else {
+	          orderDetails.push({
+	            name: originalName, // Use original VIP name
+	            qty: r.qty,
+	            shipQty,
+	            nonShipQty,
+	            due: due,
+	            paid: true, // VIP auto-paid
+	            isVipPayment: true,
+	            paymentMethod: 'vip',
+	            unitPrice: shipQty > 0 && nonShipQty > 0 ? `${formatMoney(priceNonShip)} / ${formatMoney(priceShip)}` : (shipQty > 0 ? priceShip : priceNonShip)
+	          });
+	        } else {
           // Not VIP, add to members
           orderDetails.push({
             name: r.name,
@@ -3990,7 +3994,7 @@
       }
 
       historyList.innerHTML = filteredOrders.map(order => {
-        const paidCount = order.details.filter(d => d.paid).length;
+        const paidCount = order.details.filter(d => d?.paid === true).length;
         const totalCount = order.details.length;
         const statusClass = paidCount === totalCount ? 'status-paid' : (paidCount > 0 ? 'status-partial' : 'status-unpaid');
         const statusText = paidCount === totalCount ? 'Đã thanh toán' : `${paidCount}/${totalCount} đã trả`;
@@ -4025,6 +4029,7 @@
     function showOrderDetail(orderId) {
       const order = orderHistory.find(o => o.id === orderId);
       if (!order) return;
+      activeOrderModalId = orderId;
 
       const modalBody = document.getElementById('modalBody');
       const modalPriceLabel = order.splitShipMode
@@ -4080,20 +4085,20 @@
               </tr>
             </thead>
             <tbody>
-              ${order.details.map(d => `
-              <tr>
-                <td>${d.name}</td>
-                <td style="text-align: right;">${d.qty}</td>
-                <td style="text-align: right;">${typeof d.unitPrice === 'string' ? d.unitPrice : formatMoney(d.unitPrice || order.sellingPrice)}</td>
-                <td style="text-align: right;">${d.shipQty ? `${d.shipQty} 🚚` : '0'}</td>
-                <td style="text-align: right;">${formatMoney(d.due)}</td>
-                <td style="text-align: center;">
-                  <span class="status-badge ${d.paid ? 'status-paid' : 'status-unpaid'}">
-                    ${d.paid ? 'Đã trả' : 'Chưa trả'}
-                  </span>
-                </td>
-              </tr>
-            `).join('')}
+	              ${order.details.map(d => `
+	              <tr>
+	                <td>${d.name}</td>
+	                <td style="text-align: right;">${d.qty}</td>
+	                <td style="text-align: right;">${typeof d.unitPrice === 'string' ? d.unitPrice : formatMoney(d.unitPrice || order.sellingPrice)}</td>
+	                <td style="text-align: right;">${d.shipQty ? `${d.shipQty} 🚚` : '0'}</td>
+	                <td style="text-align: right;">${formatMoney(d.due)}</td>
+	                <td style="text-align: center;">
+	                  <span class="status-badge ${d.paid === true ? 'status-paid' : 'status-unpaid'}">
+	                    ${d.paid === true ? 'Đã trả' : 'Chưa trả'}
+	                  </span>
+	                </td>
+	              </tr>
+	            `).join('')}
           </tbody>
         </table>
       </div>
@@ -4161,6 +4166,7 @@
 
     function closeModal() {
       document.getElementById('orderModal').classList.remove('active');
+      activeOrderModalId = null;
     }
 
     function deleteOrder(orderId) {
@@ -4185,58 +4191,81 @@
       alert('✅ Đã đánh dấu tất cả đã thanh toán');
     }
 
-	    function markDebtorPaid(name) {
-	      console.log(`[${BUILD_TAG}] markDebtorPaid`);
-	      if (!name) return;
-	      const target = name.trim();
-	      const changes = [];
-	      let totalCleared = 0;
+		    function markDebtorPaid(name) {
+		      console.log(`[${BUILD_TAG}] markDebtorPaid`);
+		      if (!name) return;
+		      const target = name.trim();
+		      const changes = [];
+		      let totalCleared = 0;
 
-      orderHistory.forEach(order => {
-        order.details.forEach((d, idx) => {
-          if (!d.paid && d.name === target) {
-            changes.push({ orderId: order.id, detailIndex: idx, due: d.due });
-            totalCleared += d.due;
-          }
-        });
-      });
-
-      if (changes.length === 0) {
-        alert('ℹ️ Không thấy công nợ cần cập nhật cho người này');
-        return;
-      }
-
-	      const methodInput = prompt(`Chọn phương thức thanh toán cho ${target}: nhập 'vip' hoặc 'cash' (mặc định cash)`, 'cash');
-	      let paymentMethod = (methodInput || 'cash').trim().toLowerCase() === 'vip' ? 'vip' : 'cash';
-
-	      // Mark as paid
-	      changes.forEach(change => {
-	        const order = orderHistory.find(o => o.id === change.orderId);
-	        if (order && order.details[change.detailIndex]) {
-          if (paymentMethod === 'vip') {
-            order.details[change.detailIndex].isVipPayment = true;
-            order.details[change.detailIndex].paid = true;
-	            recordVipTransaction({
-	              name: target,
-	              amount: -change.due,
-	              type: 'order',
-	              itemName: order.itemName,
-	              orderId: order.id,
-	              detailIndex: change.detailIndex,
-	              isVipPayment: true,
-	              paymentMethod: 'vip'
-	            });
-	          } else {
-	            order.details[change.detailIndex].isVipPayment = false;
-	            order.details[change.detailIndex].paid = true;
+	      orderHistory.forEach(order => {
+	        order.details.forEach((d, idx) => {
+	          if (d?.paid !== true && d?.name === target) {
+	            changes.push({ orderId: order.id, detailIndex: idx, due: d.due });
+	            totalCleared += d.due;
 	          }
-	        }
-      });
+	        });
+	      });
 
-      lastDebtorPaidSnapshot = { name: target, changes };
-	      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-	      loadDebtManagement();
-	      loadHistory();
+	      if (changes.length === 0) {
+	        alert('ℹ️ Không thấy công nợ cần cập nhật cho người này');
+	        return;
+	      }
+
+		      const vipArea = document.getElementById('vipArea');
+		      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
+		      const hasVip = vipMap.has(target);
+
+		      let paymentMethod = 'cash';
+		      if (hasVip) {
+		        const methodInput = prompt(`Chọn phương thức thanh toán cho ${target}: nhập 'vip' hoặc 'cash' (mặc định cash)`, 'cash');
+		        paymentMethod = (methodInput || 'cash').trim().toLowerCase() === 'vip' ? 'vip' : 'cash';
+		      }
+
+			      // Mark as paid (source of truth: detail.paid === true)
+			      changes.forEach(change => {
+			        const order = orderHistory.find(o => o.id === change.orderId);
+			        if (order && order.details[change.detailIndex]) {
+			          if (paymentMethod === 'vip') {
+			            order.details[change.detailIndex].isVipPayment = true;
+			            order.details[change.detailIndex].paid = true;
+			            const existingTx = vipTransactions.find(tx =>
+			              tx.type === 'order' &&
+			              tx.orderId === order.id &&
+			              tx.name === target &&
+			              tx.detailIndex === change.detailIndex
+			            );
+			            if (!existingTx) {
+			              recordVipTransaction({
+			                name: target,
+			                amount: -change.due,
+			                type: 'order',
+			                itemName: order.itemName,
+			                orderId: order.id,
+			                detailIndex: change.detailIndex,
+			                isVipPayment: true,
+			                paymentMethod: 'vip'
+			              });
+			            }
+			          } else {
+			            order.details[change.detailIndex].isVipPayment = false;
+			            order.details[change.detailIndex].paid = true;
+			          }
+			        }
+			      });
+
+			      if (paymentMethod === 'vip' && hasVip) {
+			        vipMap.set(target, Number(vipMap.get(target) || 0) - Number(totalCleared || 0));
+			        const vipText = vipToText(vipMap);
+			        if (vipArea) vipArea.value = vipText;
+			        persistVipList(vipText);
+			      }
+
+	      lastDebtorPaidSnapshot = { name: target, changes };
+		      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+		      loadDebtManagement();
+		      loadHistory();
+		      if (activeOrderModalId !== null) showOrderDetail(activeOrderModalId);
 	      renderVipHistory();
 	      populateVipMemberSelect();
 
@@ -4244,29 +4273,36 @@
 	      alert(`✅ Đã đánh dấu ${target} đã trả hết nợ ${paymentText}\nTổng: ${formatMoney(totalCleared)}`);
 	    }
 
-	    function markSingleDebtPaid(orderId, detailIndex, name) {
-	      console.log(`[${BUILD_TAG}] markSingleDebtPaid`);
-	      const order = orderHistory.find(o => o.id === orderId);
-	      if (!order || !order.details?.[detailIndex]) return;
+		    function markSingleDebtPaid(orderId, detailIndex, name) {
+		      console.log(`[${BUILD_TAG}] markSingleDebtPaid`);
+		      const order = orderHistory.find(o => o.id === orderId);
+		      if (!order || !order.details?.[detailIndex]) return;
 
-      const detail = order.details[detailIndex];
-      if (detail.paid) {
-        alert('ℹ️ Mục này đã được đánh dấu trả rồi');
-        return;
-      }
+	      const detail = order.details[detailIndex];
+	      if (detail.paid === true) {
+	        alert('ℹ️ Mục này đã được đánh dấu trả rồi');
+	        return;
+	      }
 
       const confirmMsg = `Đánh dấu đã trả cho ${name || detail.name}?\n` +
         `${order.itemName} - ${formatMoney(detail.due)} (${detail.qty} phần)`;
-      if (!confirm(confirmMsg)) return;
+	      if (!confirm(confirmMsg)) return;
 
-      const target = (name || detail.name).trim();
+	      const target = (name || detail.name).trim();
 
-	      const methodInput = prompt(`Chọn phương thức thanh toán cho ${target}: nhập 'vip' hoặc 'cash' (mặc định cash)`, 'cash');
-	      let paymentMethod = (methodInput || 'cash').trim().toLowerCase() === 'vip' ? 'vip' : 'cash';
+		      const vipArea = document.getElementById('vipArea');
+		      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
+		      const hasVip = vipMap.has(target);
 
-	      if (paymentMethod === 'vip') {
-	        const existingTx = vipTransactions.find(tx =>
-	          tx.type === 'order' &&
+		      let paymentMethod = 'cash';
+		      if (hasVip) {
+		        const methodInput = prompt(`Chọn phương thức thanh toán cho ${target}: nhập 'vip' hoặc 'cash' (mặc định cash)`, 'cash');
+		        paymentMethod = (methodInput || 'cash').trim().toLowerCase() === 'vip' ? 'vip' : 'cash';
+		      }
+
+		      if (paymentMethod === 'vip') {
+		        const existingTx = vipTransactions.find(tx =>
+		          tx.type === 'order' &&
 	          tx.orderId === order.id &&
 	          tx.name === target &&
 	          tx.detailIndex === detailIndex
@@ -4283,23 +4319,34 @@
 	            isVipPayment: true,
 	            paymentMethod: 'vip'
 	          });
-	        }
-	        detail.isVipPayment = true;
-	      } else {
-	        detail.isVipPayment = false;
-	      }
+		        }
+		        detail.isVipPayment = true;
+		      } else {
+		        detail.isVipPayment = false;
+		      }
 
-	      detail.paid = true;
-      lastDebtorPaidSnapshot = {
-        name: target,
-        changes: [{ orderId, detailIndex, due: detail.due }]
-      };
+		      detail.paid = true;
 
-      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-      loadDebtManagement();
-      loadHistory();
-      renderVipHistory();
-      populateVipMemberSelect();
+		      if (paymentMethod === 'vip' && hasVip) {
+		        vipMap.set(target, Number(vipMap.get(target) || 0) - Number(detail.due || 0));
+		        const vipText = vipToText(vipMap);
+		        if (vipArea) vipArea.value = vipText;
+		        persistVipList(vipText);
+		      } else {
+		        detail.isVipPayment = false;
+		      }
+
+		      lastDebtorPaidSnapshot = {
+		        name: target,
+		        changes: [{ orderId, detailIndex, due: detail.due }]
+		      };
+
+	      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+	      loadDebtManagement();
+	      loadHistory();
+	      if (activeOrderModalId !== null) showOrderDetail(activeOrderModalId);
+	      renderVipHistory();
+	      populateVipMemberSelect();
 
       const paymentText = paymentMethod === 'vip' ? 'từ VIP' : 'bằng tiền mặt';
       alert(`✅ Đã đánh dấu đã trả ${paymentText}`);
@@ -4412,7 +4459,7 @@
 
       orderHistory.forEach(order => {
         order.details.forEach((d, detailIndex) => {
-          if (!d.paid) {
+          if (d?.paid !== true) {
             const current = debtMap.get(d.name) || { total: 0, orders: [] };
             current.total += d.due;
             current.orders.push({
@@ -4470,40 +4517,44 @@
             <div style="font-size: 20px; font-weight: 700; color: var(--text-primary);">${name}</div>
             <div style="font-size: 14px; color: var(--text-muted);">${data.orders.length} đơn chưa thanh toán</div>
           </div>
-          <div style="text-align: right;">
-            <div style="font-size: 24px; font-weight: 700; color: var(--accent-red);">${formatMoney(data.total)}</div>
-            <button class="btn btn-primary" style="margin-top: 8px;" onclick='markDebtorPaid(${JSON.stringify(name)})'>Đã trả</button>
-          </div>
-        </div>
+	          <div style="text-align: right;">
+	            <div style="font-size: 24px; font-weight: 700; color: var(--accent-red);">${formatMoney(data.total)}</div>
+	            <button class="btn btn-primary" style="margin-top: 8px;" onclick='markDebtorPaid(${JSON.stringify(name)})'>Đánh dấu đã trả</button>
+	          </div>
+	        </div>
 
         <div class="table-wrapper">
           <table class="table">
             <thead>
-              <tr>
-                <th>Ngày</th>
-                <th>Món</th>
-                <th style="text-align: right;">Số phần</th>
-                <th style="text-align: right;">Tiền</th>
-                <th style="text-align: center;">Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${data.orders.map(o => `
-                <tr>
-                  <td onclick="showOrderDetail(${o.orderId})" style="cursor: pointer;">${formatDate(o.date).split(' ')[0]}</td>
-                  <td onclick="showOrderDetail(${o.orderId})" style="cursor: pointer;">${o.itemName}</td>
-                  <td style="text-align: right;" onclick="showOrderDetail(${o.orderId})" style="cursor: pointer;">${o.qty}</td>
-                  <td style="text-align: right;" onclick="showOrderDetail(${o.orderId})" style="cursor: pointer;">${formatMoney(o.due)}</td>
-                  <td style="text-align: center;">
-                    <button class="btn btn-primary" style="padding: 6px 10px; font-size: 12px;"
-                      onclick='markSingleDebtPaid(${o.orderId}, ${o.detailIndex}, ${JSON.stringify(name)});'>
-                      Đã trả
-                    </button>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+	              <tr>
+	                <th>Ngày</th>
+	                <th>Món</th>
+	                <th style="text-align: right;">Số phần</th>
+	                <th style="text-align: right;">Tiền</th>
+	                <th style="text-align: center;">Trạng thái</th>
+	                <th style="text-align: center;">Hành động</th>
+	              </tr>
+	            </thead>
+	            <tbody>
+	              ${data.orders.map(o => `
+	                <tr>
+	                  <td onclick="showOrderDetail(${o.orderId})" style="cursor: pointer;">${formatDate(o.date).split(' ')[0]}</td>
+	                  <td onclick="showOrderDetail(${o.orderId})" style="cursor: pointer;">${o.itemName}</td>
+	                  <td style="text-align: right;" onclick="showOrderDetail(${o.orderId})" style="cursor: pointer;">${o.qty}</td>
+	                  <td style="text-align: right;" onclick="showOrderDetail(${o.orderId})" style="cursor: pointer;">${formatMoney(o.due)}</td>
+	                  <td style="text-align: center;">
+	                    <span class="status-badge status-unpaid">Chưa trả</span>
+	                  </td>
+	                  <td style="text-align: center;">
+	                    <button class="btn btn-primary" style="padding: 6px 10px; font-size: 12px;"
+	                      onclick='markSingleDebtPaid(${o.orderId}, ${o.detailIndex}, ${JSON.stringify(name)});'>
+	                      Đánh dấu đã trả
+	                    </button>
+	                  </td>
+	                </tr>
+	              `).join('')}
+	            </tbody>
+	          </table>
         </div>
       </div>
     `).join('');
@@ -5012,13 +5063,116 @@
       input.click();
     }
 
-    // Close modal when clicking outside
-    document.getElementById('orderModal').addEventListener('click', (e) => {
-      if (e.target.id === 'orderModal') {
-        closeModal();
-      }
-    });
-  </script>
+	    // Close modal when clicking outside
+	    document.getElementById('orderModal').addEventListener('click', (e) => {
+	      if (e.target.id === 'orderModal') {
+	        closeModal();
+	      }
+	    });
+
+	    // Dev-only debug helpers
+	    window.debugUnpaidByName = (name) => {
+	      const target = (name || '').trim();
+	      if (!target) return [];
+	      const out = [];
+	      (orderHistory || []).forEach(order => {
+	        (order?.details || []).forEach((d, detailIndex) => {
+	          if ((d?.name || '').trim() !== target) return;
+	          if (d?.paid === true) return;
+	          out.push({
+	            orderId: order?.id,
+	            date: order?.date,
+	            itemName: order?.itemName,
+	            detailIndex,
+	            due: d?.due,
+	            paid: d?.paid
+	          });
+	        });
+	      });
+	      return out;
+	    };
+
+	    window.debugVipHistory = (name) => {
+	      const selectedName = (name || '').trim();
+	      if (!selectedName) return { currentBalance: 0, rows: [] };
+	      const vipArea = document.getElementById('vipArea');
+	      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
+	      const currentBalance = Number(vipMap.get(selectedName) || 0);
+
+	      const orderKeyOf = ({ orderId, detailIndex, name }) => {
+	        if (orderId === undefined || orderId === null) return null;
+	        if (detailIndex === undefined || detailIndex === null) return null;
+	        if (!name) return null;
+	        return `${String(orderId)}|${detailIndex}|${name}`;
+	      };
+
+		      const vipOrderKeysFromTx = new Set();
+		      (vipTransactions || []).forEach(tx => {
+		        if (!tx || tx.type !== 'order') return;
+		        if (tx.name !== selectedName) return;
+		        const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
+		        if (key) vipOrderKeysFromTx.add(key);
+		      });
+
+	      const orderRows = [];
+	      const orderKeys = new Set();
+	      (orderHistory || []).forEach(order => {
+	        const orderId = order?.id;
+	        const tsRaw = order?.date || order?.id;
+	        const date = tsRaw ? new Date(tsRaw) : null;
+	        if (!date || isNaN(date.getTime())) return;
+	        (order?.details || []).forEach((detail, detailIndex) => {
+	          const detailName = (detail?.name || '').trim();
+	          if (detailName !== selectedName) return;
+	          if (!detail?.due) return;
+	          const key = orderKeyOf({ orderId, detailIndex, name: detailName });
+	          if (key && orderKeys.has(key)) return;
+	          const isVipPayment =
+	            detail?.isVipPayment === true ||
+	            detail?.paymentMethod === 'vip' ||
+	            (key && vipOrderKeysFromTx.has(key));
+	          orderRows.push({
+	            type: 'order',
+	            ts: date.toISOString(),
+	            amount: -Math.abs(Number(detail?.due) || 0),
+	            orderId,
+	            detailIndex,
+	            orderKey: key,
+	            isVipPayment: isVipPayment === true
+	          });
+	          if (key) orderKeys.add(key);
+	        });
+	      });
+
+	      const txRows = [];
+	      (vipTransactions || []).forEach(tx => {
+	        if (!tx || tx.name !== selectedName) return;
+	        if (tx.type === 'topup' || tx.type === 'cashout') {
+	          txRows.push({ ...tx, orderKey: null, isVipPayment: tx.isVipPayment === true });
+	          return;
+	        }
+		        if (tx.type === 'order') {
+		          const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
+		          if (!key || orderKeys.has(key)) return;
+		          txRows.push({ ...tx, orderKey: key, isVipPayment: true });
+		        }
+		      });
+
+	      const all = [...orderRows, ...txRows].sort((a, b) => new Date(a.ts) - new Date(b.ts));
+	      let runningBalance = currentBalance - all.reduce((sum, tx) => {
+	        const impactsVip = tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && tx.isVipPayment === true);
+	        return impactsVip ? (sum + Number(tx.amount || 0)) : sum;
+	      }, 0);
+
+	      const rows = all.map(tx => {
+	        const impactsVip = tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && tx.isVipPayment === true);
+	        if (impactsVip) runningBalance += Number(tx.amount || 0);
+	        return { ...tx, impactsVip, balance: runningBalance };
+	      });
+
+	      return { currentBalance, rows };
+	    };
+	  </script>
 
 </body>
 
