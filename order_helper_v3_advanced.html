@@ -1080,62 +1080,62 @@
       return new Date(ts).toLocaleString('vi-VN', { hour12: false });
     }
 
-	    function normalizeVipTransactions(data = []) {
-	      console.log(`[${BUILD_TAG}] normalizeVipTransactions`);
-	      if (!VIP_PATCH_ENABLED) {
-	        return Array.isArray(data) ? data : [];
-	      }
-	      if (!Array.isArray(data)) return [];
-	      const normalized = data.map((tx, idx) => {
-	        const amount = Number(tx?.amount);
-	        const idRaw = tx?.id;
-	        const idNum = typeof idRaw === 'number' ? idRaw : (typeof idRaw === 'string' && idRaw.trim() !== '' ? Number(idRaw) : NaN);
-	        const parsedIdDate = isFinite(idNum) ? new Date(idNum) : null;
-	        const hasValidIdDate = parsedIdDate && isFinite(parsedIdDate.getTime());
-	        const tsSource = tx?.ts || (hasValidIdDate ? parsedIdDate.toISOString() : null);
-	        const parsedTs = tsSource ? new Date(tsSource) : null;
-	        const hasValidTs = parsedTs && isFinite(parsedTs.getTime());
-	        const computedType = tx?.type || (amount >= 0 ? 'topup' : 'cashout');
-	        const hasDetailIndex = tx && Object.prototype.hasOwnProperty.call(tx, 'detailIndex');
+    function normalizeVipTransactions(data = []) {
+      console.log(`[${BUILD_TAG}] normalizeVipTransactions`);
+      if (!VIP_PATCH_ENABLED) {
+        return Array.isArray(data) ? data : [];
+      }
+      if (!Array.isArray(data)) return [];
+      const normalized = data.map((tx, idx) => {
+        const amount = Number(tx?.amount);
+        const idRaw = tx?.id;
+        const idNum = typeof idRaw === 'number' ? idRaw : (typeof idRaw === 'string' && idRaw.trim() !== '' ? Number(idRaw) : NaN);
+        const parsedIdDate = isFinite(idNum) ? new Date(idNum) : null;
+        const hasValidIdDate = parsedIdDate && isFinite(parsedIdDate.getTime());
+        const tsSource = tx?.ts || (hasValidIdDate ? parsedIdDate.toISOString() : null);
+        const parsedTs = tsSource ? new Date(tsSource) : null;
+        const hasValidTs = parsedTs && isFinite(parsedTs.getTime());
+        const computedType = tx?.type || (amount >= 0 ? 'topup' : 'cashout');
+        const hasDetailIndex = tx && Object.prototype.hasOwnProperty.call(tx, 'detailIndex');
 
-	        const out = {
-	          id: (tx?.id !== undefined && tx?.id !== null && String(tx.id).trim() !== '') ? String(tx.id) : crypto.randomUUID(),
-	          ts: hasValidTs ? parsedTs.toISOString() : (hasValidIdDate ? parsedIdDate.toISOString() : new Date().toISOString()),
-	          name: (tx?.name || '').trim(),
-	          amount: isFinite(amount) ? amount : 0,
-	          type: computedType,
-	          detailIndex: hasDetailIndex ? tx.detailIndex : null
-	        };
+        const out = {
+          id: (tx?.id !== undefined && tx?.id !== null && String(tx.id).trim() !== '') ? String(tx.id) : crypto.randomUUID(),
+          ts: hasValidTs ? parsedTs.toISOString() : (hasValidIdDate ? parsedIdDate.toISOString() : new Date().toISOString()),
+          name: (tx?.name || '').trim(),
+          amount: isFinite(amount) ? amount : 0,
+          type: computedType,
+          detailIndex: hasDetailIndex ? tx.detailIndex : null
+        };
 
-	        if (tx && Object.prototype.hasOwnProperty.call(tx, 'orderId')) out.orderId = tx.orderId;
-	        if (tx && Object.prototype.hasOwnProperty.call(tx, 'itemName')) out.itemName = tx.itemName;
-	        if (tx && Object.prototype.hasOwnProperty.call(tx, 'paid')) out.paid = tx.paid;
-	        if (tx && Object.prototype.hasOwnProperty.call(tx, 'isVipPayment')) out.isVipPayment = tx.isVipPayment;
-	        if (tx && Object.prototype.hasOwnProperty.call(tx, 'paymentMethod')) out.paymentMethod = tx.paymentMethod;
+        if (tx && Object.prototype.hasOwnProperty.call(tx, 'orderId')) out.orderId = tx.orderId;
+        if (tx && Object.prototype.hasOwnProperty.call(tx, 'itemName')) out.itemName = tx.itemName;
+        if (tx && Object.prototype.hasOwnProperty.call(tx, 'paid')) out.paid = tx.paid;
+        if (tx && Object.prototype.hasOwnProperty.call(tx, 'isVipPayment')) out.isVipPayment = tx.isVipPayment;
+        if (tx && Object.prototype.hasOwnProperty.call(tx, 'paymentMethod')) out.paymentMethod = tx.paymentMethod;
 
-	        // Migration rules (KHÔNG SUY DIỄN)
-	        if (out.type === 'order') {
-	          if (out.isVipPayment == null) out.isVipPayment = true;
-	          if (out.paymentMethod == null) out.paymentMethod = 'vip';
-	          if (out.paid == null) out.paid = true;
-	        }
+        // Migration rules (KHÔNG SUY DIỄN)
+        if (out.type === 'order') {
+          if (out.isVipPayment == null) out.isVipPayment = true;
+          if (out.paymentMethod == null) out.paymentMethod = 'vip';
+          if (out.paid == null) out.paid = true;
+        }
 
-	        return out;
-	      }).filter(tx => tx.name);
+        return out;
+      }).filter(tx => tx.name);
 
-	      localStorage.setItem(VIP_TX_KEY, JSON.stringify(normalized.slice(0, 200)));
-	      return normalized;
-	    }
+      localStorage.setItem(VIP_TX_KEY, JSON.stringify(normalized.slice(0, 200)));
+      return normalized;
+    }
 
     function buildOrderSignature(data = {}) {
-	      const normalizedDetails = Array.isArray(data.details) ? data.details.map(d => ({
-	        name: d.name,
-	        qty: d.qty,
-	        shipQty: d.shipQty || d.shipParts || 0,
-	        paid: d.paid === true,
-	        due: Number(d.due || 0),
-	        unitPrice: d.unitPrice
-	      })) : [];
+      const normalizedDetails = Array.isArray(data.details) ? data.details.map(d => ({
+        name: d.name,
+        qty: d.qty,
+        shipQty: d.shipQty || d.shipParts || 0,
+        paid: d.paid === true,
+        due: Number(d.due || 0),
+        unitPrice: d.unitPrice
+      })) : [];
 
       return JSON.stringify({
         itemName: data.itemName || '',
@@ -1152,41 +1152,41 @@
       });
     }
 
-	    function recordVipTransaction({ name, amount, type, itemName, orderId, detailIndex, isVipPayment, paymentMethod, ts }) {
-	      console.log(`[${BUILD_TAG}] recordVipTransaction`);
-	      if (!name || !Number.isFinite(amount)) return;
+    function recordVipTransaction({ name, amount, type, itemName, orderId, detailIndex, isVipPayment, paymentMethod, ts }) {
+      console.log(`[${BUILD_TAG}] recordVipTransaction`);
+      if (!name || !Number.isFinite(amount)) return;
 
-	      const txType = type || (amount >= 0 ? 'topup' : 'cashout');
-	      const entry = {
-	        id: crypto.randomUUID(),
-	        ts: (typeof ts === 'string' && ts) ? ts : new Date().toISOString(),
-	        name: name.trim(),
-	        amount,
-	        type: txType
-	      };
+      const txType = type || (amount >= 0 ? 'topup' : 'cashout');
+      const entry = {
+        id: crypto.randomUUID(),
+        ts: (typeof ts === 'string' && ts) ? ts : new Date().toISOString(),
+        name: name.trim(),
+        amount,
+        type: txType
+      };
 
-	      if (txType === 'order') {
-	        // VIP tx in vipTransactions is VIP by definition
-	        if (orderId === undefined || orderId === null) return;
-	        if (itemName === undefined || itemName === null) return;
-	        if (detailIndex === undefined || detailIndex === null) return;
-	        entry.orderId = orderId;
-	        entry.itemName = itemName;
-	        entry.detailIndex = detailIndex;
-	        entry.isVipPayment = true;
-	        entry.paid = true;
-	        entry.paymentMethod = 'vip';
-	      } else {
-	        if (paymentMethod !== undefined) entry.paymentMethod = paymentMethod;
-	        if (isVipPayment !== undefined) entry.isVipPayment = isVipPayment;
-	      }
+      if (txType === 'order') {
+        // VIP tx in vipTransactions is VIP by definition
+        if (orderId === undefined || orderId === null) return;
+        if (itemName === undefined || itemName === null) return;
+        if (detailIndex === undefined || detailIndex === null) return;
+        entry.orderId = orderId;
+        entry.itemName = itemName;
+        entry.detailIndex = detailIndex;
+        entry.isVipPayment = true;
+        entry.paid = true;
+        entry.paymentMethod = 'vip';
+      } else {
+        if (paymentMethod !== undefined) entry.paymentMethod = paymentMethod;
+        if (isVipPayment !== undefined) entry.isVipPayment = isVipPayment;
+      }
 
-	      vipTransactions.unshift(entry);
-	      vipTransactions = vipTransactions.slice(0, 200);
-	      localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
-	      renderVipHistory();
-	      populateVipMemberSelect();
-	    }
+      vipTransactions.unshift(entry);
+      vipTransactions = vipTransactions.slice(0, 200);
+      localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
+      renderVipHistory();
+      populateVipMemberSelect();
+    }
 
     function renderVipHistory() {
       const container = document.getElementById('vipHistory');
@@ -1261,19 +1261,19 @@
             console.log('✅ MATCH FOUND:', detailName, 'due:', detail.due);
 
             const isVipPayment = detail.isVipPayment === true || detail.paymentMethod === 'vip';
-	            orderTxs.push({
-	              id: (order.id ? String(order.id) : '') + '_' + detailName + '_' + detailIdx,
-	              ts: date.toISOString(),
-	              name: vipName,
-	              amount: -Math.abs(detail.due),
-	              type: 'order',
-	              itemName: order.itemName || 'Order',
-	              paid: detail.paid === true,
-	              orderId: order.id,
-	              detailIndex: detailIdx,
-	              isVipPayment,
-	              paymentMethod: isVipPayment ? 'vip' : (detail.paymentMethod !== undefined ? detail.paymentMethod : undefined)
-	            });
+            orderTxs.push({
+              id: (order.id ? String(order.id) : '') + '_' + detailName + '_' + detailIdx,
+              ts: date.toISOString(),
+              name: vipName,
+              amount: -Math.abs(detail.due),
+              type: 'order',
+              itemName: order.itemName || 'Order',
+              paid: detail.paid === true,
+              orderId: order.id,
+              detailIndex: detailIdx,
+              isVipPayment,
+              paymentMethod: isVipPayment ? 'vip' : (detail.paymentMethod !== undefined ? detail.paymentMethod : undefined)
+            });
           }
         });
       });
@@ -1363,13 +1363,13 @@
       return def || 0;
     }
 
-			    function showVipMemberHistory() {
-			      console.log('[VIP-HISTORY-REAL v3]', Date.now());
-			      console.log(`[${BUILD_TAG}] showVipMemberHistory`);
-			      const select = document.getElementById('vipMemberSelect');
-			      const container = document.getElementById('vipMemberHistoryContainer');
-			      const filtersDiv = document.getElementById('vipHistoryFilters');
-	      if (!select || !container) return;
+    function showVipMemberHistory() {
+      console.log('[VIP-HISTORY-REAL v3]', Date.now());
+      console.log(`[${BUILD_TAG}] showVipMemberHistory`);
+      const select = document.getElementById('vipMemberSelect');
+      const container = document.getElementById('vipMemberHistoryContainer');
+      const filtersDiv = document.getElementById('vipHistoryFilters');
+      if (!select || !container) return;
 
       const selectedName = select.value;
       if (!selectedName) {
@@ -1378,135 +1378,135 @@
         return;
       }
 
-	      // Initial balance input (render-only): only use user-saved value; otherwise leave empty and use AUTO start balance.
-	      const initialBalanceInput = document.getElementById('vipInitialBalance');
-	      if (initialBalanceInput) {
-	        const saved = localStorage.getItem(`vipInitialBalance_${selectedName}`);
-	        if (saved !== null && saved !== undefined && String(saved).trim() !== '') {
-	          initialBalanceInput.value = saved;
-	        } else {
-	          initialBalanceInput.value = '';
-	          initialBalanceInput.placeholder = 'AUTO';
-	        }
-	      }
-	      const initialBalanceRaw = initialBalanceInput ? String(initialBalanceInput.value || '').trim() : '';
-	      const hasManualStartBalance = initialBalanceRaw !== '';
-	      const manualStartBalance = hasManualStartBalance ? Number(initialBalanceRaw) : 0;
+      // Initial balance input (render-only): only use user-saved value; otherwise leave empty and use AUTO start balance.
+      const initialBalanceInput = document.getElementById('vipInitialBalance');
+      if (initialBalanceInput) {
+        const saved = localStorage.getItem(`vipInitialBalance_${selectedName}`);
+        if (saved !== null && saved !== undefined && String(saved).trim() !== '') {
+          initialBalanceInput.value = saved;
+        } else {
+          initialBalanceInput.value = '';
+          initialBalanceInput.placeholder = 'AUTO';
+        }
+      }
+      const initialBalanceRaw = initialBalanceInput ? String(initialBalanceInput.value || '').trim() : '';
+      const hasManualStartBalance = initialBalanceRaw !== '';
+      const manualStartBalance = hasManualStartBalance ? Number(initialBalanceRaw) : 0;
 
-	      // Show filters
-	      if (filtersDiv) filtersDiv.style.display = 'block';
+      // Show filters
+      if (filtersDiv) filtersDiv.style.display = 'block';
 
-	      const vipArea = document.getElementById('vipArea');
-	      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
-	      const currentBalance = Number(vipMap.get(selectedName) || 0);
+      const vipArea = document.getElementById('vipArea');
+      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
+      const currentBalance = Number(vipMap.get(selectedName) || 0);
 
-	      // Dedupe: 1 row per `${orderId}|${detailIndex}|${name}`
-	      const orderKeyOf = ({ orderId, detailIndex, name }) => {
-	        if (orderId === undefined || orderId === null) return null;
-	        if (detailIndex === undefined || detailIndex === null) return null;
-	        if (!name) return null;
-	        return `${String(orderId)}|${detailIndex}|${name}`;
-	      };
+      // Dedupe: 1 row per `${orderId}|${detailIndex}|${name}`
+      const orderKeyOf = ({ orderId, detailIndex, name }) => {
+        if (orderId === undefined || orderId === null) return null;
+        if (detailIndex === undefined || detailIndex === null) return null;
+        if (!name) return null;
+        return `${String(orderId)}|${detailIndex}|${name}`;
+      };
 
-			      // Truth set: ORDER is VIP if vipTransactions has matching `${orderId}|${detailIndex}|${name}` (vipTransactions type 'order' is VIP by definition)
-			      const vipOrderKeysFromTx = new Set();
-			      (vipTransactions || []).forEach(tx => {
-			        if (!tx || tx.type !== 'order') return;
-			        if (tx.name !== selectedName) return;
-			        const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
-			        if (key) vipOrderKeysFromTx.add(key);
-			      });
+      // Truth set: ORDER is VIP if vipTransactions has matching `${orderId}|${detailIndex}|${name}` (vipTransactions type 'order' is VIP by definition)
+      const vipOrderKeysFromTx = new Set();
+      (vipTransactions || []).forEach(tx => {
+        if (!tx || tx.type !== 'order') return;
+        if (tx.name !== selectedName) return;
+        const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
+        if (key) vipOrderKeysFromTx.add(key);
+      });
 
-	      // 1) ORDER rows from orderHistory.details (authoritative source for orders)
-	      const orderTxs = [];
-	      const orderKeys = new Set();
-	      (orderHistory || []).forEach(order => {
-	        const orderId = order?.id;
-	        const tsRaw = order?.date || order?.id;
-	        const date = tsRaw ? new Date(tsRaw) : null;
-	        if (!date || isNaN(date.getTime())) return;
+      // 1) ORDER rows from orderHistory.details (authoritative source for orders)
+      const orderTxs = [];
+      const orderKeys = new Set();
+      (orderHistory || []).forEach(order => {
+        const orderId = order?.id;
+        const tsRaw = order?.date || order?.id;
+        const date = tsRaw ? new Date(tsRaw) : null;
+        if (!date || isNaN(date.getTime())) return;
 
-	        (order.details || []).forEach((detail, detailIndex) => {
-	          const name = (detail?.name || '').trim();
-	          if (name !== selectedName) return;
-	          if (!detail?.due) return;
+        (order.details || []).forEach((detail, detailIndex) => {
+          const name = (detail?.name || '').trim();
+          if (name !== selectedName) return;
+          if (!detail?.due) return;
 
-	          const key = orderKeyOf({ orderId, detailIndex, name });
-	          if (key && orderKeys.has(key)) return;
+          const key = orderKeyOf({ orderId, detailIndex, name });
+          if (key && orderKeys.has(key)) return;
 
-	          const isVipPayment =
-	            detail?.isVipPayment === true ||
-	            detail?.paymentMethod === 'vip' ||
-	            (key && vipOrderKeysFromTx.has(key));
+          const isVipPayment =
+            detail?.isVipPayment === true ||
+            detail?.paymentMethod === 'vip' ||
+            (key && vipOrderKeysFromTx.has(key));
 
-			          orderTxs.push({
-			            id: `${String(orderId || 'noid')}|${detailIndex}|${name}`,
-			            ts: date.toISOString(),
-			            name,
-			            amount: -Math.abs(Number(detail.due) || 0),
-			            type: 'order',
-			            itemName: order?.itemName || 'Order',
-			            paid: detail?.paid === true,
-			            orderId,
-			            detailIndex,
-			            isVipPayment: isVipPayment === true,
-			            paymentMethod: detail?.paymentMethod
-			          });
+          orderTxs.push({
+            id: `${String(orderId || 'noid')}|${detailIndex}|${name}`,
+            ts: date.toISOString(),
+            name,
+            amount: -Math.abs(Number(detail.due) || 0),
+            type: 'order',
+            itemName: order?.itemName || 'Order',
+            paid: detail?.paid === true,
+            orderId,
+            detailIndex,
+            isVipPayment: isVipPayment === true,
+            paymentMethod: detail?.paymentMethod
+          });
 
-	          if (key) orderKeys.add(key);
-	        });
-	      });
+          if (key) orderKeys.add(key);
+        });
+      });
 
-	      // 2) vipTransactions rows (topup/cashout always; order only if missing in orderHistory)
-	      const txOnly = [];
-	      (vipTransactions || []).forEach(tx => {
-	        if (!tx || tx.name !== selectedName) return;
-	        if (tx.type === 'topup' || tx.type === 'cashout') {
-	          txOnly.push(tx);
-	          return;
-	        }
-		        if (tx.type === 'order') {
-		          const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
-		          // Skip order tx if no key (cannot dedupe safely) or already exists in orderHistory
-		          if (!key || orderKeys.has(key)) return;
-		          // vipTransactions 'order' is VIP by definition
-		          txOnly.push({ ...tx, isVipPayment: true });
-		        }
-		      });
+      // 2) vipTransactions rows (topup/cashout always; order only if missing in orderHistory)
+      const txOnly = [];
+      (vipTransactions || []).forEach(tx => {
+        if (!tx || tx.name !== selectedName) return;
+        if (tx.type === 'topup' || tx.type === 'cashout') {
+          txOnly.push(tx);
+          return;
+        }
+        if (tx.type === 'order') {
+          const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
+          // Skip order tx if no key (cannot dedupe safely) or already exists in orderHistory
+          if (!key || orderKeys.has(key)) return;
+          // vipTransactions 'order' is VIP by definition
+          txOnly.push({ ...tx, isVipPayment: true });
+        }
+      });
 
-	      const allTxs = [...orderTxs, ...txOnly].sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
+      const allTxs = [...orderTxs, ...txOnly].sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
 
-	      if (allTxs.length === 0) {
-	        container.innerHTML = '<div class="empty-state" style="padding: 12px 0;">Chưa có giao dịch nào</div>';
-	        return;
-	      }
+      if (allTxs.length === 0) {
+        container.innerHTML = '<div class="empty-state" style="padding: 12px 0;">Chưa có giao dịch nào</div>';
+        return;
+      }
 
-			      // Running balance (render-only): impacts only on topup/cashout or VIP orders.
-			      // If initial balance input is empty => AUTO start so the final balance matches vipList currentBalance.
-			      const sortedOldestFirst = [...allTxs].sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
-			      const sumDeltaAll = sortedOldestFirst.reduce((sum, tx) => {
-			        const isVipOrder = tx.type === 'order' && (tx.isVipPayment === true || tx.paymentMethod === 'vip');
-			        const impacts = tx.type === 'topup' || tx.type === 'cashout' || isVipOrder;
-			        const delta = impacts ? Number(tx.amount || 0) : 0;
-			        return sum + delta;
-			      }, 0);
-			      const startBalance = hasManualStartBalance ? manualStartBalance : (currentBalance - sumDeltaAll);
+      // Running balance (render-only): impacts only on topup/cashout or VIP orders.
+      // If initial balance input is empty => AUTO start so the final balance matches vipList currentBalance.
+      const sortedOldestFirst = [...allTxs].sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
+      const sumDeltaAll = sortedOldestFirst.reduce((sum, tx) => {
+        const isVipOrder = tx.type === 'order' && (tx.isVipPayment === true || tx.paymentMethod === 'vip');
+        const impacts = tx.type === 'topup' || tx.type === 'cashout' || isVipOrder;
+        const delta = impacts ? Number(tx.amount || 0) : 0;
+        return sum + delta;
+      }, 0);
+      const startBalance = hasManualStartBalance ? manualStartBalance : (currentBalance - sumDeltaAll);
 
-			      let runningBalance = startBalance;
-			      const txsWithBalance = sortedOldestFirst.map(tx => {
-			        const isVipOrder = tx.type === 'order' && (tx.isVipPayment === true || tx.paymentMethod === 'vip');
-			        const impacts = tx.type === 'topup' || tx.type === 'cashout' || isVipOrder;
-			        const delta = impacts ? Number(tx.amount || 0) : 0;
-			        runningBalance += delta;
-			        return { ...tx, balance: runningBalance };
-			      });
+      let runningBalance = startBalance;
+      const txsWithBalance = sortedOldestFirst.map(tx => {
+        const isVipOrder = tx.type === 'order' && (tx.isVipPayment === true || tx.paymentMethod === 'vip');
+        const impacts = tx.type === 'topup' || tx.type === 'cashout' || isVipOrder;
+        const delta = impacts ? Number(tx.amount || 0) : 0;
+        runningBalance += delta;
+        return { ...tx, balance: runningBalance };
+      });
 
-	      // Store for filtering
-	      currentVipTransactions = txsWithBalance;
+      // Store for filtering
+      currentVipTransactions = txsWithBalance;
 
-	      // Render with current filters
-	      renderVipHistoryTable(selectedName, currentBalance, txsWithBalance);
-	    }
+      // Render with current filters
+      renderVipHistoryTable(selectedName, currentBalance, txsWithBalance);
+    }
 
     function renderVipHistoryTable(selectedName, currentBalance, transactions) {
       const container = document.getElementById('vipMemberHistoryContainer');
@@ -1565,23 +1565,23 @@
         const bgColor = isEven ? 'rgba(255,255,255,0.02)' : 'transparent';
         const typeLabel = tx.type === 'topup' ? '💰 Nạp' : tx.type === 'cashout' ? '💸 Rút' : '🍜 Order';
 
-		        // PT column (render-only; no inference "paid => VIP"):
-		        // - Order: VIP if isVipPayment===true or paymentMethod==='vip'
-		        //          Cash if paid===true and not VIP
-		        //          Unpaid if paid!==true
-		        // - Topup/Cashout: '-'
-		        let paymentMethod = '-';
-		        if (tx.type === 'order') {
-		          const isVip = tx.isVipPayment === true || tx.paymentMethod === 'vip';
-		          const isPaid = tx.paid === true;
-		          if (isVip) {
-		            paymentMethod = '<span style="background: linear-gradient(135deg, #10b981, #34d399); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">VIP</span>';
-		          } else if (isPaid) {
-		            paymentMethod = '<span style="background: rgba(255,255,255,0.12); color: var(--text-primary); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Cash</span>';
-		          } else {
-		            paymentMethod = '<span style="background: rgba(239,68,68,0.18); color: #fecaca; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Unpaid</span>';
-		          }
-		        }
+        // PT column (render-only; no inference "paid => VIP"):
+        // - Order: VIP if isVipPayment===true or paymentMethod==='vip'
+        //          Cash if paid===true and not VIP
+        //          Unpaid if paid!==true
+        // - Topup/Cashout: '-'
+        let paymentMethod = '-';
+        if (tx.type === 'order') {
+          const isVip = tx.isVipPayment === true || tx.paymentMethod === 'vip';
+          const isPaid = tx.paid === true;
+          if (isVip) {
+            paymentMethod = '<span style="background: linear-gradient(135deg, #10b981, #34d399); color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">VIP</span>';
+          } else if (isPaid) {
+            paymentMethod = '<span style="background: rgba(255,255,255,0.12); color: var(--text-primary); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Cash</span>';
+          } else {
+            paymentMethod = '<span style="background: rgba(239,68,68,0.18); color: #fecaca; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Unpaid</span>';
+          }
+        }
 
         const amountColor = tx.amount >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
         const balanceColor = tx.balance >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
@@ -1628,17 +1628,17 @@
     }
 
     // Apply filters to VIP history
-		    function applyVipHistoryFilters() {
-		      if (currentVipTransactions.length === 0) return;
+    function applyVipHistoryFilters() {
+      if (currentVipTransactions.length === 0) return;
 
-		      const select = document.getElementById('vipMemberSelect');
-		      const vipArea = document.getElementById('vipArea');
-		      const selectedName = select ? select.value : '';
-		      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
-		      const currentBalance = Number(vipMap.get(selectedName) || 0);
-		      const initialBalanceRaw = String(document.getElementById('vipInitialBalance')?.value || '').trim();
-		      const hasManualStartBalance = initialBalanceRaw !== '';
-		      const manualStartBalance = hasManualStartBalance ? Number(initialBalanceRaw) : 0;
+      const select = document.getElementById('vipMemberSelect');
+      const vipArea = document.getElementById('vipArea');
+      const selectedName = select ? select.value : '';
+      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
+      const currentBalance = Number(vipMap.get(selectedName) || 0);
+      const initialBalanceRaw = String(document.getElementById('vipInitialBalance')?.value || '').trim();
+      const hasManualStartBalance = initialBalanceRaw !== '';
+      const manualStartBalance = hasManualStartBalance ? Number(initialBalanceRaw) : 0;
 
       // Get filter values
       const dateFrom = document.getElementById('filterDateFrom')?.value;
@@ -1666,13 +1666,13 @@
         filtered = filtered.filter(tx => tx.type === txType);
       }
 
-	      // Payment status filter (only for orders)
-	      if (paymentStatus !== 'all') {
-	        filtered = filtered.filter(tx => {
-	          if (tx.type !== 'order') return true; // Keep non-order transactions
-	          return paymentStatus === 'paid' ? tx.paid : !tx.paid;
-	        });
-	      }
+      // Payment status filter (only for orders)
+      if (paymentStatus !== 'all') {
+        filtered = filtered.filter(tx => {
+          if (tx.type !== 'order') return true; // Keep non-order transactions
+          return paymentStatus === 'paid' ? tx.paid : !tx.paid;
+        });
+      }
 
       // Update result count
       const countSpan = document.getElementById('filterResultCount');
@@ -1680,40 +1680,40 @@
         countSpan.textContent = `Hiển thị ${filtered.length}/${currentVipTransactions.length} giao dịch`;
       }
 
-		      const hasActiveFilter =
-		        !!dateFrom ||
-		        !!dateTo ||
-		        txType !== 'all' ||
-		        paymentStatus !== 'all';
+      const hasActiveFilter =
+        !!dateFrom ||
+        !!dateTo ||
+        txType !== 'all' ||
+        paymentStatus !== 'all';
 
-		      // Recalculate running balance for filtered list (chronological)
-		      // - Manual start: use it
-		      // - AUTO start (only when no active filters): end at vipList currentBalance
-		      // - Filtered view + no manual start: do not force matching vipList, start at 0
-		      const sortedOldestFirst = [...filtered].sort((a, b) => new Date(a.ts) - new Date(b.ts));
-		      const sumDeltaFiltered = sortedOldestFirst.reduce((sum, tx) => {
-		        const isVipOrder = tx.type === 'order' && (tx.isVipPayment === true || tx.paymentMethod === 'vip');
-		        const impacts = tx.type === 'topup' || tx.type === 'cashout' || isVipOrder;
-		        const delta = impacts ? Number(tx.amount || 0) : 0;
-		        return sum + delta;
-		      }, 0);
+      // Recalculate running balance for filtered list (chronological)
+      // - Manual start: use it
+      // - AUTO start (only when no active filters): end at vipList currentBalance
+      // - Filtered view + no manual start: do not force matching vipList, start at 0
+      const sortedOldestFirst = [...filtered].sort((a, b) => new Date(a.ts) - new Date(b.ts));
+      const sumDeltaFiltered = sortedOldestFirst.reduce((sum, tx) => {
+        const isVipOrder = tx.type === 'order' && (tx.isVipPayment === true || tx.paymentMethod === 'vip');
+        const impacts = tx.type === 'topup' || tx.type === 'cashout' || isVipOrder;
+        const delta = impacts ? Number(tx.amount || 0) : 0;
+        return sum + delta;
+      }, 0);
 
-		      let runningBalance = 0;
-		      if (hasManualStartBalance) runningBalance = manualStartBalance;
-		      else if (!hasActiveFilter) runningBalance = currentBalance - sumDeltaFiltered;
-		      else runningBalance = 0;
+      let runningBalance = 0;
+      if (hasManualStartBalance) runningBalance = manualStartBalance;
+      else if (!hasActiveFilter) runningBalance = currentBalance - sumDeltaFiltered;
+      else runningBalance = 0;
 
-		      const recalculated = sortedOldestFirst.map(tx => {
-		        const isVipOrder = tx.type === 'order' && (tx.isVipPayment === true || tx.paymentMethod === 'vip');
-		        const impacts = tx.type === 'topup' || tx.type === 'cashout' || isVipOrder;
-		        const delta = impacts ? Number(tx.amount || 0) : 0;
-		        runningBalance += delta;
-		        return { ...tx, balance: runningBalance };
-		      });
+      const recalculated = sortedOldestFirst.map(tx => {
+        const isVipOrder = tx.type === 'order' && (tx.isVipPayment === true || tx.paymentMethod === 'vip');
+        const impacts = tx.type === 'topup' || tx.type === 'cashout' || isVipOrder;
+        const delta = impacts ? Number(tx.amount || 0) : 0;
+        runningBalance += delta;
+        return { ...tx, balance: runningBalance };
+      });
 
-	      // Render filtered results (use final runningBalance for header)
-	      renderVipHistoryTable(selectedName, currentBalance, recalculated);
-	    }
+      // Render filtered results (use final runningBalance for header)
+      renderVipHistoryTable(selectedName, currentBalance, recalculated);
+    }
 
     // Clear all filters
     function clearVipHistoryFilters() {
@@ -1827,9 +1827,9 @@
         const date = formatDateCSV(tx.ts);
         const type = getTypeLabel(tx.type);
         const amount = formatAmountCSV(tx.amount);
-	        const detail = tx.type === 'order'
-	          ? `${tx.itemName} ${tx.paid === true ? '[Đã trả]' : '[Chưa trả]'}`
-	          : '-';
+        const detail = tx.type === 'order'
+          ? `${tx.itemName} ${tx.paid === true ? '[Đã trả]' : '[Chưa trả]'}`
+          : '-';
         const balance = formatAmountCSV(tx.balance);
 
         // Escape commas and quotes in detail field
@@ -2550,14 +2550,14 @@
 
         const backupData = JSON.parse(backupFile.content);
 
-	        // Restore order history
-	        if (backupData.data?.orderHistory && Array.isArray(backupData.data.orderHistory)) {
-	          orderHistory = backupData.data.orderHistory;
-	          orderHistory.sort((a, b) => (Date.parse(a?.date) || 0) - (Date.parse(b?.date) || 0));
-	          localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-	          addBackupLog(`✅ Đã restore ${orderHistory.length} orders`);
-	        }
-	        syncVipListFromLatestSnapshot();
+        // Restore order history
+        if (backupData.data?.orderHistory && Array.isArray(backupData.data.orderHistory)) {
+          orderHistory = backupData.data.orderHistory;
+          orderHistory.sort((a, b) => (Date.parse(a?.date) || 0) - (Date.parse(b?.date) || 0));
+          localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+          addBackupLog(`✅ Đã restore ${orderHistory.length} orders`);
+        }
+        syncVipListFromLatestSnapshot();
 
         // Restore VIP list
         if (backupData.data?.vipList) {
@@ -2566,22 +2566,22 @@
           addBackupLog('✅ Đã restore VIP list');
         }
 
-	        // Restore VIP transactions
-	        if (backupData.data?.vipTransactions && Array.isArray(backupData.data.vipTransactions)) {
-	          vipTransactions = backupData.data.vipTransactions;
-	          localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
-	          addBackupLog(`✅ Đã restore ${vipTransactions.length} VIP transactions`);
-	        }
+        // Restore VIP transactions
+        if (backupData.data?.vipTransactions && Array.isArray(backupData.data.vipTransactions)) {
+          vipTransactions = backupData.data.vipTransactions;
+          localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
+          addBackupLog(`✅ Đã restore ${vipTransactions.length} VIP transactions`);
+        }
 
-	        // Refresh UI (rollback: no auto normalize/recompute)
-	        populateVipMemberSelect();
-	        renderVipHistory();
-	        loadDebtManagement();
-	        loadHistory();
+        // Refresh UI (rollback: no auto normalize/recompute)
+        populateVipMemberSelect();
+        renderVipHistory();
+        loadDebtManagement();
+        loadHistory();
 
-	        addBackupLog('✅ Restore hoàn tất!');
-	        showBackupStatus('✅ Restore thành công!', 'success');
-	        alert('✅ Đã restore dữ liệu từ GitHub thành công!');
+        addBackupLog('✅ Restore hoàn tất!');
+        showBackupStatus('✅ Restore thành công!', 'success');
+        alert('✅ Đã restore dữ liệu từ GitHub thành công!');
 
       } catch (err) {
         const errorMsg = `❌ Lỗi restore: ${err.message}`;
@@ -2720,20 +2720,20 @@
      * Apply remote/merged data to local storage
      * @param {Object} data - Data to apply
      */
-		    function applyRemoteData(data) {
-		      addBackupLog('💾 Applying data to localStorage...');
+    function applyRemoteData(data) {
+      addBackupLog('💾 Applying data to localStorage...');
 
-		      // Update localStorage
-		      orderHistory = data.orderHistory || [];
-		      orderHistory.sort((a, b) => (Date.parse(a?.date) || 0) - (Date.parse(b?.date) || 0));
-		      vipTransactions = data.vipTransactions || [];
+      // Update localStorage
+      orderHistory = data.orderHistory || [];
+      orderHistory.sort((a, b) => (Date.parse(a?.date) || 0) - (Date.parse(b?.date) || 0));
+      vipTransactions = data.vipTransactions || [];
 
-		      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-		      localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
-		      syncVipListFromLatestSnapshot();
+      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+      localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
+      syncVipListFromLatestSnapshot();
 
-		      addBackupLog('✅ Data applied successfully');
-		    }
+      addBackupLog('✅ Data applied successfully');
+    }
 
     /**
      * Full sync: Pull from GitHub, merge with local, push back
@@ -2770,14 +2770,14 @@
         addBackupLog('📤 Pushing merged data...');
         await backupToGithub();
 
-		        // 6. Refresh UI (rollback: no auto normalize/recompute)
-		        populateVipMemberSelect();
-		        renderVipHistory();
-		        loadDebtManagement();
-		        loadHistory();
+        // 6. Refresh UI (rollback: no auto normalize/recompute)
+        populateVipMemberSelect();
+        renderVipHistory();
+        loadDebtManagement();
+        loadHistory();
 
-	        addBackupLog('✅ Full sync complete!');
-	        showBackupStatus('✅ Sync complete!', 'success');
+        addBackupLog('✅ Full sync complete!');
+        showBackupStatus('✅ Sync complete!', 'success');
 
         return merged;
 
@@ -3569,18 +3569,18 @@
             });
           }
 
-	          orderDetails.push({
-	            name: originalName, // Use original VIP name
-	            qty: r.qty,
-	            shipQty,
-	            nonShipQty,
-	            due: due,
-	            paid: true, // VIP auto-paid
-	            isVipPayment: true,
-	            paymentMethod: 'vip',
-	            unitPrice: shipQty > 0 && nonShipQty > 0 ? `${formatMoney(priceNonShip)} / ${formatMoney(priceShip)}` : (shipQty > 0 ? priceShip : priceNonShip)
-	          });
-	        } else {
+          orderDetails.push({
+            name: originalName, // Use original VIP name
+            qty: r.qty,
+            shipQty,
+            nonShipQty,
+            due: due,
+            paid: true, // VIP auto-paid
+            isVipPayment: true,
+            paymentMethod: 'vip',
+            unitPrice: shipQty > 0 && nonShipQty > 0 ? `${formatMoney(priceNonShip)} / ${formatMoney(priceShip)}` : (shipQty > 0 ? priceShip : priceNonShip)
+          });
+        } else {
           // Not VIP, add to members
           orderDetails.push({
             name: r.name,
@@ -3658,30 +3658,30 @@
         }
         localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
 
-	        // Create VIP transactions only for details explicitly paid by VIP
-	        orderDetails.forEach((detail, detailIndex) => {
-	          const isVipPayment = detail.isVipPayment === true || detail.paymentMethod === 'vip';
-	          if (!detail.paid || !isVipPayment) return;
+        // Create VIP transactions only for details explicitly paid by VIP
+        orderDetails.forEach((detail, detailIndex) => {
+          const isVipPayment = detail.isVipPayment === true || detail.paymentMethod === 'vip';
+          if (!detail.paid || !isVipPayment) return;
 
-	          const existingTx = vipTransactions.find(tx =>
-	            tx.type === 'order' &&
-	            tx.orderId === order.id &&
-	            tx.name === detail.name &&
-	            tx.detailIndex === detailIndex
-	          );
-	          if (existingTx) return;
+          const existingTx = vipTransactions.find(tx =>
+            tx.type === 'order' &&
+            tx.orderId === order.id &&
+            tx.name === detail.name &&
+            tx.detailIndex === detailIndex
+          );
+          if (existingTx) return;
 
-	          recordVipTransaction({
-	            name: detail.name,
-	            amount: -detail.due,
-	            type: 'order',
-	            itemName: order.itemName,
-	            orderId: order.id,
-	            detailIndex,
-	            isVipPayment: true,
-	            paymentMethod: 'vip'
-	          });
-	        });
+          recordVipTransaction({
+            name: detail.name,
+            amount: -detail.due,
+            type: 'order',
+            itemName: order.itemName,
+            orderId: order.id,
+            detailIndex,
+            isVipPayment: true,
+            paymentMethod: 'vip'
+          });
+        });
 
         lastSavedSignature = orderSignature;
         savedToHistory = true;
@@ -4237,162 +4237,162 @@
       alert('✅ Đã đánh dấu tất cả đã thanh toán');
     }
 
-		    function markDebtorPaid(name) {
-		      console.log(`[${BUILD_TAG}] markDebtorPaid`);
-		      if (!name) return;
-		      const target = name.trim();
-		      const changes = [];
-		      let totalCleared = 0;
+    function markDebtorPaid(name) {
+      console.log(`[${BUILD_TAG}] markDebtorPaid`);
+      if (!name) return;
+      const target = name.trim();
+      const changes = [];
+      let totalCleared = 0;
 
-	      orderHistory.forEach(order => {
-	        order.details.forEach((d, idx) => {
-	          if (d?.paid !== true && d?.name === target) {
-	            changes.push({ orderId: order.id, detailIndex: idx, due: d.due });
-	            totalCleared += d.due;
-	          }
-	        });
-	      });
+      orderHistory.forEach(order => {
+        order.details.forEach((d, idx) => {
+          if (d?.paid !== true && d?.name === target) {
+            changes.push({ orderId: order.id, detailIndex: idx, due: d.due });
+            totalCleared += d.due;
+          }
+        });
+      });
 
-	      if (changes.length === 0) {
-	        alert('ℹ️ Không thấy công nợ cần cập nhật cho người này');
-	        return;
-	      }
+      if (changes.length === 0) {
+        alert('ℹ️ Không thấy công nợ cần cập nhật cho người này');
+        return;
+      }
 
-		      const vipArea = document.getElementById('vipArea');
-		      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
-		      const hasVip = vipMap.has(target);
+      const vipArea = document.getElementById('vipArea');
+      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
+      const hasVip = vipMap.has(target);
 
-		      let paymentMethod = 'cash';
-		      if (hasVip) {
-		        const methodInput = prompt(`Chọn phương thức thanh toán cho ${target}: nhập 'vip' hoặc 'cash' (mặc định cash)`, 'cash');
-		        paymentMethod = (methodInput || 'cash').trim().toLowerCase() === 'vip' ? 'vip' : 'cash';
-		      }
+      let paymentMethod = 'cash';
+      if (hasVip) {
+        const methodInput = prompt(`Chọn phương thức thanh toán cho ${target}: nhập 'vip' hoặc 'cash' (mặc định cash)`, 'cash');
+        paymentMethod = (methodInput || 'cash').trim().toLowerCase() === 'vip' ? 'vip' : 'cash';
+      }
 
-			      // Mark as paid (source of truth: detail.paid === true)
-			      changes.forEach(change => {
-			        const order = orderHistory.find(o => o.id === change.orderId);
-			        if (order && order.details[change.detailIndex]) {
-			          if (paymentMethod === 'vip') {
-			            order.details[change.detailIndex].isVipPayment = true;
-			            order.details[change.detailIndex].paid = true;
-			            const existingTx = vipTransactions.find(tx =>
-			              tx.type === 'order' &&
-			              tx.orderId === order.id &&
-			              tx.name === target &&
-			              tx.detailIndex === change.detailIndex
-			            );
-			            if (!existingTx) {
-			              recordVipTransaction({
-			                name: target,
-			                amount: -change.due,
-			                type: 'order',
-			                itemName: order.itemName,
-			                orderId: order.id,
-			                detailIndex: change.detailIndex,
-			                isVipPayment: true,
-			                paymentMethod: 'vip'
-			              });
-			            }
-			          } else {
-			            order.details[change.detailIndex].isVipPayment = false;
-			            order.details[change.detailIndex].paid = true;
-			          }
-			        }
-			      });
+      // Mark as paid (source of truth: detail.paid === true)
+      changes.forEach(change => {
+        const order = orderHistory.find(o => o.id === change.orderId);
+        if (order && order.details[change.detailIndex]) {
+          if (paymentMethod === 'vip') {
+            order.details[change.detailIndex].isVipPayment = true;
+            order.details[change.detailIndex].paid = true;
+            const existingTx = vipTransactions.find(tx =>
+              tx.type === 'order' &&
+              tx.orderId === order.id &&
+              tx.name === target &&
+              tx.detailIndex === change.detailIndex
+            );
+            if (!existingTx) {
+              recordVipTransaction({
+                name: target,
+                amount: -change.due,
+                type: 'order',
+                itemName: order.itemName,
+                orderId: order.id,
+                detailIndex: change.detailIndex,
+                isVipPayment: true,
+                paymentMethod: 'vip'
+              });
+            }
+          } else {
+            order.details[change.detailIndex].isVipPayment = false;
+            order.details[change.detailIndex].paid = true;
+          }
+        }
+      });
 
-			      if (paymentMethod === 'vip' && hasVip) {
-			        vipMap.set(target, Number(vipMap.get(target) || 0) - Number(totalCleared || 0));
-			        const vipText = vipToText(vipMap);
-			        if (vipArea) vipArea.value = vipText;
-			        persistVipList(vipText);
-			      }
+      if (paymentMethod === 'vip' && hasVip) {
+        vipMap.set(target, Number(vipMap.get(target) || 0) - Number(totalCleared || 0));
+        const vipText = vipToText(vipMap);
+        if (vipArea) vipArea.value = vipText;
+        persistVipList(vipText);
+      }
 
-	      lastDebtorPaidSnapshot = { name: target, changes };
-		      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-		      loadDebtManagement();
-		      loadHistory();
-		      if (activeOrderModalId !== null) showOrderDetail(activeOrderModalId);
-	      renderVipHistory();
-	      populateVipMemberSelect();
+      lastDebtorPaidSnapshot = { name: target, changes };
+      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+      loadDebtManagement();
+      loadHistory();
+      if (activeOrderModalId !== null) showOrderDetail(activeOrderModalId);
+      renderVipHistory();
+      populateVipMemberSelect();
 
-	      const paymentText = paymentMethod === 'vip' ? 'từ VIP' : 'bằng tiền mặt';
-	      alert(`✅ Đã đánh dấu ${target} đã trả hết nợ ${paymentText}\nTổng: ${formatMoney(totalCleared)}`);
-	    }
+      const paymentText = paymentMethod === 'vip' ? 'từ VIP' : 'bằng tiền mặt';
+      alert(`✅ Đã đánh dấu ${target} đã trả hết nợ ${paymentText}\nTổng: ${formatMoney(totalCleared)}`);
+    }
 
-		    function markSingleDebtPaid(orderId, detailIndex, name) {
-		      console.log(`[${BUILD_TAG}] markSingleDebtPaid`);
-		      const order = orderHistory.find(o => o.id === orderId);
-		      if (!order || !order.details?.[detailIndex]) return;
+    function markSingleDebtPaid(orderId, detailIndex, name) {
+      console.log(`[${BUILD_TAG}] markSingleDebtPaid`);
+      const order = orderHistory.find(o => o.id === orderId);
+      if (!order || !order.details?.[detailIndex]) return;
 
-	      const detail = order.details[detailIndex];
-	      if (detail.paid === true) {
-	        alert('ℹ️ Mục này đã được đánh dấu trả rồi');
-	        return;
-	      }
+      const detail = order.details[detailIndex];
+      if (detail.paid === true) {
+        alert('ℹ️ Mục này đã được đánh dấu trả rồi');
+        return;
+      }
 
       const confirmMsg = `Đánh dấu đã trả cho ${name || detail.name}?\n` +
         `${order.itemName} - ${formatMoney(detail.due)} (${detail.qty} phần)`;
-	      if (!confirm(confirmMsg)) return;
+      if (!confirm(confirmMsg)) return;
 
-	      const target = (name || detail.name).trim();
+      const target = (name || detail.name).trim();
 
-		      const vipArea = document.getElementById('vipArea');
-		      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
-		      const hasVip = vipMap.has(target);
+      const vipArea = document.getElementById('vipArea');
+      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
+      const hasVip = vipMap.has(target);
 
-		      let paymentMethod = 'cash';
-		      if (hasVip) {
-		        const methodInput = prompt(`Chọn phương thức thanh toán cho ${target}: nhập 'vip' hoặc 'cash' (mặc định cash)`, 'cash');
-		        paymentMethod = (methodInput || 'cash').trim().toLowerCase() === 'vip' ? 'vip' : 'cash';
-		      }
+      let paymentMethod = 'cash';
+      if (hasVip) {
+        const methodInput = prompt(`Chọn phương thức thanh toán cho ${target}: nhập 'vip' hoặc 'cash' (mặc định cash)`, 'cash');
+        paymentMethod = (methodInput || 'cash').trim().toLowerCase() === 'vip' ? 'vip' : 'cash';
+      }
 
-		      if (paymentMethod === 'vip') {
-		        const existingTx = vipTransactions.find(tx =>
-		          tx.type === 'order' &&
-	          tx.orderId === order.id &&
-	          tx.name === target &&
-	          tx.detailIndex === detailIndex
-	        );
+      if (paymentMethod === 'vip') {
+        const existingTx = vipTransactions.find(tx =>
+          tx.type === 'order' &&
+          tx.orderId === order.id &&
+          tx.name === target &&
+          tx.detailIndex === detailIndex
+        );
 
-	        if (!existingTx) {
-	          recordVipTransaction({
-	            name: target,
-	            amount: -detail.due,
-	            type: 'order',
-	            itemName: order.itemName,
-	            orderId: order.id,
-	            detailIndex,
-	            isVipPayment: true,
-	            paymentMethod: 'vip'
-	          });
-		        }
-		        detail.isVipPayment = true;
-		      } else {
-		        detail.isVipPayment = false;
-		      }
+        if (!existingTx) {
+          recordVipTransaction({
+            name: target,
+            amount: -detail.due,
+            type: 'order',
+            itemName: order.itemName,
+            orderId: order.id,
+            detailIndex,
+            isVipPayment: true,
+            paymentMethod: 'vip'
+          });
+        }
+        detail.isVipPayment = true;
+      } else {
+        detail.isVipPayment = false;
+      }
 
-		      detail.paid = true;
+      detail.paid = true;
 
-		      if (paymentMethod === 'vip' && hasVip) {
-		        vipMap.set(target, Number(vipMap.get(target) || 0) - Number(detail.due || 0));
-		        const vipText = vipToText(vipMap);
-		        if (vipArea) vipArea.value = vipText;
-		        persistVipList(vipText);
-		      } else {
-		        detail.isVipPayment = false;
-		      }
+      if (paymentMethod === 'vip' && hasVip) {
+        vipMap.set(target, Number(vipMap.get(target) || 0) - Number(detail.due || 0));
+        const vipText = vipToText(vipMap);
+        if (vipArea) vipArea.value = vipText;
+        persistVipList(vipText);
+      } else {
+        detail.isVipPayment = false;
+      }
 
-		      lastDebtorPaidSnapshot = {
-		        name: target,
-		        changes: [{ orderId, detailIndex, due: detail.due }]
-		      };
+      lastDebtorPaidSnapshot = {
+        name: target,
+        changes: [{ orderId, detailIndex, due: detail.due }]
+      };
 
-	      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-	      loadDebtManagement();
-	      loadHistory();
-	      if (activeOrderModalId !== null) showOrderDetail(activeOrderModalId);
-	      renderVipHistory();
-	      populateVipMemberSelect();
+      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+      loadDebtManagement();
+      loadHistory();
+      if (activeOrderModalId !== null) showOrderDetail(activeOrderModalId);
+      renderVipHistory();
+      populateVipMemberSelect();
 
       const paymentText = paymentMethod === 'vip' ? 'từ VIP' : 'bằng tiền mặt';
       alert(`✅ Đã đánh dấu đã trả ${paymentText}`);
@@ -4803,23 +4803,24 @@
       content.innerHTML = html;
     }
 
-		    // Load VIP on page load
-		    document.addEventListener('DOMContentLoaded', () => {
-		      hydrateVipAreaFromData();
-		      syncVipListFromLatestSnapshot();
-		      const rawVipTx = JSON.parse(localStorage.getItem(VIP_TX_KEY) || '[]');
-		      vipTransactions = VIP_PATCH_ENABLED ? normalizeVipTransactions(rawVipTx) : rawVipTx;
-		      renderVipHistory();
-		      refreshQuickOrderList();
-	      updateDishNameSuggestions();
-	      loadGithubSettings();
-	      populateVipMemberSelect();
-	      populateVIPFilterDropdown(); // Populate filter dropdown
-	      // Enable dish name suggestions dropdown
-	      const itemNameInput = document.getElementById('itemName');
-	      if (itemNameInput) {
-	        ['focus', 'click'].forEach(evt => itemNameInput.addEventListener(evt, openDishSuggestions));
-	      }
+    // Load VIP on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      hydrateVipAreaFromData();
+      // REMOVED: syncVipListFromLatestSnapshot() - this was overwriting localStorage with old snapshots
+      // VIP balances should be managed through transactions only
+      const rawVipTx = JSON.parse(localStorage.getItem(VIP_TX_KEY) || '[]');
+      vipTransactions = VIP_PATCH_ENABLED ? normalizeVipTransactions(rawVipTx) : rawVipTx;
+      renderVipHistory();
+      refreshQuickOrderList();
+      updateDishNameSuggestions();
+      loadGithubSettings();
+      populateVipMemberSelect();
+      populateVIPFilterDropdown(); // Populate filter dropdown
+      // Enable dish name suggestions dropdown
+      const itemNameInput = document.getElementById('itemName');
+      if (itemNameInput) {
+        ['focus', 'click'].forEach(evt => itemNameInput.addEventListener(evt, openDishSuggestions));
+      }
 
       // Lock VIP textarea to prevent manual editing
       const vipArea = document.getElementById('vipArea');
@@ -4877,23 +4878,23 @@
               const localTimestamp = localStorage.getItem('lastDataTimestamp') || '0';
               const remoteTimestamp = remote.backupTime || remote.timestamp;
 
-	              if (remoteTimestamp > localTimestamp) {
-	                const local = {
-	                  orderHistory: orderHistory,
-	                  vipTransactions: vipTransactions
-	                };
-	
-	                const merged = mergeData(local, remote.data);
-	                applyRemoteData(merged);
-	
-	                // Refresh UI (rollback: no auto normalize/recompute)
-	                populateVipMemberSelect();
-	                renderVipHistory();
-	                loadDebtManagement();
-	                loadHistory();
-	
-	                // Save timestamp
-	                localStorage.setItem('lastDataTimestamp', remoteTimestamp);
+              if (remoteTimestamp > localTimestamp) {
+                const local = {
+                  orderHistory: orderHistory,
+                  vipTransactions: vipTransactions
+                };
+
+                const merged = mergeData(local, remote.data);
+                applyRemoteData(merged);
+
+                // Refresh UI (rollback: no auto normalize/recompute)
+                populateVipMemberSelect();
+                renderVipHistory();
+                loadDebtManagement();
+                loadHistory();
+
+                // Save timestamp
+                localStorage.setItem('lastDataTimestamp', remoteTimestamp);
 
                 addBackupLog(`✅ Auto-pull complete: synced ${merged.orderHistory.length} orders`);
               } else {
@@ -5088,16 +5089,16 @@
               throw new Error('Invalid format');
             }
 
-	            if (confirm(`Bạn có chắc muốn import ${data.length} đơn hàng?\n\nLưu ý: Dữ liệu hiện tại sẽ BỊ GHI ĐÈ!`)) {
-		              orderHistory = data;
-		              orderHistory.sort((a, b) => (Date.parse(a?.date) || 0) - (Date.parse(b?.date) || 0));
-		              localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-		              hydrateVipAreaFromData({ forceHistory: true });
-		              syncVipListFromLatestSnapshot();
-		              refreshQuickOrderList();
-		              loadHistory();
-	              alert('✅ Import thành công!');
-	            }
+            if (confirm(`Bạn có chắc muốn import ${data.length} đơn hàng?\n\nLưu ý: Dữ liệu hiện tại sẽ BỊ GHI ĐÈ!`)) {
+              orderHistory = data;
+              orderHistory.sort((a, b) => (Date.parse(a?.date) || 0) - (Date.parse(b?.date) || 0));
+              localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+              hydrateVipAreaFromData({ forceHistory: true });
+              // REMOVED: syncVipListFromLatestSnapshot() - prevents overwriting VIP balances
+              refreshQuickOrderList();
+              loadHistory();
+              alert('✅ Import thành công!');
+            }
           } catch (err) {
             alert('❌ File không hợp lệ! Vui lòng chọn file JSON đúng định dạng.');
           }
@@ -5109,116 +5110,116 @@
       input.click();
     }
 
-	    // Close modal when clicking outside
-	    document.getElementById('orderModal').addEventListener('click', (e) => {
-	      if (e.target.id === 'orderModal') {
-	        closeModal();
-	      }
-	    });
+    // Close modal when clicking outside
+    document.getElementById('orderModal').addEventListener('click', (e) => {
+      if (e.target.id === 'orderModal') {
+        closeModal();
+      }
+    });
 
-	    // Dev-only debug helpers
-	    window.debugUnpaidByName = (name) => {
-	      const target = (name || '').trim();
-	      if (!target) return [];
-	      const out = [];
-	      (orderHistory || []).forEach(order => {
-	        (order?.details || []).forEach((d, detailIndex) => {
-	          if ((d?.name || '').trim() !== target) return;
-	          if (d?.paid === true) return;
-	          out.push({
-	            orderId: order?.id,
-	            date: order?.date,
-	            itemName: order?.itemName,
-	            detailIndex,
-	            due: d?.due,
-	            paid: d?.paid
-	          });
-	        });
-	      });
-	      return out;
-	    };
+    // Dev-only debug helpers
+    window.debugUnpaidByName = (name) => {
+      const target = (name || '').trim();
+      if (!target) return [];
+      const out = [];
+      (orderHistory || []).forEach(order => {
+        (order?.details || []).forEach((d, detailIndex) => {
+          if ((d?.name || '').trim() !== target) return;
+          if (d?.paid === true) return;
+          out.push({
+            orderId: order?.id,
+            date: order?.date,
+            itemName: order?.itemName,
+            detailIndex,
+            due: d?.due,
+            paid: d?.paid
+          });
+        });
+      });
+      return out;
+    };
 
-	    window.debugVipHistory = (name) => {
-	      const selectedName = (name || '').trim();
-	      if (!selectedName) return { currentBalance: 0, rows: [] };
-	      const vipArea = document.getElementById('vipArea');
-	      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
-	      const currentBalance = Number(vipMap.get(selectedName) || 0);
+    window.debugVipHistory = (name) => {
+      const selectedName = (name || '').trim();
+      if (!selectedName) return { currentBalance: 0, rows: [] };
+      const vipArea = document.getElementById('vipArea');
+      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
+      const currentBalance = Number(vipMap.get(selectedName) || 0);
 
-	      const orderKeyOf = ({ orderId, detailIndex, name }) => {
-	        if (orderId === undefined || orderId === null) return null;
-	        if (detailIndex === undefined || detailIndex === null) return null;
-	        if (!name) return null;
-	        return `${String(orderId)}|${detailIndex}|${name}`;
-	      };
+      const orderKeyOf = ({ orderId, detailIndex, name }) => {
+        if (orderId === undefined || orderId === null) return null;
+        if (detailIndex === undefined || detailIndex === null) return null;
+        if (!name) return null;
+        return `${String(orderId)}|${detailIndex}|${name}`;
+      };
 
-		      const vipOrderKeysFromTx = new Set();
-		      (vipTransactions || []).forEach(tx => {
-		        if (!tx || tx.type !== 'order') return;
-		        if (tx.name !== selectedName) return;
-		        const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
-		        if (key) vipOrderKeysFromTx.add(key);
-		      });
+      const vipOrderKeysFromTx = new Set();
+      (vipTransactions || []).forEach(tx => {
+        if (!tx || tx.type !== 'order') return;
+        if (tx.name !== selectedName) return;
+        const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
+        if (key) vipOrderKeysFromTx.add(key);
+      });
 
-	      const orderRows = [];
-	      const orderKeys = new Set();
-	      (orderHistory || []).forEach(order => {
-	        const orderId = order?.id;
-	        const tsRaw = order?.date || order?.id;
-	        const date = tsRaw ? new Date(tsRaw) : null;
-	        if (!date || isNaN(date.getTime())) return;
-	        (order?.details || []).forEach((detail, detailIndex) => {
-	          const detailName = (detail?.name || '').trim();
-	          if (detailName !== selectedName) return;
-	          if (!detail?.due) return;
-	          const key = orderKeyOf({ orderId, detailIndex, name: detailName });
-	          if (key && orderKeys.has(key)) return;
-	          const isVipPayment =
-	            detail?.isVipPayment === true ||
-	            detail?.paymentMethod === 'vip' ||
-	            (key && vipOrderKeysFromTx.has(key));
-	          orderRows.push({
-	            type: 'order',
-	            ts: date.toISOString(),
-	            amount: -Math.abs(Number(detail?.due) || 0),
-	            orderId,
-	            detailIndex,
-	            orderKey: key,
-	            isVipPayment: isVipPayment === true
-	          });
-	          if (key) orderKeys.add(key);
-	        });
-	      });
+      const orderRows = [];
+      const orderKeys = new Set();
+      (orderHistory || []).forEach(order => {
+        const orderId = order?.id;
+        const tsRaw = order?.date || order?.id;
+        const date = tsRaw ? new Date(tsRaw) : null;
+        if (!date || isNaN(date.getTime())) return;
+        (order?.details || []).forEach((detail, detailIndex) => {
+          const detailName = (detail?.name || '').trim();
+          if (detailName !== selectedName) return;
+          if (!detail?.due) return;
+          const key = orderKeyOf({ orderId, detailIndex, name: detailName });
+          if (key && orderKeys.has(key)) return;
+          const isVipPayment =
+            detail?.isVipPayment === true ||
+            detail?.paymentMethod === 'vip' ||
+            (key && vipOrderKeysFromTx.has(key));
+          orderRows.push({
+            type: 'order',
+            ts: date.toISOString(),
+            amount: -Math.abs(Number(detail?.due) || 0),
+            orderId,
+            detailIndex,
+            orderKey: key,
+            isVipPayment: isVipPayment === true
+          });
+          if (key) orderKeys.add(key);
+        });
+      });
 
-	      const txRows = [];
-	      (vipTransactions || []).forEach(tx => {
-	        if (!tx || tx.name !== selectedName) return;
-	        if (tx.type === 'topup' || tx.type === 'cashout') {
-	          txRows.push({ ...tx, orderKey: null, isVipPayment: tx.isVipPayment === true });
-	          return;
-	        }
-		        if (tx.type === 'order') {
-		          const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
-		          if (!key || orderKeys.has(key)) return;
-		          txRows.push({ ...tx, orderKey: key, isVipPayment: true });
-		        }
-		      });
+      const txRows = [];
+      (vipTransactions || []).forEach(tx => {
+        if (!tx || tx.name !== selectedName) return;
+        if (tx.type === 'topup' || tx.type === 'cashout') {
+          txRows.push({ ...tx, orderKey: null, isVipPayment: tx.isVipPayment === true });
+          return;
+        }
+        if (tx.type === 'order') {
+          const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
+          if (!key || orderKeys.has(key)) return;
+          txRows.push({ ...tx, orderKey: key, isVipPayment: true });
+        }
+      });
 
-	      const all = [...orderRows, ...txRows].sort((a, b) => new Date(a.ts) - new Date(b.ts));
-	      let runningBalance = currentBalance - all.reduce((sum, tx) => {
-	        const impactsVip = tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && tx.isVipPayment === true);
-	        return impactsVip ? (sum + Number(tx.amount || 0)) : sum;
-	      }, 0);
+      const all = [...orderRows, ...txRows].sort((a, b) => new Date(a.ts) - new Date(b.ts));
+      let runningBalance = currentBalance - all.reduce((sum, tx) => {
+        const impactsVip = tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && tx.isVipPayment === true);
+        return impactsVip ? (sum + Number(tx.amount || 0)) : sum;
+      }, 0);
 
-	      const rows = all.map(tx => {
-	        const impactsVip = tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && tx.isVipPayment === true);
-	        if (impactsVip) runningBalance += Number(tx.amount || 0);
-	        return { ...tx, impactsVip, balance: runningBalance };
-	      });
+      const rows = all.map(tx => {
+        const impactsVip = tx.type === 'topup' || tx.type === 'cashout' || (tx.type === 'order' && tx.isVipPayment === true);
+        if (impactsVip) runningBalance += Number(tx.amount || 0);
+        return { ...tx, impactsVip, balance: runningBalance };
+      });
 
-	      return { currentBalance, rows };
-	    };
-	  </script>
+      return { currentBalance, rows };
+    };
+  </script>
 
 </body>
 
