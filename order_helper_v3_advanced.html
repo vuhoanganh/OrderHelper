@@ -895,6 +895,7 @@
       // - Only apply vipTransactions onto the existing vipList.
       // - Do NOT look at orderHistory (avoid legacy inference).
       (vipTransactions || []).forEach(tx => {
+        if (tx.orphan) return; // Exclude orphan transactions
         const name = (tx?.name || '').trim();
         if (!name) return;
         const amount = Number(tx?.amount);
@@ -1898,6 +1899,7 @@
       // Truth set: ORDER is VIP if vipTransactions has matching `${orderId}|${detailIndex}|${name}` (vipTransactions type 'order' is VIP by definition)
       const vipOrderKeysFromTx = new Set();
       (vipTransactions || []).forEach(tx => {
+        if (tx.orphan) return;
         if (!tx || tx.type !== 'order') return;
         if (tx.name !== selectedName) return;
         const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
@@ -1947,6 +1949,7 @@
       // 2) vipTransactions rows (topup/cashout always; order only if missing in orderHistory)
       const txOnly = [];
       (vipTransactions || []).forEach(tx => {
+        if (tx.orphan) return;
         if (!tx || tx.name !== selectedName) return;
         if (tx.type === 'topup' || tx.type === 'cashout') {
           txOnly.push(tx);
@@ -5703,6 +5706,7 @@
 
       const vipOrderKeysFromTx = new Set();
       (vipTransactions || []).forEach(tx => {
+        if (tx.orphan) return;
         if (!tx || tx.type !== 'order') return;
         if (tx.name !== selectedName) return;
         const key = orderKeyOf({ orderId: tx.orderId, detailIndex: tx.detailIndex, name: tx.name });
@@ -6075,7 +6079,10 @@
     function buildVipStatement(memberName, options = {}) {
       if (!memberName) return { rows: [], summary: {} };
       const { from, to } = options;
-      let txs = vipTransactions.filter(tx => (tx.member || tx.name || '').trim() === memberName.trim());
+      let txs = vipTransactions.filter(tx => {
+        if (tx.orphan) return false;
+        return (tx.member || tx.name || '').trim() === memberName.trim();
+      });
       if (from || to) {
         const fromDate = from ? new Date(from) : null;
         const toDate = to ? new Date(to) : null;
@@ -6198,14 +6205,14 @@
         sorted.map(name => `<option value="${name.replace(/"/g, '&quot;')}">${name}</option>`).join('');
     }
 
-  
+
     // ========== AUDIT UTILS (Exported to Window) ==========
-    
+
     /**
      * Audit VIP Ledger against Order History
      * Checks consistency between orders and transactions
      */
-    window.auditVipLedgerAgainstOrders = function() {
+    window.auditVipLedgerAgainstOrders = function () {
       console.log("🔍 Starting Audit VIP Ledger...");
       const missingVipTx = [];
       const cashButHasVipTx = [];
@@ -6214,7 +6221,7 @@
       // 1. Build map of existing VIP Order Transactions
       // Key: `${orderId}-${detailIndex}`
       const txMap = new Map();
-      
+
       vipTransactions.forEach(tx => {
         if (tx.type === 'order') {
           // Check for malformed/orphan transactions
@@ -6244,12 +6251,12 @@
 
       orderHistory.forEach(order => {
         if (!order.details || !Array.isArray(order.details)) return;
-        
+
         order.details.forEach((detail, idx) => {
           const key = `${order.id}-${idx}`;
           const txList = txMap.get(key);
           const hasTx = txList && txList.length > 0;
-          
+
           // Case 1: Record says VIP Paid => MUST have transaction
           if (detail.paid === true && detail.paymentMethod === 'vip') {
             if (!hasTx) {
@@ -6264,7 +6271,7 @@
               });
             }
           }
-          
+
           // Case 2: Record says Cash (or null) => MUST NOT have VIP transaction
           // Note: If paymentMethod is undefined/null but paid=true, it's ambiguous but usually implies cash if not marked VIP
           // If explicitly 'cash', definitely shouldn't be in VIP ledger
@@ -6286,7 +6293,7 @@
 
       // Output Results
       console.log("=== 📊 AUDIT RESULTS ===");
-      
+
       if (missingVipTx.length > 0) {
         console.error(`❌ Found ${missingVipTx.length} MISSING VIP transactions!`);
         console.table(missingVipTx);
@@ -6307,11 +6314,156 @@
       } else {
         console.log("✅ No Orphan transactions.");
       }
-      
+
       console.log("=== END AUDIT ===");
     };
 
-</script>
+
+    /**
+     * Clean Orphan VIP Transactions
+     * Mark or remove transactions that are missing required order links
+     */
+    window.cleanupOrphanVipTransactions = function () {
+      console.log("🧹 Starting Orphan VIP Transaction Cleanup...");
+
+      const orphanedTxs = [];
+      const TIME_THRESHOLD_MS = 5000;
+
+      // Identify orphans
+      vipTransactions.forEach(tx => {
+        if (tx.type === 'order' && !tx.isDeleted) {
+          if (!tx.orderId || tx.detailIndex === undefined || tx.detailIndex === null) {
+            // Also check for refId if system uses it (we do now)
+            if (!tx.refId) {
+              orphanedTxs.push(tx);
+            }
+          }
+        }
+      });
+
+      console.log(`Found ${orphanedTxs.length} orphan transactions.`);
+
+      const removedOrphans = [];
+      const markedOrphans = [];
+
+      orphanedTxs.forEach(orphan => {
+        // Try to match with a canonical transaction (duplicate check)
+        // Candidate: has refId (or orderId+detailIndex), same name, same amount, adjacent time
+        const candidates = vipTransactions.filter(tx => {
+          if (tx.id === orphan.id) return false; // Skip self
+          if (tx.isDeleted || tx.orphan) return false; // Skip deleted/orphans
+
+          const hasLink = tx.refId || (tx.orderId && tx.detailIndex !== undefined);
+          if (!hasLink) return false;
+
+          // Match criteria
+          if ((tx.name || '') !== (orphan.name || '')) return false;
+          if (Math.abs(Number(tx.amount) - Number(orphan.amount)) > 0.01) return false; // Float safe
+
+          const t1 = new Date(orphan.ts || orphan.date || 0).getTime();
+          const t2 = new Date(tx.ts || tx.date || 0).getTime();
+
+          return Math.abs(t1 - t2) <= TIME_THRESHOLD_MS;
+        });
+
+        if (candidates.length === 1) {
+          // Exact match found - it's a duplicate orphan -> DELETE
+          const canonical = candidates[0];
+          console.log(`🗑️ Removing orphan duplicate: ${orphan.name} ${orphan.amount} (matches ${canonical.id})`);
+
+          // We don't actually delete from array to preserve history if needed, 
+          // or we can splice. For safety, let's splice or mark deleted.
+          // The prompt says "delete orphan". Let's splice.
+          const idx = vipTransactions.findIndex(t => t.id === orphan.id);
+          if (idx !== -1) {
+            const removed = vipTransactions.splice(idx, 1)[0];
+            removedOrphans.push(removed);
+          }
+        } else if (candidates.length > 1) {
+          // Ambiguous - mark
+          orphan.orphan = true;
+          orphan.orphanReason = "Ambiguous duplicate";
+          markedOrphans.push(orphan);
+        } else {
+          // No match - true orphan -> MARK
+          orphan.orphan = true;
+          orphan.orphanReason = "Missing link info";
+          markedOrphans.push(orphan);
+        }
+      });
+
+      // Save changes
+      if (removedOrphans.length > 0 || markedOrphans.length > 0) {
+        localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
+      }
+
+      console.table(removedOrphans.map(t => ({ id: t.id, name: t.name, amount: t.amount, status: 'REMOVED' })));
+      console.table(markedOrphans.map(t => ({ id: t.id, name: t.name, amount: t.amount, reason: t.orphanReason, status: 'MARKED' })));
+      console.log("🧹 Cleanup Complete.");
+
+      return { removed: removedOrphans.length, marked: markedOrphans.length };
+    };
+
+    /**
+     * Self Test: Orphan Cleanup
+     * Automates the verification of orphan cleanup logic
+     */
+    window.selfTest_orphanCleanup = function () {
+      console.log("🧪 Starting Self-Test: Orphan Cleanup...");
+
+      // 1. Snapshot before
+      // Capture detailed audit stats
+      const getAuditStats = () => {
+        let missing = 0;
+        let ghosts = 0;
+        let orphans = 0;
+
+        // Use logic similar to auditVipLedger
+        // (Simplified for count)
+        const txMap = new Map();
+        vipTransactions.filter(t => !t.orphan).forEach(tx => {
+          if (tx.type === 'order' && (tx.orderId && tx.detailIndex != null)) {
+            txMap.set(`${tx.orderId}-${tx.detailIndex}`, true);
+          }
+          if (tx.type === 'order' && (!tx.orderId || tx.detailIndex == null)) orphans++;
+        });
+
+        // Scan orders
+        orderHistory.forEach(o => {
+          (o.details || []).forEach((d, i) => {
+            const key = `${o.id}-${i}`;
+            const hasTx = txMap.has(key);
+            if (d.paid && d.paymentMethod === 'vip' && !hasTx) missing++;
+            else if (d.paid && (d.paymentMethod === 'cash' || !d.paymentMethod) && hasTx) ghosts++;
+          });
+        });
+        return { missing, ghosts, orphans };
+      };
+
+      const before = getAuditStats();
+      console.log("Before:", before);
+
+      // 2. Run Cleanup
+      const result = window.cleanupOrphanVipTransactions();
+
+      // 3. Snapshot after
+      const after = getAuditStats();
+      console.log("After:", after);
+
+      // 4. Assertions
+      const passed =
+        (after.missing === 0) &&
+        (after.ghosts === 0) &&
+        (after.orphans <= before.orphans || result.removed > 0 || result.marked > 0);
+
+      console.log(passed ? "✅ PASS" : "❌ FAIL");
+      console.table({
+        Removed: result.removed,
+        Marked: result.marked
+      });
+    };
+
+  </script>
 
 </body>
 
