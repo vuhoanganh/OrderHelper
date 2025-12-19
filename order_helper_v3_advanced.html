@@ -1467,19 +1467,38 @@
 
           stats.totalVipDetails++;
 
-          // Normalize detail object
-          if (detail.paymentMethod === 'vip' || detail.payMethod === 'vip') {
-            if (!detail.isVipPayment) {
-              detail.isVipPayment = true;
-              stats.normalized++;
-            }
-            if (detail.paymentMethod !== 'vip') {
-              detail.paymentMethod = 'vip';
-              stats.normalized++;
-            }
-            if (detail.payMethod !== null && detail.payMethod !== undefined) {
-              detail.payMethod = null;
-            }
+          // NORMALIZE DETAIL OBJECT
+          // Rule: If VIP payment (any indicator) + paid=true
+          // => Must have paymentMethod='vip' and NO contradictions
+
+          let needsNormalization = false;
+
+          // Set paymentMethod to 'vip' if not already
+          if (detail.paymentMethod !== 'vip') {
+            detail.paymentMethod = 'vip';
+            needsNormalization = true;
+          }
+
+          // Remove legacy isVipPayment field (no longer needed, redundant with paymentMethod)
+          if (detail.isVipPayment !== undefined) {
+            delete detail.isVipPayment;
+            needsNormalization = true;
+          }
+
+          // Remove legacy payMethod field
+          if (detail.payMethod !== undefined && detail.payMethod !== null) {
+            detail.payMethod = null; // Or delete detail.payMethod
+            needsNormalization = true;
+          }
+
+          // Ensure paid status
+          if (detail.paid !== true) {
+            detail.paid = true; // Should already be true based on filter, but enforce
+            needsNormalization = true;
+          }
+
+          if (needsNormalization) {
+            stats.normalized++;
           }
 
           // Validate due amount
