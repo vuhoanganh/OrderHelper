@@ -1852,7 +1852,7 @@
     }
 
     function showVipMemberHistory() {
-      console.log('[VIP-HISTORY-UNIFIED] Using buildVipStatementRows');
+      console.log('[VIP-HISTORY-UNIFIED] Using buildVipStatementRows (Table View)');
       const select = document.getElementById('vipMemberSelect');
       const container = document.getElementById('vipMemberHistoryContainer');
       const filtersDiv = document.getElementById('vipHistoryFilters');
@@ -1871,18 +1871,18 @@
       // Render Initial Balance input (View Only / Manual Override)
       const initialBalanceInput = document.getElementById('vipInitialBalance');
       if (initialBalanceInput) {
-         const saved = localStorage.getItem(`vipInitialBalance_${selectedName}`);
-         if (saved) {
-             initialBalanceInput.value = saved;
-         } else {
-             initialBalanceInput.value = '';
-             initialBalanceInput.placeholder = 'AUTO';
-         }
+        const saved = localStorage.getItem(`vipInitialBalance_${selectedName}`);
+        if (saved) {
+          initialBalanceInput.value = saved;
+        } else {
+          initialBalanceInput.value = '';
+          initialBalanceInput.placeholder = 'AUTO';
+        }
       }
 
       // Use UNIFIED Builder
       const { rows } = buildVipStatementRows(selectedName);
-      
+
       // Filter for UI (Newest First)
       const historyRows = [...rows].reverse();
 
@@ -1890,33 +1890,65 @@
         container.innerHTML = '<div class="empty-state" style="padding: 12px 0;">Chưa có giao dịch nào</div>';
         return;
       }
-      
+
+      // Helper for formatting
       const getIcon = (label) => {
-         if (label === 'Nạp') return '💰';
-         if (label === 'Rút') return '💸';
-         if (label === 'Trừ đơn') return '🍜';
-         if (label === 'Opening') return '🏁';
-         return '📝';
+        if (label === 'Nạp') return '💰';
+        if (label === 'Rút') return '💸';
+        if (label === 'Trừ đơn') return '🍜';
+        if (label === 'Opening') return '🏁';
+        return '📝';
       };
 
-      container.innerHTML = historyRows.map(row => {
+      // TABLE HEADER matching the style of other tables
+      let html = `
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse: collapse; font-size: 14px;">
+            <thead>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;">
+                <th style="padding: 12px; color: var(--text-secondary);">Thời gian</th>
+                <th style="padding: 12px; color: var(--text-secondary);">Loại</th>
+                <th style="padding: 12px; color: var(--text-secondary);">Nội dung</th>
+                <th style="padding: 12px; text-align: right; color: var(--text-secondary);">Số tiền</th>
+                <th style="padding: 12px; text-align: right; color: var(--text-secondary);">Số dư</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      html += historyRows.map(row => {
         const amountClass = row.delta >= 0 ? 'amount-positive' : 'amount-negative';
         const sign = row.delta > 0 ? '+' : '';
         const icon = getIcon(row.typeLabel);
+        // Bg color for rows if needed, or transparent
+        const bgColor = 'transparent';
 
         return `
-        <div class="history-item" style="padding: 8px 0; border-bottom: 1px solid #eee;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-             <div style="font-weight:500;">${icon} ${row.description}</div>
-             <div class="${amountClass}" style="font-weight:600;">${sign}${formatMoney(row.delta)}</div>
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:12px; color:#666;">
-             <div>${row.dateLocal} • ${row.typeLabel}</div>
-             <div>Dư: <strong>${formatMoney(row.balanceAfter)}</strong></div>
-          </div>
-        </div>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;" 
+                onmouseover="this.style.background='rgba(255,255,255,0.05)'" 
+                onmouseout="this.style.background='transparent'">
+              <td style="padding: 12px; white-space: nowrap;">${row.dateLocal}</td>
+              <td style="padding: 12px; white-space: nowrap;">
+                  <span style="display:inline-block; width:24px;">${icon}</span> ${row.typeLabel}
+              </td>
+              <td style="padding: 12px;">${row.description} <div style="font-size:11px; color:#666;">${row.ref || ''}</div></td>
+              <td style="padding: 12px; text-align: right; font-weight: 600;" class="${amountClass}">
+                ${sign}${formatMoney(row.delta)}
+              </td>
+              <td style="padding: 12px; text-align: right; font-weight: 600;">
+                ${formatMoney(row.balanceAfter)}
+              </td>
+            </tr>
         `;
       }).join('');
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      container.innerHTML = html;
     }
 
 
@@ -6393,11 +6425,10 @@
 </body>
 
 </html>
-    /**
-     * Self Test: Builder Parity
-     * Checks if reports are consistent across different views
-     */
-    window.selfTest_builderParity = function() {
-        console.log("✅ Builder Parity: Unified logic deployed. Consistency guaranteed by design.");
-    }
-
+/**
+* Self Test: Builder Parity
+* Checks if reports are consistent across different views
+*/
+window.selfTest_builderParity = function() {
+console.log("✅ Builder Parity: Unified logic deployed. Consistency guaranteed by design.");
+}
