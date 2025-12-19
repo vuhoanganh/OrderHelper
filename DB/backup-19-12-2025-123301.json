@@ -1688,6 +1688,7 @@
             "paid": true,
             "unitPrice": 60,
             "isVipPayment": false,
+            "paymentMethod": "vip",
             "payMethod": null
           },
           {
@@ -2047,6 +2048,7 @@
             "paid": true,
             "unitPrice": 30,
             "isVipPayment": false,
+            "paymentMethod": "vip",
             "payMethod": null
           },
           {
@@ -2187,6 +2189,7 @@
             "paid": true,
             "unitPrice": 39,
             "isVipPayment": false,
+            "paymentMethod": "vip",
             "payMethod": null
           }
         ],
