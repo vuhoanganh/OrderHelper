@@ -647,6 +647,13 @@
     let editingOrderId = null;
     let editingOrderDate = null;
     const VIP_TX_KEY = 'vipTransactions';
+
+    // Transaction IDs confirmed for deletion (duplicates)
+    // These transactions will be filtered out during migration/reconciliation
+    const CONFIRMED_DELETE_TXN_IDS = [
+      "9310deae-d8f0-48c4-8dd0-b8031e44886d" // a Duck topup 1000đ duplicate on 2025-12-15
+    ];
+
     let vipTransactions = [];
 
     // GitHub Backup Variables
@@ -2816,8 +2823,17 @@
           const confirmMsg = `Restore từ:\n${file.name}\n\n${backup.data.orderHistory.length} orders\n${backup.data.vipTransactions.length} transactions\n\n⚠️ Dữ liệu hiện tại sẽ bị ghi đè!`;
           if (!confirm(confirmMsg)) return;
 
+
           localStorage.setItem('orderHistory', JSON.stringify(backup.data.orderHistory));
-          localStorage.setItem('vipTransactions', JSON.stringify(backup.data.vipTransactions));
+
+          // Filter out confirmed duplicate transactions before saving
+          let cleanedVipTx = backup.data.vipTransactions.filter(tx => !CONFIRMED_DELETE_TXN_IDS.includes(tx.id));
+          const removedFromBackup = backup.data.vipTransactions.length - cleanedVipTx.length;
+          if (removedFromBackup > 0) {
+            addBackupLog(`🗑️ Removed ${removedFromBackup} duplicate transaction(s) from backup`);
+          }
+
+          localStorage.setItem('vipTransactions', JSON.stringify(cleanedVipTx));
           localStorage.setItem('vipList', backup.data.vipList);
 
           addBackupLog(`✅ Restored: ${backup.data.orderHistory.length} orders, ${backup.data.vipTransactions.length} transactions`);
@@ -5240,6 +5256,14 @@
       // VIP balances should be managed through transactions only
       const rawVipTx = JSON.parse(localStorage.getItem(VIP_TX_KEY) || '[]');
       vipTransactions = VIP_PATCH_ENABLED ? normalizeVipTransactions(rawVipTx) : rawVipTx;
+
+      // Filter out confirmed duplicate transactions
+      const beforeFilterCount = vipTransactions.length;
+      vipTransactions = vipTransactions.filter(tx => !CONFIRMED_DELETE_TXN_IDS.includes(tx.id));
+      const deletedCount = beforeFilterCount - vipTransactions.length;
+      if (deletedCount > 0) {
+        console.log(`[Init] Removed ${deletedCount} confirmed duplicate transaction(s)`);
+      }
 
       // Reconcile VIP ledger to ensure consistency
       console.log('[Init] Running VIP ledger reconciliation...');
