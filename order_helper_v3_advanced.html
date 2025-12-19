@@ -53,6 +53,9 @@
       <div class="tab" onclick="switchTab(event, 'stats')">
         📊 Thống kê
       </div>
+      <div class="tab" onclick="switchTab(event, 'vipReport')">
+        📋 Báo cáo VIP
+      </div>
       <div class="tab" onclick="switchTab(event, 'backup')">
         ☁️ Backup
       </div>
@@ -485,6 +488,69 @@
     </div>
 
     <!-- Tab: Backup -->
+    <!-- Tab: VIP Report -->
+    <div id="vipReport" class="tab-content">
+      <div class="glass-card">
+        <div class="section-title">📋 Báo cáo VIP - Sổ phụ</div>
+
+        <!-- Controls -->
+        <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Chọn VIP Member</label>
+            <select id="vipReportMember" class="form-input" onchange="renderVipReport()">
+              <option value="">-- Chọn người --</option>
+            </select>
+          </div>
+
+          <div style="flex: 0 0 auto; display: flex; align-items: flex-end;">
+            <button class="btn btn-success" onclick="exportVipReportCSV()">
+              📤 Xuất CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Date Filters (Optional) -->
+        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+          <div>
+            <label style="display: block; margin-bottom: 4px;">Từ ngày (tuỳ chọn)</label>
+            <input type="date" id="vipReportFromDate" class="form-input" onchange="renderVipReport()" />
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 4px;">Đến ngày (tuỳ chọn)</label>
+            <input type="date" id="vipReportToDate" class="form-input" onchange="renderVipReport()" />
+          </div>
+        </div>
+
+        <!-- Summary Box -->
+        <div id="vipReportSummary"
+          style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; color: white; margin-bottom: 20px; display: none;">
+          <!-- Will be populated by JS -->
+        </div>
+
+        <!-- Transaction Table -->
+        <div style="overflow-x: auto;">
+          <table id="vipReportTable" style="width: 100%; border-collapse: collapse; display: none;">
+            <thead>
+              <tr style="background: rgba(102, 126, 234, 0.1); border-bottom: 2px solid rgba(102, 126, 234, 0.3);">
+                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Ngày giờ</th>
+                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Loại</th>
+                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Nội dung</th>
+                <th style="padding: 12px 8px; text-align: right; font-weight: 600;">+/-</th>
+                <th style="padding: 12px 8px; text-align: right; font-weight: 600;">Số dư</th>
+                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Ref</th>
+              </tr>
+            </thead>
+            <tbody id="vipReportTableBody">
+              <!-- Will be populated by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="vipReportEmpty" style="text-align: center; padding: 40px; color: #999;">
+          Chọn VIP member để xem báo cáo
+        </div>
+      </div>
+    </div>
     <div id="backup" class="tab-content">
       <!-- GitHub Settings -->
       <div class="glass-card">
@@ -5282,6 +5348,7 @@
       loadGithubSettings();
       populateVipMemberSelect();
       populateVIPFilterDropdown(); // Populate filter dropdown
+      populateVipReportMembers(); // Populate VIP Report dropdown
       // Enable dish name suggestions dropdown
       const itemNameInput = document.getElementById('itemName');
       if (itemNameInput) {
@@ -5700,6 +5767,437 @@
 
       return { currentBalance, rows };
     };
+
+    // ========== VIP REPORT FUNCTIONS ==========
+
+    /**
+     * Build VIP Statement (Ledger Report)
+     * @param {string} memberName - VIP member name
+     * @param {object} options - { from: dateString, to: dateString }
+     * @returns {object} { rows, summary }
+     */
+    function buildVipStatement(memberName, options = {}) {
+      if (!memberName) return { rows: [], summary: {} };
+
+      const { from, to } = options;
+
+      // Filter transactions for this member
+      let txs = vipTransactions.filter(tx => {
+        const name = tx.member || tx.name || '';
+        return name.trim() === memberName.trim();
+      });
+
+      // Apply date filter if provided
+      if (from || to) {
+        const fromDate = from ? new Date(from) : null;
+        const toDate = to ? new Date(to) : null;
+
+        txs = txs.filter(tx => {
+          const txDate = new Date(tx.ts || tx.date || 0);
+          if (fromDate && txDate < fromDate) return false;
+          if (toDate && txDate > toDate) return false;
+          return true;
+        });
+      }
+
+      // Sort by time ascending
+      txs.sort((a, b) => {
+        const dateA = new Date(a.ts || a.date || 0);
+        const dateB = new Date(b.ts || b.date || 0);
+        return dateA - dateB;
+      });
+
+      // Build rows with running balance
+      const rows = [];
+      let running = 0;
+
+      // Summary counters
+      let opening = 0;
+      let totalTopup = 0;
+      let totalOrder = 0;
+      let totalCashout = 0;
+      let totalAdjustment = 0;
+
+      txs.forEach(tx => {
+        const delta = Number(tx.amount) || 0;
+        running += delta;
+
+        // Type label mapping
+        const typeMap = {
+          'opening': 'Opening',
+          'topup': 'Nạp',
+          'order': 'Trừ đơn',
+          'cashout': 'Rút',
+          'adjustment': 'Điều chỉnh'
+        };
+        const typeLabel = typeMap[tx.type] || tx.type || 'Khác';
+
+        // Description
+        let description = '';
+        if (tx.type === 'order') {
+          description = `Đơn: ${tx.itemName || tx.note || ''}`;
+        } else if (tx.type === 'topup') {
+          description = tx.note || 'Nạp';
+        } else if (tx.type === 'cashout') {
+          description = tx.note || 'Rút';
+        } else if (tx.type === 'opening') {
+          description = 'Số dư đầu kỳ';
+        } else if (tx.type === 'adjustment') {
+          description = tx.note || 'Điều chỉnh';
+        } else {
+          description = tx.note || tx.itemName || '';
+        }
+
+        // Ref
+        let ref = '';
+        if (tx.refId) {
+          ref = tx.refId;
+        } else if (tx.orderId && tx.detailIndex != null) {
+          ref = `${tx.orderId}-${tx.detailIndex}`;
+        } else if (tx.orderId) {
+          ref = String(tx.orderId);
+        }
+
+        // Date formatting
+        const txDate = new Date(tx.ts || tx.date || 0);
+        const dateISO = txDate.toISOString();
+        const dateLocal = formatDate(txDate.toISOString()).replace(/(\d{2}\/\d{2}\/\d{4})/, '$1') + ' ' +
+          txDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+        rows.push({
+          dateISO,
+          dateLocal,
+          typeLabel,
+          description: description.trim(),
+          delta,
+          balanceAfter: running,
+          ref,
+          txnId: tx.id
+        });
+
+        // Update summary
+        if (tx.type === 'opening') opening += delta;
+        else if (tx.type === 'topup') totalTopup += delta;
+        else if (tx.type === 'order') totalOrder += Math.abs(delta);
+        else if (tx.type === 'cashout') totalCashout += Math.abs(delta);
+        else if (tx.type === 'adjustment') totalAdjustment += delta;
+      });
+
+      const summary = {
+        opening,
+        totalTopup,
+        totalOrder,
+        totalCashout,
+        totalAdjustment,
+        ending: running
+      };
+
+      return { rows, summary };
+    }
+
+    /**
+     * Render VIP Report
+     */
+    function renderVipReport() {
+      const memberSelect = document.getElementById('vipReportMember');
+      const memberName = memberSelect.value;
+
+      const summaryDiv = document.getElementById('vipReportSummary');
+      const table = document.getElementById('vipReportTable');
+      const tbody = document.getElementById('vipReportTableBody');
+      const emptyDiv = document.getElementById('vipReportEmpty');
+
+      if (!memberName) {
+        summaryDiv.style.display = 'none';
+        table.style.display = 'none';
+        emptyDiv.style.display = 'block';
+        return;
+      }
+
+      // Get date filters
+      const fromDate = document.getElementById('vipReportFromDate').value;
+      const toDate = document.getElementById('vipReportToDate').value;
+
+      // Build statement
+      const statement = buildVipStatement(memberName, { from: fromDate, to: toDate });
+
+      if (statement.rows.length === 0) {
+        summaryDiv.style.display = 'none';
+        table.style.display = 'none';
+        emptyDiv.innerHTML = `<div style="text-align: center; padding: 40px; color: #999;">Không có giao dịch nào cho ${memberName}</div>`;
+        emptyDiv.style.display = 'block';
+        return;
+      }
+
+      emptyDiv.style.display = 'none';
+
+      // Render Summary
+      const s = statement.summary;
+      let summaryHTML = `
+        <div style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">📊 Tổng kết: ${memberName}</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+          <div>
+            <div style="opacity: 0.9; font-size: 13px;">Opening</div>
+            <div style="font-size: 20px; font-weight: 700;">${formatMoney(s.opening)}</div>
+          </div>
+          <div>
+            <div style="opacity: 0.9; font-size: 13px;">Tổng nạp</div>
+            <div style="font-size: 20px; font-weight: 700; color: #4ade80;">+${formatMoney(s.totalTopup)}</div>
+          </div>
+          <div>
+            <div style="opacity: 0.9; font-size: 13px;">Tổng chi</div>
+            <div style="font-size: 20px; font-weight: 700; color: #f87171;">-${formatMoney(s.totalOrder)}</div>
+          </div>
+          <div>
+            <div style="opacity: 0.9; font-size: 13px;">Tổng rút</div>
+            <div style="font-size: 20px; font-weight: 700; color: #fbbf24;">-${formatMoney(s.totalCashout)}</div>
+          </div>
+      `;
+
+      if (s.totalAdjustment !== 0) {
+        summaryHTML += `
+          <div>
+            <div style="opacity: 0.9; font-size: 13px;">Điều chỉnh</div>
+            <div style="font-size: 20px; font-weight: 700;">${formatMoney(s.totalAdjustment)}</div>
+          </div>
+        `;
+      }
+
+      summaryHTML += `
+          <div>
+            <div style="opacity: 0.9; font-size: 13px;">Ending Balance</div>
+            <div style="font-size: 24px; font-weight: 700;">${formatMoney(s.ending)}</div>
+          </div>
+        </div>
+      `;
+
+      summaryDiv.innerHTML = summaryHTML;
+      summaryDiv.style.display = 'block';
+
+      // Render Table
+      const rowsHTML = statement.rows.map((row, idx) => {
+        const deltaColor = row.delta >= 0 ? '#4ade80' : '#f87171';
+        const deltaSign = row.delta >= 0 ? '+' : '';
+        const rowBg = idx % 2 === 0 ? 'rgba(0,0,0,0.02)' : 'transparent';
+
+        return `
+          <tr style="background: ${rowBg}; border-bottom: 1px solid rgba(0,0,0,0.05);">
+            <td style="padding: 10px 8px; font-size: 13px;">${row.dateLocal}</td>
+            <td style="padding: 10px 8px;">
+              <span style="background: rgba(102, 126, 234, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">
+                ${row.typeLabel}
+              </span>
+            </td>
+            <td style="padding: 10px 8px; font-size: 13px;">${row.description}</td>
+            <td style="padding: 10px 8px; text-align: right; font-weight: 600; color: ${deltaColor};">
+              ${deltaSign}${formatMoney(row.delta)}
+            </td>
+            <td style="padding: 10px 8px; text-align: right; font-weight: 700; font-size: 14px;">
+              ${formatMoney(row.balanceAfter)}
+            </td>
+            <td style="padding: 10px 8px; font-size: 12px; color: #999;">${row.ref}</td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.innerHTML = rowsHTML;
+      table.style.display = 'table';
+    }
+
+    /**
+     * Export VIP Report to CSV
+     */
+    function exportVipReportCSV() {
+      const memberSelect = document.getElementById('vipReportMember');
+      const memberName = memberSelect.value;
+
+      if (!memberName) {
+        alert('Vui lòng chọn VIP member trước!');
+        return;
+      }
+
+      const fromDate = document.getElementById('vipReportFromDate').value;
+      const toDate = document.getElementById('vipReportToDate').value;
+
+      const statement = buildVipStatement(memberName, { from: fromDate, to: toDate });
+
+      if (statement.rows.length === 0) {
+        alert('Không có dữ liệu để xuất!');
+        return;
+      }
+
+      // Build CSV
+      const header = 'dateISO,type,description,delta,balanceAfter,ref,txnId\n';
+      const rows = statement.rows.map(row => {
+        const desc = (row.description || '').replace(/"/g, '""'); // Escape quotes
+        return `"${row.dateISO}","${row.typeLabel}","${desc}",${row.delta},${row.balanceAfter},"${row.ref}","${row.txnId}"`;
+      }).join('\n');
+
+      const csv = header + rows;
+
+      // Download
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      const dateStr = new Date().toISOString().split('T')[0];
+      link.download = `vip-report-${memberName.replace(/\s+/g, '_')}-${dateStr}.csv`;
+
+      link.click();
+      URL.revokeObjectURL(url);
+
+      alert(`✅ Đã xuất CSV: ${statement.rows.length} giao dịch`);
+    }
+
+    /**
+     * Populate VIP Member dropdown for report
+     */
+    function populateVipReportMembers() {
+      const select = document.getElementById('vipReportMember');
+      if (!select) return;
+
+      // Get unique members from vipTransactions
+      const members = new Set();
+      vipTransactions.forEach(tx => {
+        const name = (tx.member || tx.name || '').trim();
+        if (name) members.add(name);
+      });
+
+      const sorted = Array.from(members).sort();
+
+      select.innerHTML = '<option value="">-- Chọn người --</option>' +
+        sorted.map(name => `<option value="${name.replace(/"/g, '&quot;')}">${name}</option>`).join('');
+    }
+
+    // ========== VIP REPORT FUNCTIONS ==========
+
+    function buildVipStatement(memberName, options = {}) {
+      if (!memberName) return { rows: [], summary: {} };
+      const { from, to } = options;
+      let txs = vipTransactions.filter(tx => (tx.member || tx.name || '').trim() === memberName.trim());
+      if (from || to) {
+        const fromDate = from ? new Date(from) : null;
+        const toDate = to ? new Date(to) : null;
+        txs = txs.filter(tx => {
+          const txDate = new Date(tx.ts || tx.date || 0);
+          if (fromDate && txDate < fromDate) return false;
+          if (toDate && txDate > toDate) return false;
+          return true;
+        });
+      }
+      txs.sort((a, b) => new Date(a.ts || a.date || 0) - new Date(b.ts || b.date || 0));
+      const rows = [];
+      let running = 0;
+      let opening = 0, totalTopup = 0, totalOrder = 0, totalCashout = 0, totalAdjustment = 0;
+      txs.forEach(tx => {
+        const delta = Number(tx.amount) || 0;
+        running += delta;
+        const typeMap = { 'opening': 'Opening', 'topup': 'Nạp', 'order': 'Trừ đơn', 'cashout': 'Rút', 'adjustment': 'Điều chỉnh' };
+        const typeLabel = typeMap[tx.type] || tx.type || 'Khác';
+        let description = '';
+        if (tx.type === 'order') description = `Đơn: ${tx.itemName || tx.note || ''}`;
+        else if (tx.type === 'topup') description = tx.note || 'Nạp';
+        else if (tx.type === 'cashout') description = tx.note || 'Rút';
+        else if (tx.type === 'opening') description = 'Số dư đầu kỳ';
+        else if (tx.type === 'adjustment') description = tx.note || 'Điều chỉnh';
+        else description = tx.note || tx.itemName || '';
+        let ref = tx.refId || (tx.orderId && tx.detailIndex != null ? `${tx.orderId}-${tx.detailIndex}` : tx.orderId ? String(tx.orderId) : '');
+        const txDate = new Date(tx.ts || tx.date || 0);
+        const dateISO = txDate.toISOString();
+        const dateLocal = formatDate(dateISO).replace(/(\d{2}\/\d{2}\/\d{4})/, '$1') + ' ' + txDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        rows.push({ dateISO, dateLocal, typeLabel, description: description.trim(), delta, balanceAfter: running, ref, txnId: tx.id });
+        if (tx.type === 'opening') opening += delta;
+        else if (tx.type === 'topup') totalTopup += delta;
+        else if (tx.type === 'order') totalOrder += Math.abs(delta);
+        else if (tx.type === 'cashout') totalCashout += Math.abs(delta);
+        else if (tx.type === 'adjustment') totalAdjustment += delta;
+      });
+      return { rows, summary: { opening, totalTopup, totalOrder, totalCashout, totalAdjustment, ending: running } };
+    }
+
+    function renderVipReport() {
+      const memberName = document.getElementById('vipReportMember').value;
+      const summaryDiv = document.getElementById('vipReportSummary');
+      const table = document.getElementById('vipReportTable');
+      const tbody = document.getElementById('vipReportTableBody');
+      const emptyDiv = document.getElementById('vipReportEmpty');
+      if (!memberName) {
+        summaryDiv.style.display = 'none';
+        table.style.display = 'none';
+        emptyDiv.style.display = 'block';
+        return;
+      }
+      const fromDate = document.getElementById('vipReportFromDate').value;
+      const toDate = document.getElementById('vipReportToDate').value;
+      const statement = buildVipStatement(memberName, { from: fromDate, to: toDate });
+      if (statement.rows.length === 0) {
+        summaryDiv.style.display = 'none'; table.style.display = 'none';
+        emptyDiv.innerHTML = `<div style="text-align:center;padding:40px;color:#999;">Không có giao dịch nào cho ${memberName}</div>`;
+        emptyDiv.style.display = 'block';
+        return;
+      }
+      emptyDiv.style.display = 'none';
+      const s = statement.summary;
+      let summaryHTML = `<div style="font-size:18px;font-weight:600;margin-bottom:16px;">📊 Tổng kết: ${memberName}</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
+<div><div style="opacity:0.9;font-size:13px;">Opening</div><div style="font-size:20px;font-weight:700;">${formatMoney(s.opening)}</div></div>
+<div><div style="opacity:0.9;font-size:13px;">Tổng nạp</div><div style="font-size:20px;font-weight:700;color:#4ade80;">+${formatMoney(s.totalTopup)}</div></div>
+<div><div style="opacity:0.9;font-size:13px;">Tổng chi</div><div style="font-size:20px;font-weight:700;color:#f87171;">-${formatMoney(s.totalOrder)}</div></div>
+<div><div style="opacity:0.9;font-size:13px;">Tổng rút</div><div style="font-size:20px;font-weight:700;color:#fbbf24;">-${formatMoney(s.totalCashout)}</div></div>`;
+      if (s.totalAdjustment !== 0) summaryHTML += `<div><div style="opacity:0.9;font-size:13px;">Điều chỉnh</div><div style="font-size:20px;font-weight:700;">${formatMoney(s.totalAdjustment)}</div></div>`;
+      summaryHTML += `<div><div style="opacity:0.9;font-size:13px;">Ending Balance</div><div style="font-size:24px;font-weight:700;">${formatMoney(s.ending)}</div></div></div>`;
+      summaryDiv.innerHTML = summaryHTML; summaryDiv.style.display = 'block';
+      const rowsHTML = statement.rows.map((row, idx) => {
+        const deltaColor = row.delta >= 0 ? '#4ade80' : '#f87171';
+        const deltaSign = row.delta >= 0 ? '+' : '';
+        const rowBg = idx % 2 === 0 ? 'rgba(0,0,0,0.02)' : 'transparent';
+        return `<tr style="background:${rowBg};border-bottom:1px solid rgba(0,0,0,0.05);">
+<td style="padding:10px 8px;font-size:13px;">${row.dateLocal}</td>
+<td style="padding:10px 8px;"><span style="background:rgba(102,126,234,0.1);padding:4px 8px;border-radius:4px;font-size:12px;font-weight:500;">${row.typeLabel}</span></td>
+<td style="padding:10px 8px;font-size:13px;">${row.description}</td>
+<td style="padding:10px 8px;text-align:right;font-weight:600;color:${deltaColor};">${deltaSign}${formatMoney(row.delta)}</td>
+<td style="padding:10px 8px;text-align:right;font-weight:700;font-size:14px;">${formatMoney(row.balanceAfter)}</td>
+<td style="padding:10px 8px;font-size:12px;color:#999;">${row.ref}</td>
+</tr>`;
+      }).join('');
+      tbody.innerHTML = rowsHTML; table.style.display = 'table';
+    }
+
+    function exportVipReportCSV() {
+      const memberName = document.getElementById('vipReportMember').value;
+      if (!memberName) { alert('Vui lòng chọn VIP member trước!'); return; }
+      const statement = buildVipStatement(memberName, { from: document.getElementById('vipReportFromDate').value, to: document.getElementById('vipReportToDate').value });
+      if (statement.rows.length === 0) { alert('Không có dữ liệu để xuất!'); return; }
+      const header = 'dateISO,type,description,delta,balanceAfter,ref,txnId\n';
+      const rows = statement.rows.map(row => {
+        const desc = (row.description || '').replace(/"/g, '""');
+        return `"${row.dateISO}","${row.typeLabel}","${desc}",${row.delta},${row.balanceAfter},"${row.ref}","${row.txnId}"`;
+      }).join('\n');
+      const csv = header + rows;
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `vip-report-${memberName.replace(/\s+/g, '_')}-${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+      alert(`✅ Đã xuất CSV: ${statement.rows.length} giao dịch`);
+    }
+
+    function populateVipReportMembers() {
+      const select = document.getElementById('vipReportMember');
+      if (!select) return;
+      const members = new Set();
+      vipTransactions.forEach(tx => {
+        const name = (tx.member || tx.name || '').trim();
+        if (name) members.add(name);
+      });
+      const sorted = Array.from(members).sort();
+      select.innerHTML = '<option value="">-- Chọn người --</option>' +
+        sorted.map(name => `<option value="${name.replace(/"/g, '&quot;')}">${name}</option>`).join('');
+    }
+
   </script>
 
 </body>
