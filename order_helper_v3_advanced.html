@@ -1189,6 +1189,129 @@
     }
 
     /**
+     * Ensure Order Transactions from Orders
+     * Ensures every VIP-paid detail has a corresponding order transaction in vipTransactions
+     * 
+     * @param {Array} orders - Array of order objects (orderHistory)
+     * @param {Array} vipTransactions - Array of VIP transaction objects
+     * @returns {Object} { vipTransactions: updated, stats }
+     */
+    function ensureOrderTxFromOrders(orders, vipTransactions) {
+      console.log(`[${BUILD_TAG}] ensureOrderTxFromOrders - Ensuring order transactions...`);
+
+      const stats = {
+        totalOrders: 0,
+        totalVipDetails: 0,
+        created: 0,
+        updated: 0,
+        skipped: 0
+      };
+
+      // Helper to normalize name for ID generation
+      const normalizeNameKey = (name) => {
+        return (name || '').replace(/[^a-zA-Z0-9]/g, '');
+      };
+
+      // Create map by refId for fast lookup (only order transactions with refId)
+      const mapByRefId = new Map();
+      vipTransactions.forEach((tx, index) => {
+        if (tx.type === 'order' && tx.refId) {
+          mapByRefId.set(tx.refId, { tx, index });
+        }
+      });
+
+      console.log(`[EnsureOrderTx] Found ${mapByRefId.size} existing order txs with refId`);
+
+      // Array to collect new transactions
+      const newTransactions = [];
+
+      // Process each order
+      orders.forEach(order => {
+        stats.totalOrders++;
+        const details = order.details || [];
+
+        details.forEach((detail, detailIndex) => {
+          // Check VIP payment condition
+          const isVipPaid = detail.paid === true && detail.paymentMethod === 'vip';
+
+          if (!isVipPaid) return;
+
+          stats.totalVipDetails++;
+
+          // Validate due amount
+          const dueAmount = Number(detail.due);
+          if (!Number.isFinite(dueAmount)) {
+            console.warn(`[EnsureOrderTx] Invalid due amount for ${detail.name} in order ${order.id}[${detailIndex}]:`, detail.due);
+            stats.skipped++;
+            return;
+          }
+
+          const expectedAmount = -dueAmount;
+          const refId = `${order.id}-${detailIndex}`;
+          const existing = mapByRefId.get(refId);
+
+          if (existing) {
+            // Transaction exists - check and update if needed
+            const tx = existing.tx;
+            let updated = false;
+
+            if (tx.amount !== expectedAmount) {
+              console.warn(`[EnsureOrderTx] Updating amount for ${refId}: ${tx.amount} => ${expectedAmount}`);
+              tx.amount = expectedAmount;
+              updated = true;
+            }
+
+            // Normalize other fields
+            if (tx.name !== detail.name) {
+              tx.name = detail.name;
+              updated = true;
+            }
+
+            if (updated) {
+              stats.updated++;
+            }
+          } else {
+            // Transaction doesn't exist - create it
+            const newTx = {
+              id: `order:${refId}:${normalizeNameKey(detail.name)}`,
+              ts: (order.date && typeof order.date === 'string')
+                ? order.date
+                : new Date(order.id || Date.now()).toISOString(),
+              name: detail.name.trim(),
+              amount: expectedAmount,
+              type: 'order',
+              orderId: order.id,
+              itemName: order.itemName || '',
+              detailIndex: detailIndex,
+              refId: refId,
+              paid: true,
+              paymentMethod: 'vip',
+              isVipPayment: true
+            };
+
+            newTransactions.push(newTx);
+            mapByRefId.set(refId, { tx: newTx, index: -1 }); // -1 indicates new
+            stats.created++;
+          }
+        });
+      });
+
+      // Merge new transactions into vipTransactions
+      let result = vipTransactions;
+      if (newTransactions.length > 0) {
+        result = [...newTransactions, ...vipTransactions];
+        console.log(`[EnsureOrderTx] Added ${newTransactions.length} new order transactions`);
+      }
+
+      console.log(`[EnsureOrderTx] Complete:`, stats);
+
+      return {
+        vipTransactions: result,
+        stats: stats
+      };
+    }
+
+    /**
      * Deduplicate Legacy Order Transactions
      * Removes legacy order transactions (without refId) that duplicate canonical ones (with refId)
      * 
@@ -1427,6 +1550,14 @@
       // Merge new transactions with existing ones
       if (newTransactions.length > 0) {
         newVipTxs = [...newTransactions, ...newVipTxs];
+      }
+
+      // ENSURE ALL VIP-PAID DETAILS HAVE ORDER TRANSACTIONS
+      const ensureResult = ensureOrderTxFromOrders(orderHistory, newVipTxs);
+      newVipTxs = ensureResult.vipTransactions;
+      if (ensureResult.stats.created > 0 || ensureResult.stats.updated > 0) {
+        stats.created += ensureResult.stats.created;
+        stats.updated += ensureResult.stats.updated;
       }
 
       // DEDUPE LEGACY ORDERS
