@@ -1189,6 +1189,75 @@
     }
 
     /**
+     * Deduplicate Legacy Order Transactions
+     * Removes legacy order transactions (without refId) that duplicate canonical ones (with refId)
+     * 
+     * @param {Array} vipTransactions - Array of VIP transaction objects
+     * @returns {Object} { vipTransactions: filtered, removedCount, legacyRemaining }
+     */
+    function dedupeLegacyOrders(vipTransactions) {
+      console.log(`[${BUILD_TAG}] dedupeLegacyOrders - Starting deduplication...`);
+
+      let removedCount = 0;
+      const TIME_THRESHOLD_MS = 5000; // 5 seconds
+
+      // Separate canonical and legacy transactions
+      const canonical = [];
+      const legacy = [];
+      const other = [];
+
+      vipTransactions.forEach(tx => {
+        if (tx.type === 'order') {
+          if (tx.refId) {
+            canonical.push(tx);
+          } else {
+            legacy.push(tx);
+          }
+        } else {
+          other.push(tx);
+        }
+      });
+
+      console.log(`[Dedupe] Found ${canonical.length} canonical, ${legacy.length} legacy order txs`);
+
+      // Filter out legacy transactions that match canonical ones
+      const filteredLegacy = legacy.filter(legacyTx => {
+        // Look for matching canonical transaction
+        const matchingCanonical = canonical.find(canonicalTx => {
+          // Must match: member (name), amount
+          if (canonicalTx.name !== legacyTx.name) return false;
+          if (canonicalTx.amount !== legacyTx.amount) return false;
+
+          // Check time difference (within 5 seconds)
+          const canonicalDate = new Date(canonicalTx.ts || canonicalTx.date || 0);
+          const legacyDate = new Date(legacyTx.ts || legacyTx.date || 0);
+          const timeDiff = Math.abs(canonicalDate - legacyDate);
+
+          return timeDiff <= TIME_THRESHOLD_MS;
+        });
+
+        if (matchingCanonical) {
+          console.log(`[Dedupe] Removing legacy tx: ${legacyTx.name} ${legacyTx.amount}đ (${legacyTx.ts})`);
+          removedCount++;
+          return false; // Filter out
+        }
+
+        return true; // Keep
+      });
+
+      // Combine: canonical + filtered legacy + other
+      const result = [...canonical, ...filteredLegacy, ...other];
+
+      console.log(`[Dedupe] Removed ${removedCount} legacy duplicates, ${filteredLegacy.length} legacy remaining`);
+
+      return {
+        vipTransactions: result,
+        removedCount: removedCount,
+        legacyRemaining: filteredLegacy.length
+      };
+    }
+
+    /**
      * Reconcile VIP Ledger from Order History
      * Ensures every VIP payment in orderHistory has a corresponding vipTransaction
      * 
@@ -1206,7 +1275,8 @@
         updated: 0,
         deduped: 0,
         skipped: 0,
-        normalized: 0
+        normalized: 0,
+        legacyRemoved: 0
       };
 
       // Create a map for fast lookups: key = orderId|name|detailIndex|order
@@ -1321,14 +1391,20 @@
               existingTx.paid = true;
               stats.updated++;
             }
+            // Ensure canonical tx has refId
+            if (!existingTx.refId) {
+              existingTx.refId = `${order.id}-${detailIndex}`;
+              stats.updated++;
+            }
           } else {
-            // Transaction doesn't exist - create it
+            // Transaction doesn't exist - create it (CANONICAL with refId)
             const ts = (order.date && typeof order.date === 'string')
               ? order.date
               : new Date(order.id || Date.now()).toISOString();
 
             const newTx = {
               id: `order:${order.id}:${detailIndex}:${detail.name.replace(/[^a-zA-Z0-9]/g, '')}`,
+              refId: `${order.id}-${detailIndex}`, // CANONICAL MARKER
               ts: ts,
               name: detail.name.trim(),
               amount: -detail.due,
@@ -1353,6 +1429,11 @@
         newVipTxs = [...newTransactions, ...newVipTxs];
       }
 
+      // DEDUPE LEGACY ORDERS
+      const dedupeResult = dedupeLegacyOrders(newVipTxs);
+      newVipTxs = dedupeResult.vipTransactions;
+      stats.legacyRemoved = dedupeResult.removedCount;
+
       // Sort by timestamp (newest first)
       newVipTxs.sort((a, b) => {
         const dateA = new Date(a.ts || 0);
@@ -1360,7 +1441,7 @@
         return dateB - dateA;
       });
 
-      const changed = stats.created > 0 || stats.updated > 0 || stats.deduped > 0 || stats.normalized > 0;
+      const changed = stats.created > 0 || stats.updated > 0 || stats.deduped > 0 || stats.normalized > 0 || stats.legacyRemoved > 0;
 
       console.log(`[${BUILD_TAG}] Reconciliation complete:`, stats);
 
