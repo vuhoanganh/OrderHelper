@@ -1188,6 +1188,189 @@
       populateVipMemberSelect();
     }
 
+    /**
+     * Reconcile VIP Ledger from Order History
+     * Ensures every VIP payment in orderHistory has a corresponding vipTransaction
+     * 
+     * @param {Array} orderHistory - Array of order objects
+     * @param {Array} vipTransactions - Array of VIP transaction objects
+     * @returns {Object} { vipTransactions: newList, changed: boolean, stats }
+     */
+    function reconcileVipLedgerFromOrders(orderHistory, vipTransactions) {
+      console.log(`[${BUILD_TAG}] reconcileVipLedgerFromOrders - Starting reconciliation...`);
+
+      const stats = {
+        totalOrders: 0,
+        totalVipDetails: 0,
+        created: 0,
+        updated: 0,
+        deduped: 0,
+        skipped: 0,
+        normalized: 0
+      };
+
+      // Create a map for fast lookups: key = orderId|name|detailIndex|order
+      const txMap = new Map();
+      const txIndexMap = new Map(); // Maps key to array of indices (for dedup)
+
+      // Index existing vipTransactions
+      vipTransactions.forEach((tx, index) => {
+        if (tx.type === 'order' && tx.orderId !== undefined && tx.orderId !== null) {
+          const key = `${tx.orderId}|${tx.name}|${tx.detailIndex}|order`;
+          if (!txIndexMap.has(key)) {
+            txIndexMap.set(key, []);
+          }
+          txIndexMap.get(key).push(index);
+
+          // Keep the first one in the main map
+          if (!txMap.has(key)) {
+            txMap.set(key, tx);
+          }
+        }
+      });
+
+      // Deduplicate existing vipTransactions
+      const duplicateIndices = new Set();
+      for (const [key, indices] of txIndexMap.entries()) {
+        if (indices.length > 1) {
+          console.warn(`[Reconcile] Found ${indices.length} duplicates for key: ${key}`);
+          // Keep the first one, mark others for removal
+          for (let i = 1; i < indices.length; i++) {
+            duplicateIndices.add(indices[i]);
+            stats.deduped++;
+          }
+        }
+      }
+
+      // Remove duplicates
+      let newVipTxs = vipTransactions.filter((tx, index) => !duplicateIndices.has(index));
+
+      // Rebuild maps after dedup
+      txMap.clear();
+      newVipTxs.forEach(tx => {
+        if (tx.type === 'order' && tx.orderId !== undefined && tx.orderId !== null) {
+          const key = `${tx.orderId}|${tx.name}|${tx.detailIndex}|order`;
+          txMap.set(key, tx);
+        }
+      });
+
+      // Array to collect new transactions
+      const newTransactions = [];
+
+      // Process each order
+      orderHistory.forEach(order => {
+        stats.totalOrders++;
+        const details = order.details || [];
+
+        details.forEach((detail, detailIndex) => {
+          // Check if this is a VIP payment
+          const isVipPayment = detail.paid === true && (
+            detail.paymentMethod === 'vip' ||
+            detail.payMethod === 'vip' ||
+            detail.isVipPayment === true
+          );
+
+          if (!isVipPayment) return;
+
+          stats.totalVipDetails++;
+
+          // Normalize detail object
+          if (detail.paymentMethod === 'vip' || detail.payMethod === 'vip') {
+            if (!detail.isVipPayment) {
+              detail.isVipPayment = true;
+              stats.normalized++;
+            }
+            if (detail.paymentMethod !== 'vip') {
+              detail.paymentMethod = 'vip';
+              stats.normalized++;
+            }
+            if (detail.payMethod !== null && detail.payMethod !== undefined) {
+              detail.payMethod = null;
+            }
+          }
+
+          // Validate due amount
+          if (!Number.isFinite(detail.due)) {
+            console.warn(`[Reconcile] Invalid due amount for ${detail.name} in order ${order.id}:`, detail.due);
+            stats.skipped++;
+            return;
+          }
+
+          const key = `${order.id}|${detail.name}|${detailIndex}|order`;
+          const existingTx = txMap.get(key);
+
+          if (existingTx) {
+            // Transaction exists - check if amount matches
+            const expectedAmount = -detail.due;
+            if (existingTx.amount !== expectedAmount) {
+              console.warn(`[Reconcile] Amount mismatch for ${key}: ${existingTx.amount} vs ${expectedAmount}`);
+              existingTx.amount = expectedAmount;
+              stats.updated++;
+            }
+
+            // Ensure required fields are set
+            if (!existingTx.paymentMethod) {
+              existingTx.paymentMethod = 'vip';
+              stats.updated++;
+            }
+            if (!existingTx.isVipPayment) {
+              existingTx.isVipPayment = true;
+              stats.updated++;
+            }
+            if (existingTx.paid !== true) {
+              existingTx.paid = true;
+              stats.updated++;
+            }
+          } else {
+            // Transaction doesn't exist - create it
+            const ts = (order.date && typeof order.date === 'string')
+              ? order.date
+              : new Date(order.id || Date.now()).toISOString();
+
+            const newTx = {
+              id: `order:${order.id}:${detailIndex}:${detail.name.replace(/[^a-zA-Z0-9]/g, '')}`,
+              ts: ts,
+              name: detail.name.trim(),
+              amount: -detail.due,
+              type: 'order',
+              orderId: order.id,
+              itemName: order.itemName || 'Order',
+              detailIndex: detailIndex,
+              paid: true,
+              paymentMethod: 'vip',
+              isVipPayment: true
+            };
+
+            newTransactions.push(newTx);
+            txMap.set(key, newTx);
+            stats.created++;
+          }
+        });
+      });
+
+      // Merge new transactions with existing ones
+      if (newTransactions.length > 0) {
+        newVipTxs = [...newTransactions, ...newVipTxs];
+      }
+
+      // Sort by timestamp (newest first)
+      newVipTxs.sort((a, b) => {
+        const dateA = new Date(a.ts || 0);
+        const dateB = new Date(b.ts || 0);
+        return dateB - dateA;
+      });
+
+      const changed = stats.created > 0 || stats.updated > 0 || stats.deduped > 0 || stats.normalized > 0;
+
+      console.log(`[${BUILD_TAG}] Reconciliation complete:`, stats);
+
+      return {
+        vipTransactions: newVipTxs,
+        changed: changed,
+        stats: stats
+      };
+    }
+
     function renderVipHistory() {
       const container = document.getElementById('vipHistory');
       if (!container) return;
@@ -4826,6 +5009,18 @@
       // VIP balances should be managed through transactions only
       const rawVipTx = JSON.parse(localStorage.getItem(VIP_TX_KEY) || '[]');
       vipTransactions = VIP_PATCH_ENABLED ? normalizeVipTransactions(rawVipTx) : rawVipTx;
+
+      // Reconcile VIP ledger to ensure consistency
+      console.log('[Init] Running VIP ledger reconciliation...');
+      const reconcileResult = reconcileVipLedgerFromOrders(orderHistory, vipTransactions);
+      if (reconcileResult.changed) {
+        console.log('[Init] VIP ledger updated:', reconcileResult.stats);
+        vipTransactions = reconcileResult.vipTransactions;
+        localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
+        // Update orderHistory if details were normalized
+        localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+      }
+
       renderVipHistory();
       refreshQuickOrderList();
       updateDishNameSuggestions();
@@ -5109,11 +5304,26 @@
               orderHistory = data;
               orderHistory.sort((a, b) => (Date.parse(a?.date) || 0) - (Date.parse(b?.date) || 0));
               localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+
+              // Reconcile VIP ledger after import
+              console.log('[Import] Running VIP ledger reconciliation...');
+              const reconcileResult = reconcileVipLedgerFromOrders(orderHistory, vipTransactions);
+              if (reconcileResult.changed) {
+                console.log('[Import] VIP ledger updated:', reconcileResult.stats);
+                vipTransactions = reconcileResult.vipTransactions;
+                localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
+                localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+              }
+
               hydrateVipAreaFromData({ forceHistory: true });
               // REMOVED: syncVipListFromLatestSnapshot() - prevents overwriting VIP balances
               refreshQuickOrderList();
               loadHistory();
-              alert('✅ Import thành công!');
+
+              const statsMsg = reconcileResult.changed
+                ? `\n\nĐồng bộ VIP:\n- Tạo mới: ${reconcileResult.stats.created}\n- Cập nhật: ${reconcileResult.stats.updated}\n- Xóa trùng: ${reconcileResult.stats.deduped}`
+                : '';
+              alert(`✅ Import thành công!${statsMsg}`);
             }
           } catch (err) {
             alert('❌ File không hợp lệ! Vui lòng chọn file JSON đúng định dạng.');
