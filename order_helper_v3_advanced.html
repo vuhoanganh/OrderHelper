@@ -6198,7 +6198,120 @@
         sorted.map(name => `<option value="${name.replace(/"/g, '&quot;')}">${name}</option>`).join('');
     }
 
-  </script>
+  
+    // ========== AUDIT UTILS (Exported to Window) ==========
+    
+    /**
+     * Audit VIP Ledger against Order History
+     * Checks consistency between orders and transactions
+     */
+    window.auditVipLedgerAgainstOrders = function() {
+      console.log("🔍 Starting Audit VIP Ledger...");
+      const missingVipTx = [];
+      const cashButHasVipTx = [];
+      const orphanTx = [];
+
+      // 1. Build map of existing VIP Order Transactions
+      // Key: `${orderId}-${detailIndex}`
+      const txMap = new Map();
+      
+      vipTransactions.forEach(tx => {
+        if (tx.type === 'order') {
+          // Check for malformed/orphan transactions
+          if (!tx.orderId || tx.detailIndex === undefined || tx.detailIndex === null) {
+            orphanTx.push({
+              txId: tx.id,
+              name: tx.name,
+              amount: tx.amount,
+              orderId: tx.orderId,
+              detailIndex: tx.detailIndex,
+              reason: "Missing orderId or detailIndex"
+            });
+          } else {
+            // Valid-looking transaction, map it
+            const key = `${tx.orderId}-${tx.detailIndex}`;
+            if (!txMap.has(key)) txMap.set(key, []);
+            txMap.get(key).push(tx);
+          }
+        }
+      });
+
+      // 2. Scan Order History
+      if (!orderHistory || !Array.isArray(orderHistory)) {
+        console.error("❌ orderHistory is missing or invalid");
+        return;
+      }
+
+      orderHistory.forEach(order => {
+        if (!order.details || !Array.isArray(order.details)) return;
+        
+        order.details.forEach((detail, idx) => {
+          const key = `${order.id}-${idx}`;
+          const txList = txMap.get(key);
+          const hasTx = txList && txList.length > 0;
+          
+          // Case 1: Record says VIP Paid => MUST have transaction
+          if (detail.paid === true && detail.paymentMethod === 'vip') {
+            if (!hasTx) {
+              missingVipTx.push({
+                orderId: order.id,
+                orderDate: order.date,
+                itemName: order.itemName,
+                detailName: detail.name,
+                detailIndex: idx,
+                amount: detail.due,
+                reason: "Paid VIP but missing transaction"
+              });
+            }
+          }
+          
+          // Case 2: Record says Cash (or null) => MUST NOT have VIP transaction
+          // Note: If paymentMethod is undefined/null but paid=true, it's ambiguous but usually implies cash if not marked VIP
+          // If explicitly 'cash', definitely shouldn't be in VIP ledger
+          else if (detail.paid === true && (detail.paymentMethod === 'cash' || !detail.paymentMethod)) {
+            if (hasTx) {
+              cashButHasVipTx.push({
+                orderId: order.id,
+                itemName: order.itemName,
+                detailName: detail.name,
+                detailIndex: idx,
+                paymentMethod: detail.paymentMethod,
+                txIds: txList.map(t => t.id).join(', '),
+                reason: `Paid '${detail.paymentMethod}' but has VIP transaction`
+              });
+            }
+          }
+        });
+      });
+
+      // Output Results
+      console.log("=== 📊 AUDIT RESULTS ===");
+      
+      if (missingVipTx.length > 0) {
+        console.error(`❌ Found ${missingVipTx.length} MISSING VIP transactions!`);
+        console.table(missingVipTx);
+      } else {
+        console.log("✅ No missing VIP transactions.");
+      }
+
+      if (cashButHasVipTx.length > 0) {
+        console.error(`❌ Found ${cashButHasVipTx.length} CASH orders with ghost VIP transactions!`);
+        console.table(cashButHasVipTx);
+      } else {
+        console.log("✅ No Cash orders with ghost VIP transactions.");
+      }
+
+      if (orphanTx.length > 0) {
+        console.warn(`⚠️ Found ${orphanTx.length} ORPHAN transactions (missing link info)!`);
+        console.table(orphanTx);
+      } else {
+        console.log("✅ No Orphan transactions.");
+      }
+      
+      console.log("=== END AUDIT ===");
+    };
+
+</script>
 
 </body>
 
