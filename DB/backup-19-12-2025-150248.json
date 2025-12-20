@@ -1,9 +1,2180 @@
 {
   "version": "1.0",
-  "timestamp": "2025-12-16T16:35:27.505Z",
-  "backupTime": 1765902927505,
+  "timestamp": "2025-12-19T11:02:48.493Z",
+  "backupTime": 1766142168493,
   "data": {
     "orderHistory": [
+      {
+        "id": 1763707923367,
+        "date": "2025-11-21T06:52:03.368Z",
+        "itemName": "Phở bò",
+        "totalParts": 20,
+        "sellingPrice": 38,
+        "totalCost": 720,
+        "revenue": 722,
+        "profit": 2,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "due": 38,
+            "paid": true,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 8,
+            "due": 304,
+            "paid": true,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Lucas",
+            "qty": 1,
+            "due": 38,
+            "paid": true,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "due": 38,
+            "paid": true,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Hunter",
+            "qty": 1,
+            "due": 38,
+            "paid": true,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Harrison",
+            "qty": 1,
+            "due": 38,
+            "paid": true,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Ryan",
+            "qty": 2,
+            "due": 76,
+            "paid": true,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Daniel",
+            "qty": 2,
+            "due": 76,
+            "paid": true,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Ben",
+            "qty": 2,
+            "due": 76,
+            "paid": true,
+            "isVipPayment": false,
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            107
+          ],
+          [
+            "a Dave",
+            696
+          ]
+        ]
+      },
+      {
+        "id": 1763971377826,
+        "date": "2025-11-24T08:02:57.826Z",
+        "itemName": "Hủ tiếu hải sản",
+        "totalParts": 18,
+        "sellingPrice": 36,
+        "sellingPriceShip": 40,
+        "sellingPriceNonShip": 36,
+        "splitShipMode": true,
+        "shipCount": 10,
+        "nonShipCount": 8,
+        "shipFee": 40,
+        "totalCost": 685,
+        "revenue": 688,
+        "profit": 3,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 1,
+            "nonShipQty": 0,
+            "due": 40,
+            "paid": true,
+            "isVIP": true,
+            "unitPrice": 40,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 8,
+            "shipQty": 7,
+            "nonShipQty": 1,
+            "due": 316,
+            "paid": true,
+            "isVIP": true,
+            "unitPrice": "36đ / 40đ",
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Lucas",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 36,
+            "paid": true,
+            "isVIP": false,
+            "unitPrice": 36,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 36,
+            "paid": true,
+            "isVIP": false,
+            "unitPrice": 36,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Hunter",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 36,
+            "paid": true,
+            "isVIP": false,
+            "unitPrice": 36,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Ryan",
+            "qty": 2,
+            "shipQty": 0,
+            "nonShipQty": 2,
+            "due": 72,
+            "paid": true,
+            "isVIP": false,
+            "unitPrice": 36,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Nathan",
+            "qty": 2,
+            "shipQty": 1,
+            "nonShipQty": 1,
+            "due": 76,
+            "paid": true,
+            "isVIP": true,
+            "unitPrice": "36đ / 40đ",
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "payMethod": null
+          },
+          {
+            "name": "Annie",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 36,
+            "paid": true,
+            "isVIP": false,
+            "unitPrice": 36,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Alvin",
+            "qty": 1,
+            "shipQty": 1,
+            "nonShipQty": 0,
+            "due": 40,
+            "paid": true,
+            "isVIP": false,
+            "unitPrice": 40,
+            "isVipPayment": false,
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            567
+          ],
+          [
+            "a Dave",
+            380
+          ],
+          [
+            "Nathan",
+            424
+          ]
+        ]
+      },
+      {
+        "id": 1763980515662,
+        "date": "2025-11-24T10:35:15.662Z",
+        "itemName": "Cơm tấm",
+        "totalParts": 15,
+        "sellingPrice": 40,
+        "sellingPriceShip": 40,
+        "sellingPriceNonShip": 40,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 14,
+        "shipFee": 0,
+        "totalCost": 550,
+        "revenue": 560,
+        "profit": 10,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 40,
+            "paid": true,
+            "isVIP": true,
+            "unitPrice": 40,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 8,
+            "shipQty": 0,
+            "nonShipQty": 8,
+            "due": 320,
+            "paid": true,
+            "isVIP": true,
+            "unitPrice": 40,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 40,
+            "paid": true,
+            "isVIP": false,
+            "unitPrice": 40,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Lucas",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 40,
+            "paid": true,
+            "isVIP": false,
+            "unitPrice": 40,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Hunter",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 40,
+            "paid": true,
+            "isVIP": false,
+            "unitPrice": 40,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Annie",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 40,
+            "paid": true,
+            "isVIP": false,
+            "unitPrice": 40,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Alvin",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 40,
+            "paid": true,
+            "isVIP": false,
+            "unitPrice": 40,
+            "isVipPayment": false,
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            527
+          ],
+          [
+            "a Dave",
+            60
+          ],
+          [
+            "Nathan",
+            424
+          ]
+        ]
+      },
+      {
+        "id": 1764066299460,
+        "date": "2025-11-25T10:24:59.460Z",
+        "itemName": "Bánh hỏi",
+        "totalParts": 11,
+        "sellingPrice": 39,
+        "sellingPriceShip": 39,
+        "sellingPriceNonShip": 39,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 10,
+        "shipFee": 0,
+        "totalCost": 385,
+        "revenue": 390,
+        "profit": 5,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 39,
+            "paid": true,
+            "isVIP": true,
+            "unitPrice": 39,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 8,
+            "shipQty": 0,
+            "nonShipQty": 8,
+            "due": 312,
+            "paid": true,
+            "isVIP": true,
+            "unitPrice": 39,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Hunter",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 39,
+            "paid": true,
+            "isVIP": false,
+            "unitPrice": 39,
+            "isVipPayment": false,
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            488
+          ],
+          [
+            "a Dave",
+            748
+          ],
+          [
+            "Nathan",
+            424
+          ]
+        ]
+      },
+      {
+        "id": 1764137733894,
+        "date": "2025-11-26T06:15:33.894Z",
+        "itemName": "Bún Thái",
+        "totalParts": 12,
+        "sellingPrice": 39,
+        "sellingPriceShip": 39,
+        "sellingPriceNonShip": 39,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 11,
+        "shipFee": 0,
+        "totalCost": 432,
+        "revenue": 429,
+        "profit": -3,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 39,
+            "paid": true,
+            "unitPrice": 39,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 8,
+            "shipQty": 0,
+            "nonShipQty": 8,
+            "due": 312,
+            "paid": true,
+            "unitPrice": 39,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Lucas",
+            "qty": 2,
+            "shipQty": 0,
+            "nonShipQty": 2,
+            "due": 78,
+            "paid": true,
+            "unitPrice": 39,
+            "isVipPayment": false,
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            449
+          ],
+          [
+            "a Dave",
+            436
+          ],
+          [
+            "Nathan",
+            424
+          ]
+        ]
+      },
+      {
+        "id": 1764234829298,
+        "date": "2025-11-27T09:13:49.298Z",
+        "itemName": "Cơm gà xối mỡ",
+        "totalParts": 14,
+        "sellingPrice": 39,
+        "sellingPriceShip": 39,
+        "sellingPriceNonShip": 39,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 13,
+        "shipFee": 0,
+        "totalCost": 560,
+        "revenue": 507,
+        "profit": -53,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 39,
+            "paid": true,
+            "unitPrice": 39,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 8,
+            "shipQty": 0,
+            "nonShipQty": 8,
+            "due": 312,
+            "paid": true,
+            "unitPrice": 39,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 39,
+            "paid": true,
+            "unitPrice": 39,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Bảo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 39,
+            "paid": true,
+            "unitPrice": 39,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Hunter",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 39,
+            "paid": true,
+            "unitPrice": 39,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Ben",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 39,
+            "paid": true,
+            "unitPrice": 39,
+            "isVipPayment": false,
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            410
+          ],
+          [
+            "a Dave",
+            124
+          ],
+          [
+            "Nathan",
+            424
+          ]
+        ]
+      },
+      {
+        "id": 1764563904041,
+        "date": "2025-12-01T04:38:24.041Z",
+        "itemName": "Bánh cuốn",
+        "totalParts": 11,
+        "sellingPrice": 34,
+        "sellingPriceShip": 34,
+        "sellingPriceNonShip": 34,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 10,
+        "shipFee": 0,
+        "totalCost": 365,
+        "revenue": 374,
+        "profit": 9,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 34,
+            "paid": true,
+            "unitPrice": 34,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 8,
+            "shipQty": 0,
+            "nonShipQty": 8,
+            "due": 272,
+            "paid": true,
+            "unitPrice": 34,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Bảo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 34,
+            "paid": true,
+            "unitPrice": 34,
+            "isVipPayment": false,
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            376
+          ],
+          [
+            "a Dave",
+            -148
+          ],
+          [
+            "Nathan",
+            424
+          ]
+        ]
+      },
+      {
+        "id": 1764565276243,
+        "date": "2025-12-01T05:01:16.243Z",
+        "itemName": "Cơm rang dưa bò",
+        "totalParts": 16,
+        "alvinFree": true,
+        "sellingPrice": 27,
+        "sellingPriceShip": 27,
+        "sellingPriceNonShip": 27,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 15,
+        "shipFee": 0,
+        "totalCost": 430,
+        "totalCostInput": 430,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 27,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 405,
+        "profit": -25,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 27,
+            "paid": true,
+            "unitPrice": 27,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 8,
+            "shipQty": 0,
+            "nonShipQty": 8,
+            "due": 216,
+            "paid": true,
+            "unitPrice": 27,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Vương",
+            "qty": 3,
+            "shipQty": 0,
+            "nonShipQty": 3,
+            "due": 81,
+            "paid": true,
+            "unitPrice": 27,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 27,
+            "paid": true,
+            "unitPrice": 27,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Bảo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 27,
+            "paid": true,
+            "unitPrice": 27,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Alvin",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 27,
+            "paid": true,
+            "unitPrice": 27,
+            "isVipPayment": false,
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            349
+          ],
+          [
+            "a Dave",
+            1136
+          ],
+          [
+            "Nathan",
+            424
+          ]
+        ],
+        "signature": "{\"itemName\":\"Cơm rang dưa bò\",\"totalParts\":16,\"alvinFree\":true,\"totalCostInput\":430,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":27,\"priceShip\":27,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":27,\"unitPrice\":27},{\"name\":\"a Dave\",\"qty\":8,\"shipQty\":0,\"paid\":true,\"due\":216,\"unitPrice\":27},{\"name\":\"Vương\",\"qty\":3,\"shipQty\":0,\"paid\":false,\"due\":81,\"unitPrice\":27},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":27,\"unitPrice\":27},{\"name\":\"Bảo\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":27,\"unitPrice\":27},{\"name\":\"Alvin\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":27,\"unitPrice\":27}]}"
+      },
+      {
+        "id": 1764742629501,
+        "date": "2025-12-03T06:17:09.501Z",
+        "itemName": "phở bò",
+        "totalParts": 13,
+        "alvinFree": true,
+        "sellingPrice": 37,
+        "sellingPriceShip": 37,
+        "sellingPriceNonShip": 37,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 12,
+        "shipFee": 0,
+        "totalCost": 455,
+        "totalCostInput": 455,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 37,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 444,
+        "profit": -11,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 37,
+            "paid": true,
+            "unitPrice": 37,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 8,
+            "shipQty": 0,
+            "nonShipQty": 8,
+            "due": 296,
+            "paid": true,
+            "unitPrice": 37,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 37,
+            "paid": true,
+            "unitPrice": 37,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Park",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 37,
+            "paid": true,
+            "unitPrice": 37,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Kudo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 37,
+            "paid": true,
+            "unitPrice": 37,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            312
+          ],
+          [
+            "a Dave",
+            840
+          ],
+          [
+            "Nathan",
+            424
+          ]
+        ],
+        "signature": "{\"itemName\":\"phở bò\",\"totalParts\":13,\"alvinFree\":true,\"totalCostInput\":455,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":37,\"priceShip\":37,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":37,\"unitPrice\":37},{\"name\":\"a Dave\",\"qty\":8,\"shipQty\":0,\"paid\":true,\"due\":296,\"unitPrice\":37},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":37,\"unitPrice\":37},{\"name\":\"Park\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":37,\"unitPrice\":37},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":37,\"unitPrice\":37}]}"
+      },
+      {
+        "id": 1764825168296,
+        "date": "2025-12-04T05:12:48.296Z",
+        "itemName": "Bánh ướt gà xé",
+        "totalParts": 13,
+        "alvinFree": true,
+        "sellingPrice": 28,
+        "sellingPriceShip": 28,
+        "sellingPriceNonShip": 28,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 12,
+        "shipFee": 0,
+        "totalCost": 325,
+        "totalCostInput": 325,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 28,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 336,
+        "profit": 11,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 28,
+            "paid": true,
+            "unitPrice": 28,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 8,
+            "shipQty": 0,
+            "nonShipQty": 8,
+            "due": 224,
+            "paid": true,
+            "unitPrice": 28,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 28,
+            "paid": true,
+            "unitPrice": 28,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Kudo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 28,
+            "paid": true,
+            "unitPrice": 28,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Ryan",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 28,
+            "paid": true,
+            "unitPrice": 28,
+            "isVipPayment": false,
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            284
+          ],
+          [
+            "a Dave",
+            616
+          ],
+          [
+            "Nathan",
+            424
+          ]
+        ],
+        "signature": "{\"itemName\":\"Bánh ướt gà xé\",\"totalParts\":13,\"alvinFree\":true,\"totalCostInput\":325,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":28,\"priceShip\":28,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":28,\"unitPrice\":28},{\"name\":\"a Dave\",\"qty\":8,\"shipQty\":0,\"paid\":true,\"due\":224,\"unitPrice\":28},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":28,\"unitPrice\":28},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":28,\"unitPrice\":28},{\"name\":\"Ryan\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":28,\"unitPrice\":28}]}"
+      },
+      {
+        "id": 1764921977850,
+        "date": "2025-12-05T08:06:17.850Z",
+        "itemName": "Bún thịt nướng",
+        "totalParts": 14,
+        "alvinFree": true,
+        "sellingPrice": 28,
+        "sellingPriceShip": 28,
+        "sellingPriceNonShip": 28,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 13,
+        "shipFee": 0,
+        "totalCost": 364,
+        "totalCostInput": 364,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 28,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 364,
+        "profit": 0,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 28,
+            "paid": true,
+            "unitPrice": 28,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 8,
+            "shipQty": 0,
+            "nonShipQty": 8,
+            "due": 224,
+            "paid": true,
+            "unitPrice": 28,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Bảo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 28,
+            "paid": true,
+            "unitPrice": 28,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 28,
+            "paid": true,
+            "unitPrice": 28,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Kudo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 28,
+            "paid": true,
+            "unitPrice": 28,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Evan",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 28,
+            "paid": true,
+            "unitPrice": 28,
+            "isVipPayment": false,
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            256
+          ],
+          [
+            "a Dave",
+            392
+          ],
+          [
+            "Nathan",
+            424
+          ]
+        ],
+        "signature": "{\"itemName\":\"Bún thịt nướng\",\"totalParts\":14,\"alvinFree\":true,\"totalCostInput\":364,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":28,\"priceShip\":28,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":28,\"unitPrice\":28},{\"name\":\"a Dave\",\"qty\":8,\"shipQty\":0,\"paid\":true,\"due\":224,\"unitPrice\":28},{\"name\":\"Bảo\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":28,\"unitPrice\":28},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":28,\"unitPrice\":28},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":28,\"unitPrice\":28},{\"name\":\"Evan\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":28,\"unitPrice\":28}]}"
+      },
+      {
+        "id": 1765257397490,
+        "date": "2025-12-09T05:16:37.490Z",
+        "itemName": "Thịt kho trứng",
+        "totalParts": 3,
+        "alvinFree": false,
+        "sellingPrice": 30,
+        "sellingPriceShip": 30,
+        "sellingPriceNonShip": 30,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 2,
+        "shipFee": 0,
+        "totalCost": 90,
+        "totalCostInput": 90,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 30,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 90,
+        "profit": 0,
+        "details": [
+          {
+            "name": "Kudo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 30,
+            "paid": true,
+            "unitPrice": 30,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 30,
+            "paid": true,
+            "unitPrice": 30,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            726
+          ],
+          [
+            "a Dave",
+            392
+          ],
+          [
+            "Nathan",
+            424
+          ],
+          [
+            "Kudo",
+            470
+          ]
+        ],
+        "signature": "{\"itemName\":\"Thịt kho trứng\",\"totalParts\":3,\"alvinFree\":false,\"totalCostInput\":90,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":30,\"priceShip\":30,\"splitShipMode\":false,\"details\":[{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":30,\"unitPrice\":30},{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":30,\"unitPrice\":30}]}"
+      },
+      {
+        "id": 1765257488017,
+        "date": "2025-12-09T05:18:08.017Z",
+        "itemName": "Chả lụa (1kg)",
+        "totalParts": 4,
+        "alvinFree": false,
+        "sellingPrice": 60,
+        "sellingPriceShip": 60,
+        "sellingPriceNonShip": 60,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 3,
+        "shipFee": 0,
+        "totalCost": 180,
+        "totalCostInput": 180,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 60,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 240,
+        "profit": 60,
+        "details": [
+          {
+            "name": "Kudo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 60,
+            "paid": true,
+            "unitPrice": 60,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Ben",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 60,
+            "paid": true,
+            "unitPrice": 60,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Park",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 60,
+            "paid": true,
+            "unitPrice": 60,
+            "isVipPayment": false,
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            726
+          ],
+          [
+            "a Dave",
+            392
+          ],
+          [
+            "Nathan",
+            424
+          ],
+          [
+            "Kudo",
+            410
+          ]
+        ],
+        "signature": "{\"itemName\":\"Chả lụa (1kg)\",\"totalParts\":4,\"alvinFree\":false,\"totalCostInput\":180,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":60,\"priceShip\":60,\"splitShipMode\":false,\"details\":[{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":60,\"unitPrice\":60},{\"name\":\"Ben\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":60,\"unitPrice\":60},{\"name\":\"Park\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":60,\"unitPrice\":60}]}"
+      },
+      {
+        "id": 1765257646121,
+        "date": "2025-12-09T05:20:46.121Z",
+        "itemName": "Bánh hỏi heo quay",
+        "totalParts": 13,
+        "alvinFree": true,
+        "sellingPrice": 30,
+        "sellingPriceShip": 30,
+        "sellingPriceNonShip": 30,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 12,
+        "shipFee": 0,
+        "totalCost": 351,
+        "totalCostInput": 351,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 30,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 360,
+        "profit": 9,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 30,
+            "paid": true,
+            "unitPrice": 30,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 8,
+            "shipQty": 0,
+            "nonShipQty": 8,
+            "due": 240,
+            "paid": true,
+            "unitPrice": 30,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Tùng",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 30,
+            "paid": true,
+            "unitPrice": 30,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 30,
+            "paid": true,
+            "unitPrice": 30,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Kudo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 30,
+            "paid": true,
+            "unitPrice": 30,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            696
+          ],
+          [
+            "a Dave",
+            152
+          ],
+          [
+            "Nathan",
+            424
+          ],
+          [
+            "Kudo",
+            380
+          ]
+        ],
+        "signature": "{\"itemName\":\"Bánh hỏi heo quay\",\"totalParts\":13,\"alvinFree\":true,\"totalCostInput\":351,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":30,\"priceShip\":30,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":30,\"unitPrice\":30},{\"name\":\"a Dave\",\"qty\":8,\"shipQty\":0,\"paid\":true,\"due\":240,\"unitPrice\":30},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":30,\"unitPrice\":30},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":30,\"unitPrice\":30},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":30,\"unitPrice\":30}]}"
+      },
+      {
+        "id": 1765257724137,
+        "date": "2025-12-09T05:22:04.137Z",
+        "itemName": "Thịt heo quay (1kg)",
+        "totalParts": 1,
+        "alvinFree": false,
+        "sellingPrice": 50,
+        "sellingPriceShip": 50,
+        "sellingPriceNonShip": 50,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 1,
+        "shipFee": 0,
+        "totalCost": 50,
+        "totalCostInput": 50,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 50,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 50,
+        "profit": 0,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 50,
+            "paid": true,
+            "unitPrice": 50,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            646
+          ],
+          [
+            "a Dave",
+            152
+          ],
+          [
+            "Nathan",
+            424
+          ],
+          [
+            "Kudo",
+            380
+          ]
+        ],
+        "signature": "{\"itemName\":\"Thịt heo quay (1kg)\",\"totalParts\":1,\"alvinFree\":false,\"totalCostInput\":50,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":50,\"priceShip\":50,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":50,\"unitPrice\":50}]}"
+      },
+      {
+        "id": 1765257902551,
+        "date": "2025-12-09T05:25:02.551Z",
+        "itemName": "Mì hoành thánh",
+        "totalParts": 14,
+        "alvinFree": false,
+        "sellingPrice": 38,
+        "sellingPriceShip": 38,
+        "sellingPriceNonShip": 38,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 13,
+        "shipFee": 0,
+        "totalCost": 518,
+        "totalCostInput": 518,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 38,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 532,
+        "profit": 14,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 38,
+            "paid": true,
+            "unitPrice": 38,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 8,
+            "shipQty": 0,
+            "nonShipQty": 8,
+            "due": 304,
+            "paid": true,
+            "unitPrice": 38,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Kudo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 38,
+            "paid": true,
+            "unitPrice": 38,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Alvis",
+            "qty": 2,
+            "shipQty": 0,
+            "nonShipQty": 2,
+            "due": 76,
+            "paid": true,
+            "unitPrice": 38,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Tùng",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 38,
+            "paid": true,
+            "unitPrice": 38,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            608
+          ],
+          [
+            "a Dave",
+            -152
+          ],
+          [
+            "Nathan",
+            424
+          ],
+          [
+            "Kudo",
+            342
+          ]
+        ],
+        "signature": "{\"itemName\":\"Mì hoành thánh\",\"totalParts\":14,\"alvinFree\":false,\"totalCostInput\":518,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":38,\"priceShip\":38,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":38,\"unitPrice\":38},{\"name\":\"a Dave\",\"qty\":8,\"shipQty\":0,\"paid\":true,\"due\":304,\"unitPrice\":38},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":38,\"unitPrice\":38},{\"name\":\"Alvis\",\"qty\":2,\"shipQty\":0,\"paid\":false,\"due\":76,\"unitPrice\":38},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":38,\"unitPrice\":38}]}"
+      },
+      {
+        "id": 1765270799740,
+        "date": "2025-12-09T08:59:59.740Z",
+        "itemName": "Chả lụa (1kg)",
+        "totalParts": 4,
+        "alvinFree": false,
+        "sellingPrice": 60,
+        "sellingPriceShip": 60,
+        "sellingPriceNonShip": 60,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 3,
+        "shipFee": 0,
+        "totalCost": 0,
+        "totalCostInput": 0,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 60,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 240,
+        "profit": 240,
+        "details": [
+          {
+            "name": "Ryan",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 60,
+            "paid": true,
+            "unitPrice": 60,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "payMethod": null
+          },
+          {
+            "name": "Ben",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 60,
+            "paid": true,
+            "unitPrice": 60,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Park",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 60,
+            "paid": true,
+            "unitPrice": 60,
+            "isVipPayment": false,
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            608
+          ],
+          [
+            "a Dave",
+            -152
+          ],
+          [
+            "Nathan",
+            424
+          ],
+          [
+            "Kudo",
+            342
+          ],
+          [
+            "Tùng",
+            500
+          ]
+        ],
+        "signature": "{\"itemName\":\"Chả lụa (1kg)\",\"totalParts\":4,\"alvinFree\":false,\"totalCostInput\":0,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":60,\"priceShip\":60,\"splitShipMode\":false,\"details\":[{\"name\":\"Ryan\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":60,\"unitPrice\":60},{\"name\":\"Ben\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":60,\"unitPrice\":60},{\"name\":\"Park\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":60,\"unitPrice\":60}]}"
+      },
+      {
+        "id": 1765348940176,
+        "date": "2025-12-10T06:42:20.176Z",
+        "itemName": "Cơm tấm",
+        "totalParts": 16,
+        "alvinFree": true,
+        "sellingPrice": 35,
+        "sellingPriceShip": 35,
+        "sellingPriceNonShip": 35,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 15,
+        "shipFee": 0,
+        "totalCost": 512,
+        "totalCostInput": 512,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 35,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 525,
+        "profit": 13,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 35,
+            "paid": true,
+            "unitPrice": 35,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 6,
+            "shipQty": 0,
+            "nonShipQty": 6,
+            "due": 210,
+            "paid": true,
+            "unitPrice": 35,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Kudo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 35,
+            "paid": true,
+            "unitPrice": 35,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Nathan",
+            "qty": 2,
+            "shipQty": 0,
+            "nonShipQty": 2,
+            "due": 70,
+            "paid": true,
+            "unitPrice": 35,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "payMethod": null
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 35,
+            "paid": true,
+            "unitPrice": 35,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Ben",
+            "qty": 3,
+            "shipQty": 0,
+            "nonShipQty": 3,
+            "due": 105,
+            "paid": true,
+            "unitPrice": 35,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Tùng",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 35,
+            "paid": true,
+            "unitPrice": 35,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            573
+          ],
+          [
+            "a Dave",
+            638
+          ],
+          [
+            "Nathan",
+            354
+          ],
+          [
+            "Kudo",
+            367
+          ],
+          [
+            "Tùng",
+            465
+          ]
+        ],
+        "signature": "{\"itemName\":\"Cơm tấm\",\"totalParts\":16,\"alvinFree\":true,\"totalCostInput\":512,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":35,\"priceShip\":35,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":35,\"unitPrice\":35},{\"name\":\"a Dave\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":210,\"unitPrice\":35},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":35,\"unitPrice\":35},{\"name\":\"Nathan\",\"qty\":2,\"shipQty\":0,\"paid\":true,\"due\":70,\"unitPrice\":35},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":35,\"unitPrice\":35},{\"name\":\"Ben\",\"qty\":3,\"shipQty\":0,\"paid\":false,\"due\":105,\"unitPrice\":35},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":35,\"unitPrice\":35}]}"
+      },
+      {
+        "id": 1765489133207,
+        "date": "2025-12-11T21:38:53.207Z",
+        "itemName": "Hủ tiếu sườn",
+        "totalParts": 11,
+        "alvinFree": false,
+        "sellingPrice": 36,
+        "sellingPriceShip": 36,
+        "sellingPriceNonShip": 36,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 10,
+        "shipFee": 0,
+        "totalCost": 385,
+        "totalCostInput": 385,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 36,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 396,
+        "profit": 11,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 36,
+            "paid": true,
+            "unitPrice": 36,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 6,
+            "shipQty": 0,
+            "nonShipQty": 6,
+            "due": 216,
+            "paid": true,
+            "unitPrice": 36,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 36,
+            "paid": true,
+            "unitPrice": 36,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Kudo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 36,
+            "paid": true,
+            "unitPrice": 36,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Tùng",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 36,
+            "paid": true,
+            "unitPrice": 36,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            537
+          ],
+          [
+            "a Dave",
+            422
+          ],
+          [
+            "Nathan",
+            354
+          ],
+          [
+            "Kudo",
+            331
+          ],
+          [
+            "Tùng",
+            326
+          ],
+          [
+            "Ryan",
+            240
+          ]
+        ],
+        "signature": "{\"itemName\":\"Hủ tiếu sườn\",\"totalParts\":11,\"alvinFree\":false,\"totalCostInput\":385,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":36,\"priceShip\":36,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":36,\"unitPrice\":36},{\"name\":\"a Dave\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":216,\"unitPrice\":36},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":36,\"unitPrice\":36},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":36,\"unitPrice\":36},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":36,\"unitPrice\":36}]}"
+      },
+      {
+        "id": 1765568167306,
+        "date": "2025-12-12T19:36:07.306Z",
+        "itemName": "Phá lấu bò",
+        "totalParts": 15,
+        "alvinFree": true,
+        "sellingPrice": 30,
+        "sellingPriceShip": 30,
+        "sellingPriceNonShip": 30,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 14,
+        "shipFee": 0,
+        "totalCost": 420,
+        "totalCostInput": 420,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 30,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 420,
+        "profit": 0,
+        "details": [
+          {
+            "name": "a Dave",
+            "qty": 5,
+            "shipQty": 0,
+            "nonShipQty": 5,
+            "due": 150,
+            "paid": true,
+            "unitPrice": 30,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Nathan",
+            "qty": 2,
+            "shipQty": 0,
+            "nonShipQty": 2,
+            "due": 60,
+            "paid": true,
+            "unitPrice": 30,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "payMethod": null
+          },
+          {
+            "name": "Tùng",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 30,
+            "paid": true,
+            "unitPrice": 30,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Kudo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 30,
+            "paid": true,
+            "unitPrice": 30,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Ryan",
+            "qty": 2,
+            "shipQty": 0,
+            "nonShipQty": 2,
+            "due": 60,
+            "paid": true,
+            "unitPrice": 30,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "payMethod": null
+          },
+          {
+            "name": "Park",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 30,
+            "paid": true,
+            "unitPrice": 30,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Kane",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 30,
+            "paid": false,
+            "unitPrice": 30,
+            "isVipPayment": false,
+            "payMethod": null
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 30,
+            "paid": true,
+            "unitPrice": 30,
+            "isVipPayment": false,
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            537
+          ],
+          [
+            "a Dave",
+            272
+          ],
+          [
+            "Nathan",
+            294
+          ],
+          [
+            "Kudo",
+            301
+          ],
+          [
+            "Tùng",
+            331
+          ],
+          [
+            "Ryan",
+            180
+          ]
+        ],
+        "signature": "{\"itemName\":\"Phá lấu bò\",\"totalParts\":15,\"alvinFree\":true,\"totalCostInput\":420,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":30,\"priceShip\":30,\"splitShipMode\":false,\"details\":[{\"name\":\"a Dave\",\"qty\":5,\"shipQty\":0,\"paid\":true,\"due\":150,\"unitPrice\":30},{\"name\":\"Nathan\",\"qty\":2,\"shipQty\":0,\"paid\":true,\"due\":60,\"unitPrice\":30},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":30,\"unitPrice\":30},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":30,\"unitPrice\":30},{\"name\":\"Ryan\",\"qty\":2,\"shipQty\":0,\"paid\":true,\"due\":60,\"unitPrice\":30},{\"name\":\"Park\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":30,\"unitPrice\":30},{\"name\":\"Kane\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":30,\"unitPrice\":30},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":30,\"unitPrice\":30}]}"
+      },
+      {
+        "id": 1765607924881,
+        "date": "2025-12-13T06:38:44.881Z",
+        "itemName": "Bún chả",
+        "totalParts": 12,
+        "alvinFree": true,
+        "sellingPrice": 39,
+        "sellingPriceShip": 39,
+        "sellingPriceNonShip": 39,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 11,
+        "shipFee": 0,
+        "totalCost": 420,
+        "totalCostInput": 420,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 39,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 429,
+        "profit": 9,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 39,
+            "paid": true,
+            "unitPrice": 39,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Kudo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 39,
+            "paid": true,
+            "unitPrice": 39,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "a Dave",
+            "qty": 6,
+            "shipQty": 0,
+            "nonShipQty": 6,
+            "due": 234,
+            "paid": true,
+            "unitPrice": 39,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Tùng",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 39,
+            "paid": true,
+            "unitPrice": 39,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Ryan",
+            "qty": 2,
+            "shipQty": 0,
+            "nonShipQty": 2,
+            "due": 78,
+            "paid": true,
+            "unitPrice": 39,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            498
+          ],
+          [
+            "a Dave",
+            38
+          ],
+          [
+            "Nathan",
+            294
+          ],
+          [
+            "Kudo",
+            262
+          ],
+          [
+            "Tùng",
+            322
+          ],
+          [
+            "Ryan",
+            162
+          ]
+        ],
+        "signature": "{\"itemName\":\"Bún chả\",\"totalParts\":12,\"alvinFree\":true,\"totalCostInput\":420,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":39,\"priceShip\":39,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":39,\"unitPrice\":39},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":39,\"unitPrice\":39},{\"name\":\"a Dave\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":234,\"unitPrice\":39},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":39,\"unitPrice\":39},{\"name\":\"Ryan\",\"qty\":2,\"shipQty\":0,\"paid\":true,\"due\":78,\"unitPrice\":39}]}"
+      },
+      {
+        "id": 1765804362922,
+        "date": "2025-12-15T13:12:42.922Z",
+        "itemName": "Phở bò",
+        "totalParts": 12,
+        "alvinFree": true,
+        "sellingPrice": 37,
+        "sellingPriceShip": 37,
+        "sellingPriceNonShip": 37,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 11,
+        "shipFee": 0,
+        "totalCost": 396,
+        "totalCostInput": 396,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 37,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 407,
+        "profit": 11,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 37,
+            "paid": true,
+            "unitPrice": 37,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Nathan",
+            "qty": 2,
+            "shipQty": 0,
+            "nonShipQty": 2,
+            "due": 74,
+            "paid": true,
+            "unitPrice": 37,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "payMethod": null
+          },
+          {
+            "name": "a Dave",
+            "qty": 6,
+            "shipQty": 0,
+            "nonShipQty": 6,
+            "due": 222,
+            "paid": true,
+            "unitPrice": 37,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Kudo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 37,
+            "paid": true,
+            "unitPrice": 37,
+            "isVipPayment": true,
+            "payMethod": null,
+            "paymentMethod": "vip"
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 37,
+            "paid": true,
+            "unitPrice": 37,
+            "isVipPayment": false,
+            "payMethod": null
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            461
+          ],
+          [
+            "a Dave",
+            616
+          ],
+          [
+            "Nathan",
+            220
+          ],
+          [
+            "Kudo",
+            225
+          ],
+          [
+            "Tùng",
+            292
+          ],
+          [
+            "Ryan",
+            102
+          ]
+        ],
+        "signature": "{\"itemName\":\"Phở bò\",\"totalParts\":12,\"alvinFree\":true,\"totalCostInput\":396,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":37,\"priceShip\":37,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":37,\"unitPrice\":37},{\"name\":\"Nathan\",\"qty\":2,\"shipQty\":0,\"paid\":true,\"due\":74,\"unitPrice\":37},{\"name\":\"a Dave\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":222,\"unitPrice\":37},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":37,\"unitPrice\":37},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":37,\"unitPrice\":37}]}"
+      },
       {
         "id": 1765898509077,
         "date": "2025-12-16T15:21:49.077Z",
@@ -110,1664 +2281,14 @@
         "signature": "{\"itemName\":\"bánh mì xíu mại\",\"totalParts\":11,\"alvinFree\":true,\"totalCostInput\":308,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":32,\"priceShip\":32,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":32,\"unitPrice\":32},{\"name\":\"a Dave\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":192,\"unitPrice\":32},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":32,\"unitPrice\":32},{\"name\":\"Harrison\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":32,\"unitPrice\":32},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":32,\"unitPrice\":32}]}"
       },
       {
-        "id": 1763707923367,
-        "date": "2025-11-21T06:52:03.368Z",
-        "itemName": "Phở bò",
-        "totalParts": 20,
-        "sellingPrice": 38,
-        "totalCost": 720,
-        "revenue": 722,
-        "profit": 2,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "due": 38,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 8,
-            "due": 304,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Lucas",
-            "qty": 1,
-            "due": 38,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvis",
-            "qty": 1,
-            "due": 38,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Hunter",
-            "qty": 1,
-            "due": 38,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Harrison",
-            "qty": 1,
-            "due": 38,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Ryan",
-            "qty": 2,
-            "due": 76,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Daniel",
-            "qty": 2,
-            "due": 76,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Ben",
-            "qty": 2,
-            "due": 76,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            107
-          ],
-          [
-            "a Dave",
-            696
-          ]
-        ]
-      },
-      {
-        "id": 1763971377826,
-        "date": "2025-11-24T08:02:57.826Z",
-        "itemName": "Hủ tiếu hải sản",
-        "totalParts": 18,
-        "sellingPrice": 36,
-        "sellingPriceShip": 40,
-        "sellingPriceNonShip": 36,
-        "splitShipMode": true,
-        "shipCount": 10,
-        "nonShipCount": 8,
-        "shipFee": 40,
-        "totalCost": 685,
-        "revenue": 688,
-        "profit": 3,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 1,
-            "nonShipQty": 0,
-            "due": 40,
-            "paid": true,
-            "isVIP": true,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 8,
-            "shipQty": 7,
-            "nonShipQty": 1,
-            "due": 316,
-            "paid": true,
-            "isVIP": true,
-            "unitPrice": "36đ / 40đ",
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Lucas",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 36,
-            "paid": true,
-            "isVIP": false,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvis",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 36,
-            "paid": true,
-            "isVIP": false,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Hunter",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 36,
-            "paid": true,
-            "isVIP": false,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Ryan",
-            "qty": 2,
-            "shipQty": 0,
-            "nonShipQty": 2,
-            "due": 72,
-            "paid": true,
-            "isVIP": false,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Nathan",
-            "qty": 2,
-            "shipQty": 1,
-            "nonShipQty": 1,
-            "due": 76,
-            "paid": true,
-            "isVIP": true,
-            "unitPrice": "36đ / 40đ",
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Annie",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 36,
-            "paid": true,
-            "isVIP": false,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvin",
-            "qty": 1,
-            "shipQty": 1,
-            "nonShipQty": 0,
-            "due": 40,
-            "paid": true,
-            "isVIP": false,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            567
-          ],
-          [
-            "a Dave",
-            380
-          ],
-          [
-            "Nathan",
-            424
-          ]
-        ]
-      },
-      {
-        "id": 1763980515662,
-        "date": "2025-11-24T10:35:15.662Z",
-        "itemName": "Cơm tấm",
-        "totalParts": 15,
-        "sellingPrice": 40,
-        "sellingPriceShip": 40,
-        "sellingPriceNonShip": 40,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 14,
-        "shipFee": 0,
-        "totalCost": 550,
-        "revenue": 560,
-        "profit": 10,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 40,
-            "paid": true,
-            "isVIP": true,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 8,
-            "shipQty": 0,
-            "nonShipQty": 8,
-            "due": 320,
-            "paid": true,
-            "isVIP": true,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvis",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 40,
-            "paid": true,
-            "isVIP": false,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Lucas",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 40,
-            "paid": true,
-            "isVIP": false,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Hunter",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 40,
-            "paid": true,
-            "isVIP": false,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Annie",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 40,
-            "paid": true,
-            "isVIP": false,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvin",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 40,
-            "paid": true,
-            "isVIP": false,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            527
-          ],
-          [
-            "a Dave",
-            60
-          ],
-          [
-            "Nathan",
-            424
-          ]
-        ]
-      },
-      {
-        "id": 1764066299460,
-        "date": "2025-11-25T10:24:59.460Z",
-        "itemName": "Bánh hỏi",
+        "id": 1765953398746,
+        "date": "2025-12-17T06:36:38.746Z",
+        "itemName": "Bún riêu",
         "totalParts": 11,
-        "sellingPrice": 39,
-        "sellingPriceShip": 39,
-        "sellingPriceNonShip": 39,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 10,
-        "shipFee": 0,
-        "totalCost": 385,
-        "revenue": 390,
-        "profit": 5,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 39,
-            "paid": true,
-            "isVIP": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 8,
-            "shipQty": 0,
-            "nonShipQty": 8,
-            "due": 312,
-            "paid": true,
-            "isVIP": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Hunter",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 39,
-            "paid": true,
-            "isVIP": false,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            488
-          ],
-          [
-            "a Dave",
-            748
-          ],
-          [
-            "Nathan",
-            424
-          ]
-        ]
-      },
-      {
-        "id": 1764137733894,
-        "date": "2025-11-26T06:15:33.894Z",
-        "itemName": "Bún Thái",
-        "totalParts": 12,
-        "sellingPrice": 39,
-        "sellingPriceShip": 39,
-        "sellingPriceNonShip": 39,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 11,
-        "shipFee": 0,
-        "totalCost": 432,
-        "revenue": 429,
-        "profit": -3,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 39,
-            "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 8,
-            "shipQty": 0,
-            "nonShipQty": 8,
-            "due": 312,
-            "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Lucas",
-            "qty": 2,
-            "shipQty": 0,
-            "nonShipQty": 2,
-            "due": 78,
-            "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            449
-          ],
-          [
-            "a Dave",
-            436
-          ],
-          [
-            "Nathan",
-            424
-          ]
-        ]
-      },
-      {
-        "id": 1764234829298,
-        "date": "2025-11-27T09:13:49.298Z",
-        "itemName": "Cơm gà xối mỡ",
-        "totalParts": 14,
-        "sellingPrice": 39,
-        "sellingPriceShip": 39,
-        "sellingPriceNonShip": 39,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 13,
-        "shipFee": 0,
-        "totalCost": 560,
-        "revenue": 507,
-        "profit": -53,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 39,
-            "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 8,
-            "shipQty": 0,
-            "nonShipQty": 8,
-            "due": 312,
-            "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvis",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 39,
-            "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Bảo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 39,
-            "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Hunter",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 39,
-            "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Ben",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 39,
-            "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            410
-          ],
-          [
-            "a Dave",
-            124
-          ],
-          [
-            "Nathan",
-            424
-          ]
-        ]
-      },
-      {
-        "id": 1764563904041,
-        "date": "2025-12-01T04:38:24.041Z",
-        "itemName": "Bánh cuốn",
-        "totalParts": 11,
-        "sellingPrice": 34,
-        "sellingPriceShip": 34,
-        "sellingPriceNonShip": 34,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 10,
-        "shipFee": 0,
-        "totalCost": 365,
-        "revenue": 374,
-        "profit": 9,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 34,
-            "paid": true,
-            "unitPrice": 34,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 8,
-            "shipQty": 0,
-            "nonShipQty": 8,
-            "due": 272,
-            "paid": true,
-            "unitPrice": 34,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Bảo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 34,
-            "paid": true,
-            "unitPrice": 34,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            376
-          ],
-          [
-            "a Dave",
-            -148
-          ],
-          [
-            "Nathan",
-            424
-          ]
-        ]
-      },
-      {
-        "id": 1764565276243,
-        "date": "2025-12-01T05:01:16.243Z",
-        "itemName": "Cơm rang dưa bò",
-        "totalParts": 16,
-        "alvinFree": true,
-        "sellingPrice": 27,
-        "sellingPriceShip": 27,
-        "sellingPriceNonShip": 27,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 15,
-        "shipFee": 0,
-        "totalCost": 430,
-        "totalCostInput": 430,
-        "costPerUnitInput": 0,
-        "targetProfit": 6,
-        "desiredPriceInput": 27,
-        "itemDesc": "",
-        "deadline": "",
-        "revenue": 405,
-        "profit": -25,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 27,
-            "paid": true,
-            "unitPrice": 27,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 8,
-            "shipQty": 0,
-            "nonShipQty": 8,
-            "due": 216,
-            "paid": true,
-            "unitPrice": 27,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Vương",
-            "qty": 3,
-            "shipQty": 0,
-            "nonShipQty": 3,
-            "due": 81,
-            "paid": true,
-            "unitPrice": 27,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvis",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 27,
-            "paid": true,
-            "unitPrice": 27,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Bảo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 27,
-            "paid": true,
-            "unitPrice": 27,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvin",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 27,
-            "paid": true,
-            "unitPrice": 27,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            349
-          ],
-          [
-            "a Dave",
-            1136
-          ],
-          [
-            "Nathan",
-            424
-          ]
-        ],
-        "signature": "{\"itemName\":\"Cơm rang dưa bò\",\"totalParts\":16,\"alvinFree\":true,\"totalCostInput\":430,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":27,\"priceShip\":27,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":27,\"unitPrice\":27},{\"name\":\"a Dave\",\"qty\":8,\"shipQty\":0,\"paid\":true,\"due\":216,\"unitPrice\":27},{\"name\":\"Vương\",\"qty\":3,\"shipQty\":0,\"paid\":false,\"due\":81,\"unitPrice\":27},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":27,\"unitPrice\":27},{\"name\":\"Bảo\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":27,\"unitPrice\":27},{\"name\":\"Alvin\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":27,\"unitPrice\":27}]}"
-      },
-      {
-        "id": 1764742629501,
-        "date": "2025-12-03T06:17:09.501Z",
-        "itemName": "phở bò",
-        "totalParts": 13,
-        "alvinFree": true,
+        "alvinFree": false,
         "sellingPrice": 37,
         "sellingPriceShip": 37,
         "sellingPriceNonShip": 37,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 12,
-        "shipFee": 0,
-        "totalCost": 455,
-        "totalCostInput": 455,
-        "costPerUnitInput": 0,
-        "targetProfit": 6,
-        "desiredPriceInput": 37,
-        "itemDesc": "",
-        "deadline": "",
-        "revenue": 444,
-        "profit": -11,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 37,
-            "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 8,
-            "shipQty": 0,
-            "nonShipQty": 8,
-            "due": 296,
-            "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvis",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 37,
-            "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Park",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 37,
-            "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Kudo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 37,
-            "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            312
-          ],
-          [
-            "a Dave",
-            840
-          ],
-          [
-            "Nathan",
-            424
-          ]
-        ],
-        "signature": "{\"itemName\":\"phở bò\",\"totalParts\":13,\"alvinFree\":true,\"totalCostInput\":455,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":37,\"priceShip\":37,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":37,\"unitPrice\":37},{\"name\":\"a Dave\",\"qty\":8,\"shipQty\":0,\"paid\":true,\"due\":296,\"unitPrice\":37},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":37,\"unitPrice\":37},{\"name\":\"Park\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":37,\"unitPrice\":37},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":37,\"unitPrice\":37}]}"
-      },
-      {
-        "id": 1764825168296,
-        "date": "2025-12-04T05:12:48.296Z",
-        "itemName": "Bánh ướt gà xé",
-        "totalParts": 13,
-        "alvinFree": true,
-        "sellingPrice": 28,
-        "sellingPriceShip": 28,
-        "sellingPriceNonShip": 28,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 12,
-        "shipFee": 0,
-        "totalCost": 325,
-        "totalCostInput": 325,
-        "costPerUnitInput": 0,
-        "targetProfit": 6,
-        "desiredPriceInput": 28,
-        "itemDesc": "",
-        "deadline": "",
-        "revenue": 336,
-        "profit": 11,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 28,
-            "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 8,
-            "shipQty": 0,
-            "nonShipQty": 8,
-            "due": 224,
-            "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvis",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 28,
-            "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Kudo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 28,
-            "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Ryan",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 28,
-            "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            284
-          ],
-          [
-            "a Dave",
-            616
-          ],
-          [
-            "Nathan",
-            424
-          ]
-        ],
-        "signature": "{\"itemName\":\"Bánh ướt gà xé\",\"totalParts\":13,\"alvinFree\":true,\"totalCostInput\":325,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":28,\"priceShip\":28,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":28,\"unitPrice\":28},{\"name\":\"a Dave\",\"qty\":8,\"shipQty\":0,\"paid\":true,\"due\":224,\"unitPrice\":28},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":28,\"unitPrice\":28},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":28,\"unitPrice\":28},{\"name\":\"Ryan\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":28,\"unitPrice\":28}]}"
-      },
-      {
-        "id": 1764921977850,
-        "date": "2025-12-05T08:06:17.850Z",
-        "itemName": "Bún thịt nướng",
-        "totalParts": 14,
-        "alvinFree": true,
-        "sellingPrice": 28,
-        "sellingPriceShip": 28,
-        "sellingPriceNonShip": 28,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 13,
-        "shipFee": 0,
-        "totalCost": 364,
-        "totalCostInput": 364,
-        "costPerUnitInput": 0,
-        "targetProfit": 6,
-        "desiredPriceInput": 28,
-        "itemDesc": "",
-        "deadline": "",
-        "revenue": 364,
-        "profit": 0,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 28,
-            "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 8,
-            "shipQty": 0,
-            "nonShipQty": 8,
-            "due": 224,
-            "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Bảo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 28,
-            "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvis",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 28,
-            "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Kudo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 28,
-            "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Evan",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 28,
-            "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            256
-          ],
-          [
-            "a Dave",
-            392
-          ],
-          [
-            "Nathan",
-            424
-          ]
-        ],
-        "signature": "{\"itemName\":\"Bún thịt nướng\",\"totalParts\":14,\"alvinFree\":true,\"totalCostInput\":364,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":28,\"priceShip\":28,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":28,\"unitPrice\":28},{\"name\":\"a Dave\",\"qty\":8,\"shipQty\":0,\"paid\":true,\"due\":224,\"unitPrice\":28},{\"name\":\"Bảo\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":28,\"unitPrice\":28},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":28,\"unitPrice\":28},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":28,\"unitPrice\":28},{\"name\":\"Evan\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":28,\"unitPrice\":28}]}"
-      },
-      {
-        "id": 1765257397490,
-        "date": "2025-12-09T05:16:37.490Z",
-        "itemName": "Thịt kho trứng",
-        "totalParts": 3,
-        "alvinFree": false,
-        "sellingPrice": 30,
-        "sellingPriceShip": 30,
-        "sellingPriceNonShip": 30,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 2,
-        "shipFee": 0,
-        "totalCost": 90,
-        "totalCostInput": 90,
-        "costPerUnitInput": 0,
-        "targetProfit": 6,
-        "desiredPriceInput": 30,
-        "itemDesc": "",
-        "deadline": "",
-        "revenue": 90,
-        "profit": 0,
-        "details": [
-          {
-            "name": "Kudo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 30,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 30,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            726
-          ],
-          [
-            "a Dave",
-            392
-          ],
-          [
-            "Nathan",
-            424
-          ],
-          [
-            "Kudo",
-            470
-          ]
-        ],
-        "signature": "{\"itemName\":\"Thịt kho trứng\",\"totalParts\":3,\"alvinFree\":false,\"totalCostInput\":90,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":30,\"priceShip\":30,\"splitShipMode\":false,\"details\":[{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":30,\"unitPrice\":30},{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":30,\"unitPrice\":30}]}"
-      },
-      {
-        "id": 1765257488017,
-        "date": "2025-12-09T05:18:08.017Z",
-        "itemName": "Chả lụa (1kg)",
-        "totalParts": 4,
-        "alvinFree": false,
-        "sellingPrice": 60,
-        "sellingPriceShip": 60,
-        "sellingPriceNonShip": 60,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 3,
-        "shipFee": 0,
-        "totalCost": 180,
-        "totalCostInput": 180,
-        "costPerUnitInput": 0,
-        "targetProfit": 6,
-        "desiredPriceInput": 60,
-        "itemDesc": "",
-        "deadline": "",
-        "revenue": 240,
-        "profit": 60,
-        "details": [
-          {
-            "name": "Kudo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 60,
-            "paid": true,
-            "unitPrice": 60,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Ben",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 60,
-            "paid": true,
-            "unitPrice": 60,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Park",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 60,
-            "paid": true,
-            "unitPrice": 60,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            726
-          ],
-          [
-            "a Dave",
-            392
-          ],
-          [
-            "Nathan",
-            424
-          ],
-          [
-            "Kudo",
-            410
-          ]
-        ],
-        "signature": "{\"itemName\":\"Chả lụa (1kg)\",\"totalParts\":4,\"alvinFree\":false,\"totalCostInput\":180,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":60,\"priceShip\":60,\"splitShipMode\":false,\"details\":[{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":60,\"unitPrice\":60},{\"name\":\"Ben\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":60,\"unitPrice\":60},{\"name\":\"Park\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":60,\"unitPrice\":60}]}"
-      },
-      {
-        "id": 1765257646121,
-        "date": "2025-12-09T05:20:46.121Z",
-        "itemName": "Bánh hỏi heo quay",
-        "totalParts": 13,
-        "alvinFree": true,
-        "sellingPrice": 30,
-        "sellingPriceShip": 30,
-        "sellingPriceNonShip": 30,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 12,
-        "shipFee": 0,
-        "totalCost": 351,
-        "totalCostInput": 351,
-        "costPerUnitInput": 0,
-        "targetProfit": 6,
-        "desiredPriceInput": 30,
-        "itemDesc": "",
-        "deadline": "",
-        "revenue": 360,
-        "profit": 9,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 30,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 8,
-            "shipQty": 0,
-            "nonShipQty": 8,
-            "due": 240,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Tùng",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 30,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvis",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 30,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Kudo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 30,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            696
-          ],
-          [
-            "a Dave",
-            152
-          ],
-          [
-            "Nathan",
-            424
-          ],
-          [
-            "Kudo",
-            380
-          ]
-        ],
-        "signature": "{\"itemName\":\"Bánh hỏi heo quay\",\"totalParts\":13,\"alvinFree\":true,\"totalCostInput\":351,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":30,\"priceShip\":30,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":30,\"unitPrice\":30},{\"name\":\"a Dave\",\"qty\":8,\"shipQty\":0,\"paid\":true,\"due\":240,\"unitPrice\":30},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":30,\"unitPrice\":30},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":30,\"unitPrice\":30},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":30,\"unitPrice\":30}]}"
-      },
-      {
-        "id": 1765257724137,
-        "date": "2025-12-09T05:22:04.137Z",
-        "itemName": "Thịt heo quay (1kg)",
-        "totalParts": 1,
-        "alvinFree": false,
-        "sellingPrice": 50,
-        "sellingPriceShip": 50,
-        "sellingPriceNonShip": 50,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 1,
-        "shipFee": 0,
-        "totalCost": 50,
-        "totalCostInput": 50,
-        "costPerUnitInput": 0,
-        "targetProfit": 6,
-        "desiredPriceInput": 50,
-        "itemDesc": "",
-        "deadline": "",
-        "revenue": 50,
-        "profit": 0,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 50,
-            "paid": true,
-            "unitPrice": 50,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            646
-          ],
-          [
-            "a Dave",
-            152
-          ],
-          [
-            "Nathan",
-            424
-          ],
-          [
-            "Kudo",
-            380
-          ]
-        ],
-        "signature": "{\"itemName\":\"Thịt heo quay (1kg)\",\"totalParts\":1,\"alvinFree\":false,\"totalCostInput\":50,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":50,\"priceShip\":50,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":50,\"unitPrice\":50}]}"
-      },
-      {
-        "id": 1765257902551,
-        "date": "2025-12-09T05:25:02.551Z",
-        "itemName": "Mì hoành thánh",
-        "totalParts": 14,
-        "alvinFree": false,
-        "sellingPrice": 38,
-        "sellingPriceShip": 38,
-        "sellingPriceNonShip": 38,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 13,
-        "shipFee": 0,
-        "totalCost": 518,
-        "totalCostInput": 518,
-        "costPerUnitInput": 0,
-        "targetProfit": 6,
-        "desiredPriceInput": 38,
-        "itemDesc": "",
-        "deadline": "",
-        "revenue": 532,
-        "profit": 14,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 38,
-            "paid": true,
-            "unitPrice": 38,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 8,
-            "shipQty": 0,
-            "nonShipQty": 8,
-            "due": 304,
-            "paid": true,
-            "unitPrice": 38,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Kudo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 38,
-            "paid": true,
-            "unitPrice": 38,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvis",
-            "qty": 2,
-            "shipQty": 0,
-            "nonShipQty": 2,
-            "due": 76,
-            "paid": true,
-            "unitPrice": 38,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Tùng",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 38,
-            "paid": true,
-            "unitPrice": 38,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            608
-          ],
-          [
-            "a Dave",
-            -152
-          ],
-          [
-            "Nathan",
-            424
-          ],
-          [
-            "Kudo",
-            342
-          ]
-        ],
-        "signature": "{\"itemName\":\"Mì hoành thánh\",\"totalParts\":14,\"alvinFree\":false,\"totalCostInput\":518,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":38,\"priceShip\":38,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":38,\"unitPrice\":38},{\"name\":\"a Dave\",\"qty\":8,\"shipQty\":0,\"paid\":true,\"due\":304,\"unitPrice\":38},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":38,\"unitPrice\":38},{\"name\":\"Alvis\",\"qty\":2,\"shipQty\":0,\"paid\":false,\"due\":76,\"unitPrice\":38},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":38,\"unitPrice\":38}]}"
-      },
-      {
-        "id": 1765270799740,
-        "date": "2025-12-09T08:59:59.740Z",
-        "itemName": "Chả lụa (1kg)",
-        "totalParts": 4,
-        "alvinFree": false,
-        "sellingPrice": 60,
-        "sellingPriceShip": 60,
-        "sellingPriceNonShip": 60,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 3,
-        "shipFee": 0,
-        "totalCost": 0,
-        "totalCostInput": 0,
-        "costPerUnitInput": 0,
-        "targetProfit": 6,
-        "desiredPriceInput": 60,
-        "itemDesc": "",
-        "deadline": "",
-        "revenue": 240,
-        "profit": 240,
-        "details": [
-          {
-            "name": "Ryan",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 60,
-            "paid": true,
-            "unitPrice": 60,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Ben",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 60,
-            "paid": true,
-            "unitPrice": 60,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Park",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 60,
-            "paid": true,
-            "unitPrice": 60,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            608
-          ],
-          [
-            "a Dave",
-            -152
-          ],
-          [
-            "Nathan",
-            424
-          ],
-          [
-            "Kudo",
-            342
-          ],
-          [
-            "Tùng",
-            500
-          ]
-        ],
-        "signature": "{\"itemName\":\"Chả lụa (1kg)\",\"totalParts\":4,\"alvinFree\":false,\"totalCostInput\":0,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":60,\"priceShip\":60,\"splitShipMode\":false,\"details\":[{\"name\":\"Ryan\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":60,\"unitPrice\":60},{\"name\":\"Ben\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":60,\"unitPrice\":60},{\"name\":\"Park\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":60,\"unitPrice\":60}]}"
-      },
-      {
-        "id": 1765348940176,
-        "date": "2025-12-10T06:42:20.176Z",
-        "itemName": "Cơm tấm",
-        "totalParts": 16,
-        "alvinFree": true,
-        "sellingPrice": 35,
-        "sellingPriceShip": 35,
-        "sellingPriceNonShip": 35,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 15,
-        "shipFee": 0,
-        "totalCost": 512,
-        "totalCostInput": 512,
-        "costPerUnitInput": 0,
-        "targetProfit": 6,
-        "desiredPriceInput": 35,
-        "itemDesc": "",
-        "deadline": "",
-        "revenue": 525,
-        "profit": 13,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 35,
-            "paid": true,
-            "unitPrice": 35,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 6,
-            "shipQty": 0,
-            "nonShipQty": 6,
-            "due": 210,
-            "paid": true,
-            "unitPrice": 35,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Kudo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 35,
-            "paid": true,
-            "unitPrice": 35,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Nathan",
-            "qty": 2,
-            "shipQty": 0,
-            "nonShipQty": 2,
-            "due": 70,
-            "paid": true,
-            "unitPrice": 35,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvis",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 35,
-            "paid": true,
-            "unitPrice": 35,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Ben",
-            "qty": 3,
-            "shipQty": 0,
-            "nonShipQty": 3,
-            "due": 105,
-            "paid": true,
-            "unitPrice": 35,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Tùng",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 35,
-            "paid": true,
-            "unitPrice": 35,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            573
-          ],
-          [
-            "a Dave",
-            638
-          ],
-          [
-            "Nathan",
-            354
-          ],
-          [
-            "Kudo",
-            367
-          ],
-          [
-            "Tùng",
-            465
-          ]
-        ],
-        "signature": "{\"itemName\":\"Cơm tấm\",\"totalParts\":16,\"alvinFree\":true,\"totalCostInput\":512,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":35,\"priceShip\":35,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":35,\"unitPrice\":35},{\"name\":\"a Dave\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":210,\"unitPrice\":35},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":35,\"unitPrice\":35},{\"name\":\"Nathan\",\"qty\":2,\"shipQty\":0,\"paid\":true,\"due\":70,\"unitPrice\":35},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":35,\"unitPrice\":35},{\"name\":\"Ben\",\"qty\":3,\"shipQty\":0,\"paid\":false,\"due\":105,\"unitPrice\":35},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":35,\"unitPrice\":35}]}"
-      },
-      {
-        "id": 1765489133207,
-        "date": "2025-12-11T21:38:53.207Z",
-        "itemName": "Hủ tiếu sườn",
-        "totalParts": 11,
-        "alvinFree": false,
-        "sellingPrice": 36,
-        "sellingPriceShip": 36,
-        "sellingPriceNonShip": 36,
         "splitShipMode": false,
         "shipCount": 0,
         "nonShipCount": 10,
@@ -1776,388 +2297,12 @@
         "totalCostInput": 385,
         "costPerUnitInput": 0,
         "targetProfit": 6,
-        "desiredPriceInput": 36,
-        "itemDesc": "",
-        "deadline": "",
-        "revenue": 396,
-        "profit": 11,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 36,
-            "paid": true,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 6,
-            "shipQty": 0,
-            "nonShipQty": 6,
-            "due": 216,
-            "paid": true,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvis",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 36,
-            "paid": true,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Kudo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 36,
-            "paid": true,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Tùng",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 36,
-            "paid": true,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            537
-          ],
-          [
-            "a Dave",
-            422
-          ],
-          [
-            "Nathan",
-            354
-          ],
-          [
-            "Kudo",
-            331
-          ],
-          [
-            "Tùng",
-            326
-          ],
-          [
-            "Ryan",
-            240
-          ]
-        ],
-        "signature": "{\"itemName\":\"Hủ tiếu sườn\",\"totalParts\":11,\"alvinFree\":false,\"totalCostInput\":385,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":36,\"priceShip\":36,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":36,\"unitPrice\":36},{\"name\":\"a Dave\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":216,\"unitPrice\":36},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":36,\"unitPrice\":36},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":36,\"unitPrice\":36},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":36,\"unitPrice\":36}]}"
-      },
-      {
-        "id": 1765568167306,
-        "date": "2025-12-12T19:36:07.306Z",
-        "itemName": "Phá lấu bò",
-        "totalParts": 15,
-        "alvinFree": true,
-        "sellingPrice": 30,
-        "sellingPriceShip": 30,
-        "sellingPriceNonShip": 30,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 14,
-        "shipFee": 0,
-        "totalCost": 420,
-        "totalCostInput": 420,
-        "costPerUnitInput": 0,
-        "targetProfit": 6,
-        "desiredPriceInput": 30,
-        "itemDesc": "",
-        "deadline": "",
-        "revenue": 420,
-        "profit": 0,
-        "details": [
-          {
-            "name": "a Dave",
-            "qty": 5,
-            "shipQty": 0,
-            "nonShipQty": 5,
-            "due": 150,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Nathan",
-            "qty": 2,
-            "shipQty": 0,
-            "nonShipQty": 2,
-            "due": 60,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Tùng",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 30,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Kudo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 30,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Ryan",
-            "qty": 2,
-            "shipQty": 0,
-            "nonShipQty": 2,
-            "due": 60,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Park",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 30,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Kane",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 30,
-            "paid": false,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Alvis",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 30,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            537
-          ],
-          [
-            "a Dave",
-            272
-          ],
-          [
-            "Nathan",
-            294
-          ],
-          [
-            "Kudo",
-            301
-          ],
-          [
-            "Tùng",
-            331
-          ],
-          [
-            "Ryan",
-            180
-          ]
-        ],
-        "signature": "{\"itemName\":\"Phá lấu bò\",\"totalParts\":15,\"alvinFree\":true,\"totalCostInput\":420,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":30,\"priceShip\":30,\"splitShipMode\":false,\"details\":[{\"name\":\"a Dave\",\"qty\":5,\"shipQty\":0,\"paid\":true,\"due\":150,\"unitPrice\":30},{\"name\":\"Nathan\",\"qty\":2,\"shipQty\":0,\"paid\":true,\"due\":60,\"unitPrice\":30},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":30,\"unitPrice\":30},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":30,\"unitPrice\":30},{\"name\":\"Ryan\",\"qty\":2,\"shipQty\":0,\"paid\":true,\"due\":60,\"unitPrice\":30},{\"name\":\"Park\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":30,\"unitPrice\":30},{\"name\":\"Kane\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":30,\"unitPrice\":30},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":30,\"unitPrice\":30}]}"
-      },
-      {
-        "id": 1765607924881,
-        "date": "2025-12-13T06:38:44.881Z",
-        "itemName": "Bún chả",
-        "totalParts": 12,
-        "alvinFree": true,
-        "sellingPrice": 39,
-        "sellingPriceShip": 39,
-        "sellingPriceNonShip": 39,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 11,
-        "shipFee": 0,
-        "totalCost": 420,
-        "totalCostInput": 420,
-        "costPerUnitInput": 0,
-        "targetProfit": 6,
-        "desiredPriceInput": 39,
-        "itemDesc": "",
-        "deadline": "",
-        "revenue": 429,
-        "profit": 9,
-        "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 39,
-            "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Kudo",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 39,
-            "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "a Dave",
-            "qty": 6,
-            "shipQty": 0,
-            "nonShipQty": 6,
-            "due": 234,
-            "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Tùng",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 39,
-            "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Ryan",
-            "qty": 2,
-            "shipQty": 0,
-            "nonShipQty": 2,
-            "due": 78,
-            "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
-          }
-        ],
-        "vipSnapshot": [
-          [
-            "a Duck",
-            498
-          ],
-          [
-            "a Dave",
-            38
-          ],
-          [
-            "Nathan",
-            294
-          ],
-          [
-            "Kudo",
-            262
-          ],
-          [
-            "Tùng",
-            322
-          ],
-          [
-            "Ryan",
-            162
-          ]
-        ],
-        "signature": "{\"itemName\":\"Bún chả\",\"totalParts\":12,\"alvinFree\":true,\"totalCostInput\":420,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":39,\"priceShip\":39,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":39,\"unitPrice\":39},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":39,\"unitPrice\":39},{\"name\":\"a Dave\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":234,\"unitPrice\":39},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":39,\"unitPrice\":39},{\"name\":\"Ryan\",\"qty\":2,\"shipQty\":0,\"paid\":true,\"due\":78,\"unitPrice\":39}]}"
-      },
-      {
-        "id": 1765804362922,
-        "date": "2025-12-15T13:12:42.922Z",
-        "itemName": "Phở bò",
-        "totalParts": 12,
-        "alvinFree": true,
-        "sellingPrice": 37,
-        "sellingPriceShip": 37,
-        "sellingPriceNonShip": 37,
-        "splitShipMode": false,
-        "shipCount": 0,
-        "nonShipCount": 11,
-        "shipFee": 0,
-        "totalCost": 396,
-        "totalCostInput": 396,
-        "costPerUnitInput": 0,
-        "targetProfit": 6,
         "desiredPriceInput": 37,
         "itemDesc": "",
         "deadline": "",
         "revenue": 407,
-        "profit": 11,
+        "profit": 22,
         "details": [
-          {
-            "name": "a Duck",
-            "qty": 1,
-            "shipQty": 0,
-            "nonShipQty": 1,
-            "due": 37,
-            "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
-          },
-          {
-            "name": "Nathan",
-            "qty": 2,
-            "shipQty": 0,
-            "nonShipQty": 2,
-            "due": 74,
-            "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
-          },
           {
             "name": "a Dave",
             "qty": 6,
@@ -2165,9 +2310,9 @@
             "nonShipQty": 6,
             "due": 222,
             "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "unitPrice": 37
           },
           {
             "name": "Kudo",
@@ -2176,9 +2321,9 @@
             "nonShipQty": 1,
             "due": 37,
             "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "unitPrice": 37
           },
           {
             "name": "Alvis",
@@ -2187,19 +2332,41 @@
             "nonShipQty": 1,
             "due": 37,
             "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "unitPrice": 37
+          },
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 37,
+            "paid": true,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "unitPrice": 37
+          },
+          {
+            "name": "Tùng",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 37,
+            "paid": true,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "unitPrice": 37
           }
         ],
         "vipSnapshot": [
           [
             "a Duck",
-            461
+            1392
           ],
           [
             "a Dave",
-            616
+            202
           ],
           [
             "Nathan",
@@ -2207,21 +2374,395 @@
           ],
           [
             "Kudo",
-            225
+            656
           ],
           [
             "Tùng",
-            292
+            223
           ],
           [
             "Ryan",
             102
+          ],
+          [
+            "Alvis",
+            963
           ]
         ],
-        "signature": "{\"itemName\":\"Phở bò\",\"totalParts\":12,\"alvinFree\":true,\"totalCostInput\":396,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":37,\"priceShip\":37,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":37,\"unitPrice\":37},{\"name\":\"Nathan\",\"qty\":2,\"shipQty\":0,\"paid\":true,\"due\":74,\"unitPrice\":37},{\"name\":\"a Dave\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":222,\"unitPrice\":37},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":37,\"unitPrice\":37},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":false,\"due\":37,\"unitPrice\":37}]}"
+        "signature": "{\"itemName\":\"Bún riêu\",\"totalParts\":11,\"alvinFree\":false,\"totalCostInput\":385,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":37,\"priceShip\":37,\"splitShipMode\":false,\"details\":[{\"name\":\"a Dave\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":222,\"unitPrice\":37},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":37,\"unitPrice\":37},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":37,\"unitPrice\":37},{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":37,\"unitPrice\":37},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":37,\"unitPrice\":37}]}"
+      },
+      {
+        "id": 1766132991288,
+        "date": "2025-12-19T08:29:51.288Z",
+        "itemName": "Cơm cà ri gà",
+        "totalParts": 11,
+        "alvinFree": true,
+        "sellingPrice": 33,
+        "sellingPriceShip": 33,
+        "sellingPriceNonShip": 33,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 10,
+        "shipFee": 0,
+        "totalCost": 308,
+        "totalCostInput": 308,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 33,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 330,
+        "profit": 22,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 33,
+            "paid": true,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "unitPrice": 33
+          },
+          {
+            "name": "a Dave",
+            "qty": 6,
+            "shipQty": 0,
+            "nonShipQty": 6,
+            "due": 198,
+            "paid": true,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "unitPrice": 33
+          },
+          {
+            "name": "Kudo",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 33,
+            "paid": true,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "unitPrice": 33
+          },
+          {
+            "name": "Tùng",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 33,
+            "paid": true,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "unitPrice": 33
+          },
+          {
+            "name": "Alvis",
+            "qty": 1,
+            "shipQty": 0,
+            "nonShipQty": 1,
+            "due": 33,
+            "paid": true,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "unitPrice": 33
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            1359
+          ],
+          [
+            "a Dave",
+            4
+          ],
+          [
+            "Nathan",
+            220
+          ],
+          [
+            "Kudo",
+            623
+          ],
+          [
+            "Tùng",
+            190
+          ],
+          [
+            "Ryan",
+            102
+          ],
+          [
+            "Alvis",
+            930
+          ]
+        ],
+        "signature": "{\"itemName\":\"Cơm cà ri gà\",\"totalParts\":11,\"alvinFree\":true,\"totalCostInput\":308,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":33,\"priceShip\":33,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":33,\"unitPrice\":33},{\"name\":\"a Dave\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":198,\"unitPrice\":33},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":33,\"unitPrice\":33},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":33,\"unitPrice\":33},{\"name\":\"Alvis\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":33,\"unitPrice\":33}]}"
+      },
+      {
+        "id": 1766133096102,
+        "date": "2025-12-19T08:31:36.102Z",
+        "itemName": "Gỏi cuốn",
+        "totalParts": 38,
+        "alvinFree": true,
+        "sellingPrice": 2,
+        "sellingPriceShip": 2,
+        "sellingPriceNonShip": 2,
+        "splitShipMode": false,
+        "shipCount": 0,
+        "nonShipCount": 37,
+        "shipFee": 0,
+        "totalCost": 80,
+        "totalCostInput": 80,
+        "costPerUnitInput": 0,
+        "targetProfit": 6,
+        "desiredPriceInput": 2,
+        "itemDesc": "",
+        "deadline": "",
+        "revenue": 74,
+        "profit": -6,
+        "details": [
+          {
+            "name": "a Duck",
+            "qty": 6,
+            "shipQty": 0,
+            "nonShipQty": 6,
+            "due": 12,
+            "paid": true,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "unitPrice": 2
+          },
+          {
+            "name": "a Dave",
+            "qty": 10,
+            "shipQty": 0,
+            "nonShipQty": 10,
+            "due": 20,
+            "paid": true,
+            "isVipPayment": true,
+            "paymentMethod": "vip",
+            "unitPrice": 2
+          },
+          {
+            "name": "Evan",
+            "qty": 15,
+            "shipQty": 0,
+            "nonShipQty": 15,
+            "due": 30,
+            "paid": true,
+            "unitPrice": 2
+          },
+          {
+            "name": "Alvin",
+            "qty": 6,
+            "shipQty": 0,
+            "nonShipQty": 6,
+            "due": 12,
+            "paid": true,
+            "unitPrice": 2
+          }
+        ],
+        "vipSnapshot": [
+          [
+            "a Duck",
+            1347
+          ],
+          [
+            "a Dave",
+            -16
+          ],
+          [
+            "Nathan",
+            220
+          ],
+          [
+            "Kudo",
+            623
+          ],
+          [
+            "Tùng",
+            190
+          ],
+          [
+            "Ryan",
+            102
+          ],
+          [
+            "Alvis",
+            930
+          ]
+        ],
+        "signature": "{\"itemName\":\"Gỏi cuốn\",\"totalParts\":38,\"alvinFree\":true,\"totalCostInput\":80,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":2,\"priceShip\":2,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":12,\"unitPrice\":2},{\"name\":\"a Dave\",\"qty\":10,\"shipQty\":0,\"paid\":true,\"due\":20,\"unitPrice\":2},{\"name\":\"Evan\",\"qty\":15,\"shipQty\":0,\"paid\":true,\"due\":30,\"unitPrice\":2},{\"name\":\"Alvin\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":12,\"unitPrice\":2}]}"
       }
     ],
     "vipTransactions": [
+      {
+        "id": "295f3026-91a5-4947-af0a-72931b79a5e5",
+        "ts": "2025-12-19T08:31:36.107Z",
+        "name": "a Dave",
+        "amount": -20,
+        "type": "order",
+        "orderId": 1766133096102,
+        "itemName": "Gỏi cuốn",
+        "detailIndex": 1,
+        "isVipPayment": true,
+        "paid": true,
+        "paymentMethod": "vip"
+      },
+      {
+        "id": "a159c260-24da-4eff-ba29-d7f0cce856c5",
+        "ts": "2025-12-19T08:31:36.103Z",
+        "name": "a Duck",
+        "amount": -12,
+        "type": "order",
+        "orderId": 1766133096102,
+        "itemName": "Gỏi cuốn",
+        "detailIndex": 0,
+        "isVipPayment": true,
+        "paid": true,
+        "paymentMethod": "vip"
+      },
+      {
+        "id": "e10d815e-864f-427c-863e-0bde349ab154",
+        "ts": "2025-12-19T08:29:51.297Z",
+        "name": "Alvis",
+        "amount": -33,
+        "type": "order",
+        "orderId": 1766132991288,
+        "itemName": "Cơm cà ri gà",
+        "detailIndex": 4,
+        "isVipPayment": true,
+        "paid": true,
+        "paymentMethod": "vip"
+      },
+      {
+        "id": "a3b3911e-8117-4c0d-ba21-d5e7122e78dd",
+        "ts": "2025-12-19T08:29:51.296Z",
+        "name": "Tùng",
+        "amount": -33,
+        "type": "order",
+        "orderId": 1766132991288,
+        "itemName": "Cơm cà ri gà",
+        "detailIndex": 3,
+        "isVipPayment": true,
+        "paid": true,
+        "paymentMethod": "vip"
+      },
+      {
+        "id": "296410a3-1a52-4e81-827c-97b20af92193",
+        "ts": "2025-12-19T08:29:51.295Z",
+        "name": "Kudo",
+        "amount": -33,
+        "type": "order",
+        "orderId": 1766132991288,
+        "itemName": "Cơm cà ri gà",
+        "detailIndex": 2,
+        "isVipPayment": true,
+        "paid": true,
+        "paymentMethod": "vip"
+      },
+      {
+        "id": "d8186113-f7f3-47ea-97fd-0bf2c1880328",
+        "ts": "2025-12-19T08:29:51.294Z",
+        "name": "a Dave",
+        "amount": -198,
+        "type": "order",
+        "orderId": 1766132991288,
+        "itemName": "Cơm cà ri gà",
+        "detailIndex": 1,
+        "isVipPayment": true,
+        "paid": true,
+        "paymentMethod": "vip"
+      },
+      {
+        "id": "c4e43737-4232-4b43-9be3-c01a949cba02",
+        "ts": "2025-12-19T08:29:51.292Z",
+        "name": "a Duck",
+        "amount": -33,
+        "type": "order",
+        "orderId": 1766132991288,
+        "itemName": "Cơm cà ri gà",
+        "detailIndex": 0,
+        "isVipPayment": true,
+        "paid": true,
+        "paymentMethod": "vip"
+      },
+      {
+        "id": "2295ee81-b0c4-4768-ba92-2194798d89dd",
+        "ts": "2025-12-17T06:36:38.752Z",
+        "name": "Tùng",
+        "amount": -37,
+        "type": "order",
+        "orderId": 1765953398746,
+        "itemName": "Bún riêu",
+        "detailIndex": 4,
+        "isVipPayment": true,
+        "paid": true,
+        "paymentMethod": "vip"
+      },
+      {
+        "id": "1e8908ad-5a95-4681-80a7-ecfef6cfeb23",
+        "ts": "2025-12-17T06:36:38.751Z",
+        "name": "a Duck",
+        "amount": -37,
+        "type": "order",
+        "orderId": 1765953398746,
+        "itemName": "Bún riêu",
+        "detailIndex": 3,
+        "isVipPayment": true,
+        "paid": true,
+        "paymentMethod": "vip"
+      },
+      {
+        "id": "9b20dac8-607d-49f0-8ae6-7291825e6887",
+        "ts": "2025-12-17T06:36:38.750Z",
+        "name": "Alvis",
+        "amount": -37,
+        "type": "order",
+        "orderId": 1765953398746,
+        "itemName": "Bún riêu",
+        "detailIndex": 2,
+        "isVipPayment": true,
+        "paid": true,
+        "paymentMethod": "vip"
+      },
+      {
+        "id": "7fc39267-be60-48ad-85dc-950c8e899401",
+        "ts": "2025-12-17T06:36:38.748Z",
+        "name": "Kudo",
+        "amount": -37,
+        "type": "order",
+        "orderId": 1765953398746,
+        "itemName": "Bún riêu",
+        "detailIndex": 1,
+        "isVipPayment": true,
+        "paid": true,
+        "paymentMethod": "vip"
+      },
+      {
+        "id": "b3cb8156-3e2f-48cf-83a4-a48ea781be3a",
+        "ts": "2025-12-17T06:36:38.747Z",
+        "name": "a Dave",
+        "amount": -222,
+        "type": "order",
+        "orderId": 1765953398746,
+        "itemName": "Bún riêu",
+        "detailIndex": 0,
+        "isVipPayment": true,
+        "paid": true,
+        "paymentMethod": "vip"
+      },
+      {
+        "id": "12005e13-f4ed-41c7-8f35-4c03802f033c",
+        "ts": "2025-12-17T06:30:22.146Z",
+        "name": "Alvis",
+        "amount": 1000,
+        "type": "topup"
+      },
       {
         "id": "90bc90de-1653-4704-95fa-029a19ad517c",
         "ts": "2025-12-16T15:23:42.385Z",
@@ -2331,11 +2872,128 @@
         "type": "order"
       },
       {
+        "id": "order:1765804362922:0:aDuck",
+        "ts": "2025-12-15T13:12:42.922Z",
+        "name": "a Duck",
+        "amount": -37,
+        "type": "order",
+        "orderId": 1765804362922,
+        "itemName": "Phở bò",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765804362922:1:Nathan",
+        "ts": "2025-12-15T13:12:42.922Z",
+        "name": "Nathan",
+        "amount": -74,
+        "type": "order",
+        "orderId": 1765804362922,
+        "itemName": "Phở bò",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765804362922:2:aDave",
+        "ts": "2025-12-15T13:12:42.922Z",
+        "name": "a Dave",
+        "amount": -222,
+        "type": "order",
+        "orderId": 1765804362922,
+        "itemName": "Phở bò",
+        "detailIndex": 2,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765804362922:3:Kudo",
+        "ts": "2025-12-15T13:12:42.922Z",
+        "name": "Kudo",
+        "amount": -37,
+        "type": "order",
+        "orderId": 1765804362922,
+        "itemName": "Phở bò",
+        "detailIndex": 3,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
         "id": 1765642471042,
         "ts": "2025-12-13T16:14:31.042Z",
         "name": "a Dave",
         "amount": 800,
         "type": "topup"
+      },
+      {
+        "id": "order:1765607924881:0:aDuck",
+        "ts": "2025-12-13T06:38:44.881Z",
+        "name": "a Duck",
+        "amount": -39,
+        "type": "order",
+        "orderId": 1765607924881,
+        "itemName": "Bún chả",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765607924881:1:Kudo",
+        "ts": "2025-12-13T06:38:44.881Z",
+        "name": "Kudo",
+        "amount": -39,
+        "type": "order",
+        "orderId": 1765607924881,
+        "itemName": "Bún chả",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765607924881:2:aDave",
+        "ts": "2025-12-13T06:38:44.881Z",
+        "name": "a Dave",
+        "amount": -234,
+        "type": "order",
+        "orderId": 1765607924881,
+        "itemName": "Bún chả",
+        "detailIndex": 2,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765607924881:3:Tng",
+        "ts": "2025-12-13T06:38:44.881Z",
+        "name": "Tùng",
+        "amount": -39,
+        "type": "order",
+        "orderId": 1765607924881,
+        "itemName": "Bún chả",
+        "detailIndex": 3,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765607924881:4:Ryan",
+        "ts": "2025-12-13T06:38:44.881Z",
+        "name": "Ryan",
+        "amount": -78,
+        "type": "order",
+        "orderId": 1765607924881,
+        "itemName": "Bún chả",
+        "detailIndex": 4,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
       },
       {
         "id": 1765607924882,
@@ -2345,11 +3003,128 @@
         "type": "order"
       },
       {
+        "id": "order:1765568167306:0:aDave",
+        "ts": "2025-12-12T19:36:07.306Z",
+        "name": "a Dave",
+        "amount": -150,
+        "type": "order",
+        "orderId": 1765568167306,
+        "itemName": "Phá lấu bò",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765568167306:1:Nathan",
+        "ts": "2025-12-12T19:36:07.306Z",
+        "name": "Nathan",
+        "amount": -60,
+        "type": "order",
+        "orderId": 1765568167306,
+        "itemName": "Phá lấu bò",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765568167306:2:Tng",
+        "ts": "2025-12-12T19:36:07.306Z",
+        "name": "Tùng",
+        "amount": -30,
+        "type": "order",
+        "orderId": 1765568167306,
+        "itemName": "Phá lấu bò",
+        "detailIndex": 2,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765568167306:3:Kudo",
+        "ts": "2025-12-12T19:36:07.306Z",
+        "name": "Kudo",
+        "amount": -30,
+        "type": "order",
+        "orderId": 1765568167306,
+        "itemName": "Phá lấu bò",
+        "detailIndex": 3,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765568167306:4:Ryan",
+        "ts": "2025-12-12T19:36:07.306Z",
+        "name": "Ryan",
+        "amount": -60,
+        "type": "order",
+        "orderId": 1765568167306,
+        "itemName": "Phá lấu bò",
+        "detailIndex": 4,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
         "id": 1765568167307,
         "ts": "2025-12-12T19:36:07.306Z",
         "name": "Ryan",
         "amount": -60,
         "type": "order"
+      },
+      {
+        "id": "order:1765489133207:0:aDuck",
+        "ts": "2025-12-11T21:38:53.207Z",
+        "name": "a Duck",
+        "amount": -36,
+        "type": "order",
+        "orderId": 1765489133207,
+        "itemName": "Hủ tiếu sườn",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765489133207:1:aDave",
+        "ts": "2025-12-11T21:38:53.207Z",
+        "name": "a Dave",
+        "amount": -216,
+        "type": "order",
+        "orderId": 1765489133207,
+        "itemName": "Hủ tiếu sườn",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765489133207:3:Kudo",
+        "ts": "2025-12-11T21:38:53.207Z",
+        "name": "Kudo",
+        "amount": -36,
+        "type": "order",
+        "orderId": 1765489133207,
+        "itemName": "Hủ tiếu sườn",
+        "detailIndex": 3,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765489133207:4:Tng",
+        "ts": "2025-12-11T21:38:53.207Z",
+        "name": "Tùng",
+        "amount": -36,
+        "type": "order",
+        "orderId": 1765489133207,
+        "itemName": "Hủ tiếu sườn",
+        "detailIndex": 4,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
       },
       {
         "id": 1765489133208,
@@ -2401,6 +3176,71 @@
         "type": "topup"
       },
       {
+        "id": "order:1765348940176:0:aDuck",
+        "ts": "2025-12-10T06:42:20.176Z",
+        "name": "a Duck",
+        "amount": -35,
+        "type": "order",
+        "orderId": 1765348940176,
+        "itemName": "Cơm tấm",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765348940176:1:aDave",
+        "ts": "2025-12-10T06:42:20.176Z",
+        "name": "a Dave",
+        "amount": -210,
+        "type": "order",
+        "orderId": 1765348940176,
+        "itemName": "Cơm tấm",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765348940176:2:Kudo",
+        "ts": "2025-12-10T06:42:20.176Z",
+        "name": "Kudo",
+        "amount": -35,
+        "type": "order",
+        "orderId": 1765348940176,
+        "itemName": "Cơm tấm",
+        "detailIndex": 2,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765348940176:3:Nathan",
+        "ts": "2025-12-10T06:42:20.176Z",
+        "name": "Nathan",
+        "amount": -70,
+        "type": "order",
+        "orderId": 1765348940176,
+        "itemName": "Cơm tấm",
+        "detailIndex": 3,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765348940176:6:Tng",
+        "ts": "2025-12-10T06:42:20.176Z",
+        "name": "Tùng",
+        "amount": -35,
+        "type": "order",
+        "orderId": 1765348940176,
+        "itemName": "Cơm tấm",
+        "detailIndex": 6,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
         "id": 1765344548000,
         "ts": "2025-12-10T05:29:08.000Z",
         "name": "a Dave",
@@ -2415,11 +3255,141 @@
         "type": "topup"
       },
       {
+        "id": "order:1765270799740:0:Ryan",
+        "ts": "2025-12-09T08:59:59.740Z",
+        "name": "Ryan",
+        "amount": -60,
+        "type": "order",
+        "orderId": 1765270799740,
+        "itemName": "Chả lụa (1kg)",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
         "id": 1765264658744,
         "ts": "2025-12-09T07:17:38.744Z",
         "name": "Tùng",
         "amount": 500,
         "type": "topup"
+      },
+      {
+        "id": "order:1765257902551:0:aDuck",
+        "ts": "2025-12-09T05:25:02.551Z",
+        "name": "a Duck",
+        "amount": -38,
+        "type": "order",
+        "orderId": 1765257902551,
+        "itemName": "Mì hoành thánh",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765257902551:1:aDave",
+        "ts": "2025-12-09T05:25:02.551Z",
+        "name": "a Dave",
+        "amount": -304,
+        "type": "order",
+        "orderId": 1765257902551,
+        "itemName": "Mì hoành thánh",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765257902551:2:Kudo",
+        "ts": "2025-12-09T05:25:02.551Z",
+        "name": "Kudo",
+        "amount": -38,
+        "type": "order",
+        "orderId": 1765257902551,
+        "itemName": "Mì hoành thánh",
+        "detailIndex": 2,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765257902551:4:Tng",
+        "ts": "2025-12-09T05:25:02.551Z",
+        "name": "Tùng",
+        "amount": -38,
+        "type": "order",
+        "orderId": 1765257902551,
+        "itemName": "Mì hoành thánh",
+        "detailIndex": 4,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765257724137:0:aDuck",
+        "ts": "2025-12-09T05:22:04.137Z",
+        "name": "a Duck",
+        "amount": -50,
+        "type": "order",
+        "orderId": 1765257724137,
+        "itemName": "Thịt heo quay (1kg)",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765257646121:0:aDuck",
+        "ts": "2025-12-09T05:20:46.121Z",
+        "name": "a Duck",
+        "amount": -30,
+        "type": "order",
+        "orderId": 1765257646121,
+        "itemName": "Bánh hỏi heo quay",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765257646121:1:aDave",
+        "ts": "2025-12-09T05:20:46.121Z",
+        "name": "a Dave",
+        "amount": -240,
+        "type": "order",
+        "orderId": 1765257646121,
+        "itemName": "Bánh hỏi heo quay",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765257646121:2:Tng",
+        "ts": "2025-12-09T05:20:46.121Z",
+        "name": "Tùng",
+        "amount": -30,
+        "type": "order",
+        "orderId": 1765257646121,
+        "itemName": "Bánh hỏi heo quay",
+        "detailIndex": 2,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765257646121:4:Kudo",
+        "ts": "2025-12-09T05:20:46.121Z",
+        "name": "Kudo",
+        "amount": -30,
+        "type": "order",
+        "orderId": 1765257646121,
+        "itemName": "Bánh hỏi heo quay",
+        "detailIndex": 4,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
       },
       {
         "id": 1765257646122,
@@ -2429,11 +3399,167 @@
         "type": "order"
       },
       {
+        "id": "order:1765257488017:0:Kudo",
+        "ts": "2025-12-09T05:18:08.017Z",
+        "name": "Kudo",
+        "amount": -60,
+        "type": "order",
+        "orderId": 1765257488017,
+        "itemName": "Chả lụa (1kg)",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765257397490:0:Kudo",
+        "ts": "2025-12-09T05:16:37.490Z",
+        "name": "Kudo",
+        "amount": -30,
+        "type": "order",
+        "orderId": 1765257397490,
+        "itemName": "Thịt kho trứng",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1765257397490:1:aDuck",
+        "ts": "2025-12-09T05:16:37.490Z",
+        "name": "a Duck",
+        "amount": -30,
+        "type": "order",
+        "orderId": 1765257397490,
+        "itemName": "Thịt kho trứng",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
         "id": 1764934360283,
         "ts": "2025-12-05T11:32:40.283Z",
         "name": "Kudo",
         "amount": 500,
         "type": "topup"
+      },
+      {
+        "id": "order:1764921977850:0:aDuck",
+        "ts": "2025-12-05T08:06:17.850Z",
+        "name": "a Duck",
+        "amount": -28,
+        "type": "order",
+        "orderId": 1764921977850,
+        "itemName": "Bún thịt nướng",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764921977850:1:aDave",
+        "ts": "2025-12-05T08:06:17.850Z",
+        "name": "a Dave",
+        "amount": -224,
+        "type": "order",
+        "orderId": 1764921977850,
+        "itemName": "Bún thịt nướng",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764825168296:0:aDuck",
+        "ts": "2025-12-04T05:12:48.296Z",
+        "name": "a Duck",
+        "amount": -28,
+        "type": "order",
+        "orderId": 1764825168296,
+        "itemName": "Bánh ướt gà xé",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764825168296:1:aDave",
+        "ts": "2025-12-04T05:12:48.296Z",
+        "name": "a Dave",
+        "amount": -224,
+        "type": "order",
+        "orderId": 1764825168296,
+        "itemName": "Bánh ướt gà xé",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764742629501:0:aDuck",
+        "ts": "2025-12-03T06:17:09.501Z",
+        "name": "a Duck",
+        "amount": -37,
+        "type": "order",
+        "orderId": 1764742629501,
+        "itemName": "phở bò",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764742629501:1:aDave",
+        "ts": "2025-12-03T06:17:09.501Z",
+        "name": "a Dave",
+        "amount": -296,
+        "type": "order",
+        "orderId": 1764742629501,
+        "itemName": "phở bò",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764742629501:4:Kudo",
+        "ts": "2025-12-03T06:17:09.501Z",
+        "name": "Kudo",
+        "amount": -37,
+        "type": "order",
+        "orderId": 1764742629501,
+        "itemName": "phở bò",
+        "detailIndex": 4,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764565276243:0:aDuck",
+        "ts": "2025-12-01T05:01:16.243Z",
+        "name": "a Duck",
+        "amount": -27,
+        "type": "order",
+        "orderId": 1764565276243,
+        "itemName": "Cơm rang dưa bò",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764565276243:1:aDave",
+        "ts": "2025-12-01T05:01:16.243Z",
+        "name": "a Dave",
+        "amount": -216,
+        "type": "order",
+        "orderId": 1764565276243,
+        "itemName": "Cơm rang dưa bò",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
       },
       {
         "id": 1764564833258,
@@ -2443,11 +3569,180 @@
         "type": "topup"
       },
       {
+        "id": "order:1764563904041:0:aDuck",
+        "ts": "2025-12-01T04:38:24.041Z",
+        "name": "a Duck",
+        "amount": -34,
+        "type": "order",
+        "orderId": 1764563904041,
+        "itemName": "Bánh cuốn",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764563904041:1:aDave",
+        "ts": "2025-12-01T04:38:24.041Z",
+        "name": "a Dave",
+        "amount": -272,
+        "type": "order",
+        "orderId": 1764563904041,
+        "itemName": "Bánh cuốn",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764234829298:0:aDuck",
+        "ts": "2025-11-27T09:13:49.298Z",
+        "name": "a Duck",
+        "amount": -39,
+        "type": "order",
+        "orderId": 1764234829298,
+        "itemName": "Cơm gà xối mỡ",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764234829298:1:aDave",
+        "ts": "2025-11-27T09:13:49.298Z",
+        "name": "a Dave",
+        "amount": -312,
+        "type": "order",
+        "orderId": 1764234829298,
+        "itemName": "Cơm gà xối mỡ",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764137733894:0:aDuck",
+        "ts": "2025-11-26T06:15:33.894Z",
+        "name": "a Duck",
+        "amount": -39,
+        "type": "order",
+        "orderId": 1764137733894,
+        "itemName": "Bún Thái",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764137733894:1:aDave",
+        "ts": "2025-11-26T06:15:33.894Z",
+        "name": "a Dave",
+        "amount": -312,
+        "type": "order",
+        "orderId": 1764137733894,
+        "itemName": "Bún Thái",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764066299460:0:aDuck",
+        "ts": "2025-11-25T10:24:59.460Z",
+        "name": "a Duck",
+        "amount": -39,
+        "type": "order",
+        "orderId": 1764066299460,
+        "itemName": "Bánh hỏi",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1764066299460:1:aDave",
+        "ts": "2025-11-25T10:24:59.460Z",
+        "name": "a Dave",
+        "amount": -312,
+        "type": "order",
+        "orderId": 1764066299460,
+        "itemName": "Bánh hỏi",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
         "id": 1764054151205,
         "ts": "2025-11-25T07:02:31.205Z",
         "name": "a Dave",
         "amount": 1000,
         "type": "topup"
+      },
+      {
+        "id": "order:1763980515662:0:aDuck",
+        "ts": "2025-11-24T10:35:15.662Z",
+        "name": "a Duck",
+        "amount": -40,
+        "type": "order",
+        "orderId": 1763980515662,
+        "itemName": "Cơm tấm",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1763980515662:1:aDave",
+        "ts": "2025-11-24T10:35:15.662Z",
+        "name": "a Dave",
+        "amount": -320,
+        "type": "order",
+        "orderId": 1763980515662,
+        "itemName": "Cơm tấm",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1763971377826:0:aDuck",
+        "ts": "2025-11-24T08:02:57.826Z",
+        "name": "a Duck",
+        "amount": -40,
+        "type": "order",
+        "orderId": 1763971377826,
+        "itemName": "Hủ tiếu hải sản",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1763971377826:1:aDave",
+        "ts": "2025-11-24T08:02:57.826Z",
+        "name": "a Dave",
+        "amount": -316,
+        "type": "order",
+        "orderId": 1763971377826,
+        "itemName": "Hủ tiếu hải sản",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1763971377826:6:Nathan",
+        "ts": "2025-11-24T08:02:57.826Z",
+        "name": "Nathan",
+        "amount": -76,
+        "type": "order",
+        "orderId": 1763971377826,
+        "itemName": "Hủ tiếu hải sản",
+        "detailIndex": 6,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
       },
       {
         "id": 1763971310362,
@@ -2462,14 +3757,48 @@
         "name": "a Duck",
         "amount": 500,
         "type": "topup"
+      },
+      {
+        "id": "order:1763707923367:0:aDuck",
+        "ts": "2025-11-21T06:52:03.368Z",
+        "name": "a Duck",
+        "amount": -38,
+        "type": "order",
+        "orderId": 1763707923367,
+        "itemName": "Phở bò",
+        "detailIndex": 0,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "order:1763707923367:1:aDave",
+        "ts": "2025-11-21T06:52:03.368Z",
+        "name": "a Dave",
+        "amount": -304,
+        "type": "order",
+        "orderId": 1763707923367,
+        "itemName": "Phở bò",
+        "detailIndex": 1,
+        "paid": true,
+        "paymentMethod": "vip",
+        "isVipPayment": true
+      },
+      {
+        "id": "7a2f2fb0-deb6-49ba-9278-f448dce5a52d",
+        "ts": "2025-11-20T00:00:00.000Z",
+        "name": "a Duck",
+        "amount": 145,
+        "type": "opening",
+        "note": "Số dư đầu kỳ"
       }
     ],
-    "vipList": "a Duck=1429đ\na Dave=424đ\nNathan=220đ\nKudo=693đ\nTùng=260đ\nRyan=102đ"
+    "vipList": "a Duck=1347đ\na Dave=-16đ\nNathan=220đ\nKudo=623đ\nTùng=190đ\nRyan=102đ\nAlvis=930đ"
   },
   "metadata": {
-    "orderCount": 23,
-    "transactionCount": 31,
+    "orderCount": 26,
+    "transactionCount": 104,
     "exportedBy": "Order Helper Pro",
-    "exportDate": "23:35:27 16/12/2025"
+    "exportDate": "18:02:48 19/12/2025"
   }
 }
