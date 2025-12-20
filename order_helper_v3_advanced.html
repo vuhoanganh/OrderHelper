@@ -506,6 +506,10 @@
             <button class="btn btn-success" onclick="exportVipReportCSV()">
               📤 Xuất CSV
             </button>
+            <button class="btn btn-secondary" onclick="openReconcileModal()"
+              style="margin-left: 8px; background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5);">
+              🔍 Đối soát
+            </button>
           </div>
         </div>
 
@@ -656,6 +660,42 @@
 
         <div class="helper-text" style="margin-top: 16px;">
           <strong>Data sẽ backup:</strong> Order History, VIP List, VIP Transactions
+        </div>
+      </div>
+
+      <!-- Reconcile Modal -->
+      <div id="reconcileModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 class="text-xl font-bold">🔍 Đối soát VIP Balance</h2>
+            <button onclick="closeReconcileModal()" class="btn btn-secondary">Đóng</button>
+          </div>
+
+          <div id="reconcileLoading" style="text-align: center; padding: 20px;">⏳ Đang tính toán...</div>
+
+          <div id="reconcileContent" style="display: none;">
+            <div style="margin-bottom: 12px; font-size: 14px; opacity: 0.8;">
+              Danh sách các thành viên có sự chênh lệch giữa <b>Số dư lưu (VIP List)</b> và <b>Số dư tính toán
+                (Report)</b>.
+            </div>
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background: rgba(255,255,255,0.1); text-align: left;">
+                  <th style="padding: 10px;">Thành viên</th>
+                  <th style="padding: 10px; text-align: right;">VIP List</th>
+                  <th style="padding: 10px; text-align: right;">Computed</th>
+                  <th style="padding: 10px; text-align: right;">Lệch (Diff)</th>
+                  <th style="padding: 10px; text-align: center;">Orphans</th>
+                  <th style="padding: 10px;">Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="reconcileTableBody"></tbody>
+            </table>
+            <div id="reconcileEmpty"
+              style="display:none; padding: 20px; text-align: center; color: #4ade80; font-weight: bold;">
+              ✅ Không tìm thấy sự chênh lệch nào! Dữ liệu khớp hoàn toàn.
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1901,7 +1941,24 @@
       };
 
       // TABLE HEADER matching the style of other tables
+      // Current Balance Display
+      const currentBalance = historyRows.length > 0 ? historyRows[0].balanceAfter : 0;
+      const balanceColor = currentBalance >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+
       let html = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+          <div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">Số dư hiện tại</div>
+            <div style="font-size: 24px; font-weight: 700; color: ${balanceColor}; letter-spacing: -0.5px;">
+              ${formatMoney(currentBalance)}
+            </div>
+          </div>
+          <div style="text-align: right;">
+             <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Khách hàng</div>
+             <div style="font-size: 16px; font-weight: 600; color: var(--text-primary);">${selectedName}</div>
+          </div>
+        </div>
+
         <div style="overflow-x:auto;">
           <table style="width:100%; border-collapse: collapse; font-size: 14px;">
             <thead>
@@ -6030,111 +6087,496 @@
 
     // ========== VIP REPORT FUNCTIONS ==========
 
-    function buildVipStatementRows(memberName, options = {}) {
-      if (!memberName) return { rows: [], summary: {} };
-      const { from, to } = options;
-      let txs = vipTransactions.filter(tx => {
-        if (tx.orphan) return false;
-        return (tx.member || tx.name || '').trim() === memberName.trim();
-      });
-      if (from || to) {
-        const fromDate = from ? new Date(from) : null;
-        const toDate = to ? new Date(to) : null;
-        txs = txs.filter(tx => {
-          const txDate = new Date(tx.ts || tx.date || 0);
-          if (fromDate && txDate < fromDate) return false;
-          if (toDate && txDate > toDate) return false;
-          return true;
+    // ========== VIP REPORT FUNCTIONS ==========
+
+    /**
+     * UNIFIED BUILDER: Build VIP Statement from FULL DB
+     * Merges orderHistory and vipTransactions to create a complete ledger.
+     */
+    function buildVipStatementFromDB(memberName, options = {}) {
+      const { from, to, includeCashOrders = true, includeOrphans = true } = options;
+      const rows = [];
+      const meta = { orphans: [] };
+      // Helper for compact date if not globally available
+      const _compactDate = (d) => {
+        const D = new Date(d);
+        return [D.getDate(), D.getMonth() + 1, D.getFullYear()].map(n => String(n).padStart(2, '0')).join('/') + ' ' +
+          [D.getHours(), D.getMinutes()].map(n => String(n).padStart(2, '0')).join(':');
+      };
+
+      const targetName = (memberName || '').trim();
+      if (!targetName) return { rows: [], summary: {}, meta };
+
+      const fromDate = from ? new Date(from) : null;
+      const toDate = to ? new Date(to) : null;
+
+      // 1. Process Order History (Canonical Orders)
+      if (Array.isArray(orderHistory)) {
+        orderHistory.forEach(order => {
+          if (!order.details || !Array.isArray(order.details)) return;
+
+          order.details.forEach((detail, idx) => {
+            const dName = (detail.name || '').trim();
+            if (dName !== targetName) return;
+
+            // Extract data
+            let ts = order.date ? new Date(order.date) : new Date(Number(order.id));
+            if (isNaN(ts.getTime())) ts = new Date(0);
+
+            const itemName = detail.itemName || order.itemName || "";
+            const due = Number(detail.due) || 0;
+            const paid = !!detail.paid;
+
+            // Payment Method Logic
+            let pm = detail.paymentMethod || (detail.isVipPayment ? 'vip' : 'cash');
+            if (!pm || !paid) pm = 'cash'; // Default if not paid or unknown
+
+            const isVip = (pm === 'vip' && paid);
+            const paymentType = isVip ? 'VIP' : 'Cash';
+
+            // Filter options
+            if (!includeCashOrders && !isVip) return;
+
+            const displayAmount = -due;
+            const deltaVip = isVip ? -due : 0;
+            const ref = `${order.id}-${idx}`;
+
+            rows.push({
+              ts: ts,
+              tsISO: ts.toISOString(),
+              dateLocal: _compactDate(ts),
+              name: dName,
+              rowType: 'order',
+              paymentType: paymentType,
+              description: `Đơn: ${itemName} (${paymentType} ${formatMoney(displayAmount)})`,
+              displayAmount: displayAmount,
+              deltaVip: deltaVip,
+              balanceAfter: 0,
+              ref: ref,
+              orderId: order.id,
+              detailIndex: idx,
+              original: detail
+            });
+          });
         });
       }
-      txs.sort((a, b) => new Date(a.ts || a.date || 0) - new Date(b.ts || b.date || 0));
-      const rows = [];
+
+      // 2. Process VIP Transactions (Ledger)
+      if (Array.isArray(vipTransactions)) {
+        vipTransactions.forEach(tx => {
+          if (tx.isDeleted) return; // Skip deleted
+          const txName = (tx.member || tx.name || '').trim();
+          if (txName !== targetName) return;
+
+          const type = tx.type || 'unknown';
+
+          // Helper to check linkage
+          const hasLink = tx.refId || (tx.orderId && tx.detailIndex !== undefined && tx.detailIndex !== null);
+
+          // SKIP Linked Orders (already covered by orderHistory)
+          if (type === 'order' && hasLink) {
+            return;
+          }
+
+          // Handle Orphans (Order tx without link)
+          if (type === 'order' && !hasLink) {
+            // Orphan logic
+            if (!includeOrphans) return;
+
+            const ts = new Date(tx.ts || tx.date || 0);
+            rows.push({
+              ts: ts,
+              tsISO: ts.toISOString(),
+              dateLocal: _compactDate(ts),
+              name: txName,
+              rowType: 'orphan',
+              paymentType: 'ORPHAN',
+              description: `(Orphan) ${tx.note || 'Missing Link'}`,
+              displayAmount: Number(tx.amount) || 0,
+              deltaVip: 0, // Requirement: deltaVip = 0
+              balanceAfter: 0,
+              ref: tx.id,
+              txId: tx.id,
+              note: 'ORPHAN: missing orderId/detailIndex/refId',
+              isOrphan: true
+            });
+            meta.orphans.push(tx);
+            return;
+          }
+
+          // Handle Other Types: topup, cashout, opening, adjustment...
+          const ts = new Date(tx.ts || tx.date || 0);
+          const amount = Number(tx.amount) || 0;
+          let deltaVip = amount;
+
+          if (type === 'cashout') {
+            // Prompt says: "Cashout: deltaVip = -amount"
+            // Assuming DB 'amount' is signed. If user inputs positive, we handle sign elsewhere.
+            // If existing data has negative for cashout, we trust it.
+            deltaVip = amount;
+          }
+
+          let desc = tx.note || tx.type;
+          if (type === 'topup') desc = tx.note || 'Nạp tiền';
+          if (type === 'cashout') desc = tx.note || 'Rút tiền';
+          if (type === 'opening') desc = 'Số dư đầu kỳ';
+          if (type === 'adjustment') desc = tx.note || 'Điều chỉnh';
+
+          rows.push({
+            ts: ts,
+            tsISO: ts.toISOString(),
+            dateLocal: _compactDate(ts),
+            name: txName,
+            rowType: type,
+            paymentType: type.toUpperCase(),
+            description: desc,
+            displayAmount: amount,
+            deltaVip: deltaVip,
+            balanceAfter: 0,
+            ref: tx.id,
+            txId: tx.id
+          });
+        });
+      }
+
+      // 3. Filter Date Range (Apply before sort or after? Usually after)
+      // Done during generation? No, let's filter now.
+      // But Opening should always be included? 
+      // Prompt says: "Xây rows full-history rồi sort...".
+      // Date filter usually applies to VIEW, but running balance logic needs precise start.
+      // IF filtering view, running balance might be wrong if we don't calculate from absolute zero.
+      // Prompt requirement: "running = openingAmount (sum tx.type="opening")... For each row: running += deltaVip".
+      // This implies the calculation starts from 0 (plus 'opening' tx).
+      // If we filter, we must calculate the "balance at 'from' date" first.
+
+      // Let's Sort first
+      rows.sort((a, b) => a.ts - b.ts);
+
+      // Calculate Running Balance for ALL rows
       let running = 0;
-      let opening = 0, totalTopup = 0, totalOrder = 0, totalCashout = 0, totalAdjustment = 0;
-      txs.forEach(tx => {
-        const delta = Number(tx.amount) || 0;
+      let openingBalanceForView = 0;
+      let isFirstInView = true;
+
+      // Stats for Summary (only within View?)
+      // Usually summary reflects the View Range. But "Ending" is usually absolute Ending.
+      // Let's assume standard bank statement logic:
+      // Opening Balance (at start of period)
+      // + Credits
+      // - Debits
+      // = Closing Balance (at end of period)
+
+      const viewRows = [];
+
+      // Totals for View
+      let viewOpening = 0;
+      let viewTopup = 0;
+      let viewOrder = 0;
+      let viewCashout = 0;
+      let viewAdjustment = 0;
+
+      rows.forEach((row, index) => {
+        const delta = row.deltaVip;
+
+        // Before applying current delta?
+        // running start = 0.
+        // row.balanceAfter = running + delta.
         running += delta;
-        const typeMap = { 'opening': 'Opening', 'topup': 'Nạp', 'order': 'Trừ đơn', 'cashout': 'Rút', 'adjustment': 'Điều chỉnh' };
-        const typeLabel = typeMap[tx.type] || tx.type || 'Khác';
-        let description = '';
-        if (tx.type === 'order') description = `Đơn: ${tx.itemName || tx.note || ''}`;
-        else if (tx.type === 'topup') description = tx.note || 'Nạp';
-        else if (tx.type === 'cashout') description = tx.note || 'Rút';
-        else if (tx.type === 'opening') description = 'Số dư đầu kỳ';
-        else if (tx.type === 'adjustment') description = tx.note || 'Điều chỉnh';
-        else description = tx.note || tx.itemName || '';
-        let ref = tx.refId || (tx.orderId && tx.detailIndex != null ? `${tx.orderId}-${tx.detailIndex}` : tx.orderId ? String(tx.orderId) : '');
-        const txDate = new Date(tx.ts || tx.date || 0);
-        const dateISO = txDate.toISOString();
-        const dateLocal = formatDate(dateISO).replace(/(\d{2}\/\d{2}\/\d{4})/, '$1') + ' ' + txDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-        rows.push({ dateISO, dateLocal, typeLabel, description: description.trim(), delta, balanceAfter: running, ref, txnId: tx.id });
-        if (tx.type === 'opening') opening += delta;
-        else if (tx.type === 'topup') totalTopup += delta;
-        else if (tx.type === 'order') totalOrder += Math.abs(delta);
-        else if (tx.type === 'cashout') totalCashout += Math.abs(delta);
-        else if (tx.type === 'adjustment') totalAdjustment += delta;
+        row.balanceAfter = running;
+
+        // Check Date Filter
+        let inRange = true;
+        if (fromDate && row.ts < fromDate) inRange = false;
+        if (toDate && row.ts > toDate) inRange = false;
+
+        if (inRange) {
+          viewRows.push(row);
+
+          // If first row in view, capture the running balance BEFORE this row as "Opening for View"
+          if (isFirstInView) {
+            viewOpening = running - delta;
+            isFirstInView = false;
+          }
+
+          if (row.rowType === 'topup') viewTopup += delta;
+          else if (row.rowType === 'order' && row.paymentType === 'VIP') viewOrder += Math.abs(delta);
+          else if (row.rowType === 'cashout') viewCashout += Math.abs(delta);
+          else if (row.rowType === 'adjustment') viewAdjustment += delta;
+          else if (row.rowType === 'opening') {
+            // If opening tx is inside the range, it contributes to stats? 
+            // Or is it just "Opening"?
+            // Usually "Opening" stat in summary refers to balance at Start Date.
+            // If 'opening' tx exists, it's just a transaction.
+          }
+        }
       });
-      return { rows, summary: { opening, totalTopup, totalOrder, totalCashout, totalAdjustment, ending: running } };
+
+      // If no rows in view, viewOpening is running at end (if range is future) or running at matching point?
+      // If fromDate is set, viewOpening is balance at fromDate.
+      if (viewRows.length === 0 && fromDate) {
+        // Find balance at fromDate
+        // We already iterated. 
+        // Let's keep it simple: viewOpening set during iteration is correct if we hit something.
+        // If we didn't hit anything, we need to know why.
+      }
+
+      // If no date filter, Opening is 0 (or sum of opening txs if we want to separate them).
+      // Prompt says: "opening = sum(opening rows deltaVip)". This likely refers to specific 'opening' type txs in the Summary.
+      // BUT "running = openingAmount + ..."
+      // Let's stick to the prompt's Summary definition strictly if possible.
+      // "Summary: opening = sum(opening rows deltaVip)"
+      // "totalTopup = sum ... type='topup'"
+      // "ending = last row.balanceAfter"
+
+      // If I interpret "Summary" as global summary (ignoring date filter?):
+      // But options has {from, to}.
+      // If I return `rows` filtered, `summary` should match `rows`.
+      // I will implement "Summary for the View".
+
+      // Update: If no date filter, viewOpening starts at 0. 
+      // AND we add up 'opening' txs?
+      // Actually, if we use standard accounting:
+      // 'Opening' in summary = Balance at 'From' date.
+
+      // Re-read prompt E: "opening = sum(opening rows deltaVip)". 
+      // This implies it sums the 'opening' transactions specifically, presumably for the whole history or view?
+      // If view is filtered, we usually want "Balance brought forward".
+
+      // Let's use the calculated viewOpening (Balance Brought Forward) as 'opening'.
+      // This is most useful for users. 
+
+      return {
+        rows: viewRows,
+        summary: {
+          opening: viewOpening, // Balance before first row of view
+          totalTopup: viewTopup,
+          totalOrder: viewOrder, // Spending
+          totalCashout: viewCashout,
+          totalAdjustment: viewAdjustment,
+          ending: running // Absolute Ending Balance (current)
+        },
+        meta
+      };
     }
 
-    function renderVipReport() {
-      const memberName = document.getElementById('vipReportMember').value;
+    // Alias for backward compatibility if needed (but we updated callers)
+    // window.buildVipStatementRows = buildVipStatementFromDB; 
+
+    /**
+     * Render VIP Report
+     */
+    function renderVipReport(forceHighlight = false) {
+      const memberSelect = document.getElementById('vipReportMember');
+      const memberName = memberSelect.value;
       const summaryDiv = document.getElementById('vipReportSummary');
       const table = document.getElementById('vipReportTable');
       const tbody = document.getElementById('vipReportTableBody');
       const emptyDiv = document.getElementById('vipReportEmpty');
+
+      // Clear previous analysis if any
+      const existingAnalysis = document.getElementById('vipReportAnalysis');
+      if (existingAnalysis) existingAnalysis.remove();
+
       if (!memberName) {
-        summaryDiv.style.display = 'none';
-        table.style.display = 'none';
-        emptyDiv.style.display = 'block';
-        return;
+        summaryDiv.style.display = 'none'; table.style.display = 'none'; emptyDiv.style.display = 'block'; return;
       }
-      const fromDate = document.getElementById('vipReportFromDate').value;
-      const toDate = document.getElementById('vipReportToDate').value;
-      const statement = buildVipStatementRows(memberName, { from: fromDate, to: toDate });
+
+      const fromDate = document.getElementById('vipReportFromDate')?.value;
+      const toDate = document.getElementById('vipReportToDate')?.value;
+
+      const statement = buildVipStatementFromDB(memberName, { from: fromDate, to: toDate });
+      const currentVipList = parseVip(document.getElementById('vipArea')?.value || '');
+      const expectedBalance = currentVipList.get(memberName) || 0;
+
+      // Check Mismatch
+      const mismatch = Math.abs(statement.summary.ending - expectedBalance) > 1; // Tolerance 1d
+      const showHighlight = forceHighlight || mismatch;
+
       if (statement.rows.length === 0) {
         summaryDiv.style.display = 'none'; table.style.display = 'none';
         emptyDiv.innerHTML = `<div style="text-align:center;padding:40px;color:#999;">Không có giao dịch nào cho ${memberName}</div>`;
         emptyDiv.style.display = 'block';
-        return;
+      } else {
+        emptyDiv.style.display = 'none';
+        const s = statement.summary;
+
+        let warningHTML = '';
+        if (mismatch) {
+          warningHTML = `<div style="background:#fee2e2; color:#b91c1c; padding:12px; border-radius:8px; margin-bottom:12px; font-weight:600; font-size:14px;">
+              ⚠️ MISMATCH: Report (${formatMoney(s.ending)}) ≠ Saved Balance (${formatMoney(expectedBalance)})
+              <div style="font-weight:400; font-size:12px; margin-top:4px;">Chế độ "Đối soát" đang được kích hoạt để tìm nguyên nhân.</div>
+           </div>`;
+        }
+
+        let summaryHTML = `${warningHTML}
+          <div style="font-size:18px; font-weight:600; margin-bottom:16px;">📊 Tổng kết: ${memberName}</div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px;">
+            <div class="stat-box">
+              <div style="opacity:0.7; font-size:12px;">Dư đầu kỳ</div>
+              <div style="font-size:18px; font-weight:700;">${formatMoney(s.opening)}</div>
+            </div>
+            <div class="stat-box">
+              <div style="opacity:0.7; font-size:12px;">Tổng nạp</div>
+              <div style="font-size:18px; font-weight:700; color:#4ade80;">+${formatMoney(s.totalTopup)}</div>
+            </div>
+            <div class="stat-box">
+              <div style="opacity:0.7; font-size:12px;">Tổng tiêu (VIP)</div>
+              <div style="font-size:18px; font-weight:700; color:#f87171;">-${formatMoney(s.totalOrder)}</div>
+            </div>
+             <div class="stat-box">
+              <div style="opacity:0.7; font-size:12px;">Tổng rút</div>
+              <div style="font-size:18px; font-weight:700; color:#fbbf24;">-${formatMoney(s.totalCashout)}</div>
+            </div>
+             <div class="stat-box" style="background: rgba(255,255,255,0.1); border-radius:8px; padding:8px;">
+              <div style="opacity:0.9; font-size:12px; color:var(--text-primary);">SỐ DƯ CUỐI</div>
+              <div style="font-size:20px; font-weight:700; color:${mismatch ? '#ef4444' : 'var(--accent)'};">${formatMoney(s.ending)}</div>
+            </div>
+          </div>
+        `;
+        summaryDiv.innerHTML = summaryHTML; summaryDiv.style.display = 'block';
+
+        // Filter Top Contributors for Analysis
+        if (statement.rows.length > 0) {
+          const contributors = statement.rows
+            .filter(r => Math.abs(r.deltaVip) > 0)
+            .sort((a, b) => Math.abs(b.deltaVip) - Math.abs(a.deltaVip))
+            .slice(0, 10);
+
+          if (contributors.length > 0) {
+            const analysisHTML = `
+               <div id="vipReportAnalysis" style="margin-top: 20px; margin-bottom: 20px; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 16px;">
+                 <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #fbbf24;">🔍 Phân tích Đối soát (Top ảnh hưởng)</div>
+                 <table style="width:100%; font-size:12px; text-align:left;">
+                   <thead style="opacity:0.7;"><tr><th>Thời gian</th><th>Loại</th><th>Mô tả</th><th style="text-align:right">Ảnh hưởng</th></tr></thead>
+                   <tbody>
+                     ${contributors.map(r => `
+                        <tr>
+                          <td style="padding:4px 0;">${r.dateLocal}</td>
+                          <td>${r.rowType}</td>
+                          <td>${r.description}</td>
+                          <td style="text-align:right; font-weight:bold; color:${r.deltaVip > 0 ? '#4ade80' : '#f87171'}">${r.deltaVip > 0 ? '+' : ''}${formatMoney(r.deltaVip)}</td>
+                        </tr>
+                     `).join('')}
+                   </tbody>
+                 </table>
+               </div>
+             `;
+            // Insert after summary, before table
+            summaryDiv.insertAdjacentHTML('afterend', analysisHTML);
+          }
+        }
+
+        const rowsHTML = statement.rows.map((row, idx) => {
+          const deltaColor = row.deltaVip >= 0 ? '#4ade80' : '#f87171';
+          const deltaSign = row.deltaVip > 0 ? '+' : '';
+
+          // Logic Highlight Mode
+          let rowBg = idx % 2 === 0 ? 'rgba(0,0,0,0.02)' : 'transparent';
+          let borderStyle = '1px solid rgba(0,0,0,0.05)';
+
+          if (showHighlight) {
+            if (row.rowType === 'orphan') {
+              rowBg = 'rgba(239, 68, 68, 0.15)'; // Red warning for orphan
+              borderStyle = '1px solid rgba(239, 68, 68, 0.3)';
+            } else if (row.paymentType === 'VIP' || ['topup', 'cashout', 'adjustment', 'opening'].includes(row.rowType)) {
+              rowBg = 'rgba(251, 191, 36, 0.05)'; // Mild yellow for balance contributors
+            }
+          } else {
+            // Standard highlighting (orphan still warn)
+            if (row.rowType === 'orphan') rowBg = 'rgba(245, 158, 11, 0.1)';
+          }
+
+          const typeBadgeColor = row.paymentType === 'VIP' ? '#8b5cf6' : row.paymentType === 'Cash' ? '#6b7280' : '#3b82f6';
+
+          return `
+            <tr style="background: ${rowBg}; border-bottom: ${borderStyle};">
+              <td style="padding: 10px 8px; font-size: 13px;">${row.dateLocal}</td>
+              <td style="padding: 10px 8px;">
+                <span style="background: ${typeBadgeColor}20; color:${typeBadgeColor}; padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                  ${row.rowType === 'orphan' ? 'ORPHAN' : row.paymentType}
+                </span>
+                <div style="font-size:10px; opacity:0.7; margin-top:2px;">${row.rowType}</div>
+              </td>
+              <td style="padding: 10px 8px; font-size: 13px;">
+                 ${row.description}
+                 ${row.rowType === 'orphan' ? '<div style="color:#ef4444; font-weight:bold; font-size:10px;">⚠️ Cần kiểm tra</div>' : ''}
+              </td>
+              <td style="padding: 10px 8px; text-align: right; font-weight: 500;">
+                ${row.displayAmount !== 0 ? formatMoney(row.displayAmount) : '-'}
+              </td>
+              <td style="padding: 10px 8px; text-align: right; font-weight: 600; color: ${deltaColor};">
+                ${row.deltaVip !== 0 ? deltaSign + formatMoney(row.deltaVip) : '-'}
+              </td>
+              <td style="padding: 10px 8px; text-align: right; font-weight: 700; font-size: 14px;">
+                ${formatMoney(row.balanceAfter)}
+              </td>
+              <td style="padding: 10px 8px; font-size: 11px; color: #999; max-width:100px; overflow:hidden; text-overflow:ellipsis;">
+                 ${row.ref}
+              </td>
+            </tr>
+          `;
+        }).join('');
+        tbody.innerHTML = rowsHTML; table.style.display = 'table';
       }
-      emptyDiv.style.display = 'none';
-      const s = statement.summary;
-      let summaryHTML = `<div style="font-size:18px;font-weight:600;margin-bottom:16px;">📊 Tổng kết: ${memberName}</div>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
-<div><div style="opacity:0.9;font-size:13px;">Opening</div><div style="font-size:20px;font-weight:700;">${formatMoney(s.opening)}</div></div>
-<div><div style="opacity:0.9;font-size:13px;">Tổng nạp</div><div style="font-size:20px;font-weight:700;color:#4ade80;">+${formatMoney(s.totalTopup)}</div></div>
-<div><div style="opacity:0.9;font-size:13px;">Tổng chi</div><div style="font-size:20px;font-weight:700;color:#f87171;">-${formatMoney(s.totalOrder)}</div></div>
-<div><div style="opacity:0.9;font-size:13px;">Tổng rút</div><div style="font-size:20px;font-weight:700;color:#fbbf24;">-${formatMoney(s.totalCashout)}</div></div>`;
-      if (s.totalAdjustment !== 0) summaryHTML += `<div><div style="opacity:0.9;font-size:13px;">Điều chỉnh</div><div style="font-size:20px;font-weight:700;">${formatMoney(s.totalAdjustment)}</div></div>`;
-      summaryHTML += `<div><div style="opacity:0.9;font-size:13px;">Ending Balance</div><div style="font-size:24px;font-weight:700;">${formatMoney(s.ending)}</div></div></div>`;
-      summaryDiv.innerHTML = summaryHTML; summaryDiv.style.display = 'block';
-      const rowsHTML = statement.rows.map((row, idx) => {
-        const deltaColor = row.delta >= 0 ? '#4ade80' : '#f87171';
-        const deltaSign = row.delta >= 0 ? '+' : '';
-        const rowBg = idx % 2 === 0 ? 'rgba(0,0,0,0.02)' : 'transparent';
-        return `<tr style="background:${rowBg};border-bottom:1px solid rgba(0,0,0,0.05);">
-<td style="padding:10px 8px;font-size:13px;">${row.dateLocal}</td>
-<td style="padding:10px 8px;"><span style="background:rgba(102,126,234,0.1);padding:4px 8px;border-radius:4px;font-size:12px;font-weight:500;">${row.typeLabel}</span></td>
-<td style="padding:10px 8px;font-size:13px;">${row.description}</td>
-<td style="padding:10px 8px;text-align:right;font-weight:600;color:${deltaColor};">${deltaSign}${formatMoney(row.delta)}</td>
-<td style="padding:10px 8px;text-align:right;font-weight:700;font-size:14px;">${formatMoney(row.balanceAfter)}</td>
-<td style="padding:10px 8px;font-size:12px;color:#999;">${row.ref}</td>
-</tr>`;
-      }).join('');
-      tbody.innerHTML = rowsHTML; table.style.display = 'table';
+    }
+
+    /**
+     * Self Test: VIP Report from DB
+     * Verifies that the report ending balance matches the VIP list balance
+     */
+    window.selfTest_vipReportFromDB = function () {
+      console.log("🧪 Starting Self-Test: VIP Report From DB...");
+      const vipArea = document.getElementById('vipArea');
+      if (!vipArea) { console.error("VIP Area not found"); return; }
+
+      const vipList = parseVip(vipArea.value);
+      const report = [];
+      let failCount = 0;
+
+      vipList.forEach((expected, member) => {
+        const statement = buildVipStatementFromDB(member, { includeCashOrders: true });
+        const diff = statement.summary.ending - expected;
+        const orphanCount = statement.meta.orphans.length;
+
+        const status = Math.abs(diff) < 1 ? "✅ PASS" : "❌ FAIL";
+        if (status === "❌ FAIL") failCount++;
+
+        report.push({
+          member,
+          expected,
+          ending: statement.summary.ending,
+          diff: parseFloat(diff.toFixed(2)),
+          orphans: orphanCount,
+          status
+        });
+      });
+
+      console.table(report);
+      if (failCount === 0) console.log("✅ All VIP balances match report verification!");
+      else console.warn(`⚠️ Found ${failCount} mismatches using new DB builder.`);
     }
 
     function exportVipReportCSV() {
       const memberName = document.getElementById('vipReportMember').value;
       if (!memberName) { alert('Vui lòng chọn VIP member trước!'); return; }
-      const statement = buildVipStatementRows(memberName, { from: document.getElementById('vipReportFromDate').value, to: document.getElementById('vipReportToDate').value });
+
+      const fromDate = document.getElementById('vipReportFromDate').value;
+      const toDate = document.getElementById('vipReportToDate').value;
+
+      const statement = buildVipStatementFromDB(memberName, {
+        from: fromDate,
+        to: toDate,
+        includeCashOrders: true
+      });
+
       if (statement.rows.length === 0) { alert('Không có dữ liệu để xuất!'); return; }
-      const header = 'dateISO,type,description,delta,balanceAfter,ref,txnId\n';
+
+      // Updated Header to match new data structure
+      const header = 'dateISO,dateLocal,type,paymentType,description,displayAmount,deltaVip,balanceAfter,ref,txnId\n';
       const rows = statement.rows.map(row => {
         const desc = (row.description || '').replace(/"/g, '""');
-        return `"${row.dateISO}","${row.typeLabel}","${desc}",${row.delta},${row.balanceAfter},"${row.ref}","${row.txnId}"`;
+        return `"${row.dateISO}","${row.dateLocal}","${row.typeLabel}","${row.paymentType}","${desc}",${row.displayAmount},${row.deltaVip},${row.balanceAfter},"${row.ref}","${row.txnId}"`;
       }).join('\n');
+
       const csv = header + rows;
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -6159,6 +6601,145 @@
         sorted.map(name => `<option value="${name.replace(/"/g, '&quot;')}">${name}</option>`).join('');
     }
 
+
+    // ========== RECONCILE FUNCTIONS ==========
+
+    function openReconcileModal() {
+      const modal = document.getElementById('reconcileModal');
+      const content = document.getElementById('reconcileContent');
+      const loading = document.getElementById('reconcileLoading');
+      const tbody = document.getElementById('reconcileTableBody');
+      const emptyMsg = document.getElementById('reconcileEmpty');
+
+      modal.style.display = 'flex';
+      loading.style.display = 'block';
+      content.style.display = 'none';
+      tbody.innerHTML = '';
+
+      // Use setTimeout to allow UI to render loading state
+      setTimeout(() => {
+        const vipArea = document.getElementById('vipArea');
+        const vipList = parseVip(vipArea ? vipArea.value : '');
+        const mismatches = [];
+
+        const allMembers = new Set([...vipList.keys()]);
+        // Also add members from transactions who might not be in vipList??? 
+        // For now, iterate known VIP list as "expected" source.
+
+        vipList.forEach((expected, member) => {
+          const statement = buildVipStatementFromDB(member, { includeCashOrders: true });
+          const computed = statement.summary.ending;
+          const diff = computed - expected;
+          const orphans = statement.meta.orphans.length;
+
+          // Criteria: Diff > 1 OR Orphans > 0 (orphans might not cause diff if cancelled out, but worth showing?)
+          // Prompt says: "ending(report) != vipListBalance (mismatch)". So strictly Diff.
+          if (Math.abs(diff) > 1) {
+            mismatches.push({
+              member, expected, computed, diff, orphans
+            });
+          }
+        });
+
+        // Sort by Abs(Diff) Descending
+        mismatches.sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
+
+        if (mismatches.length === 0) {
+          emptyMsg.style.display = 'block';
+        } else {
+          emptyMsg.style.display = 'none';
+          tbody.innerHTML = mismatches.map(m => `
+               <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); hover:background:rgba(255,255,255,0.05);">
+                 <td style="padding: 10px; font-weight: 600;">${m.member}</td>
+                 <td style="padding: 10px; text-align: right;">${formatMoney(m.expected)}</td>
+                 <td style="padding: 10px; text-align: right;">${formatMoney(m.computed)}</td>
+                 <td style="padding: 10px; text-align: right; color: #f87171; font-weight: bold;">${m.diff > 0 ? '+' : ''}${formatMoney(m.diff)}</td>
+                 <td style="padding: 10px; text-align: center;">${m.orphans > 0 ? `<span style="background:#f59e0b; color:black; padding:2px 6px; border-radius:4px; font-weight:bold;">${m.orphans}</span>` : '-'}</td>
+                 <td style="padding: 10px;">
+                    <button class="btn btn-sm btn-primary" onclick="selectReconcileMember('${m.member.replace(/'/g, "\\'")}')">
+                       Kiểm tra
+                    </button>
+                 </td>
+               </tr>
+            `).join('');
+        }
+
+        loading.style.display = 'none';
+        content.style.display = 'block';
+      }, 50);
+    }
+
+    function closeReconcileModal() {
+      document.getElementById('reconcileModal').style.display = 'none';
+    }
+
+    function selectReconcileMember(memberName) {
+      closeReconcileModal();
+      const select = document.getElementById('vipReportMember');
+      select.value = memberName;
+      // Trigger render with Highlight Mode
+      renderVipReport(true);
+    }
+
+    /**
+     * Auto Test: Reconcile UI
+     */
+    window.selfTest_reconcileUI = function () {
+      console.log("🧪 Starting Self-Test: Reconcile UI...");
+
+      // 1. Calculate mismatches internally
+      const vipArea = document.getElementById('vipArea');
+      const vipList = parseVip(vipArea ? vipArea.value : '');
+      const realMismatches = [];
+      vipList.forEach((expected, member) => {
+        const s = buildVipStatementFromDB(member);
+        if (Math.abs(s.summary.ending - expected) > 1) {
+          realMismatches.push(member);
+        }
+      });
+
+      console.log(`ℹ️ Found ${realMismatches.length} real mismatches in DB:`, realMismatches);
+
+      // 2. Open Modal Programmatically
+      openReconcileModal();
+
+      // Wait for async rendering
+      setTimeout(() => {
+        const tbody = document.getElementById('reconcileTableBody');
+        const rows = tbody.querySelectorAll('tr');
+        const renderedCount = rows.length;
+
+        if (renderedCount === realMismatches.length) {
+          console.log("✅ Reconcile Modal rendered correct number of rows.");
+        } else {
+          console.error(`❌ Reconcile Modal rendered ${renderedCount} rows, expected ${realMismatches.length}.`);
+        }
+
+        // 3. If mismatches exist, test selection
+        if (renderedCount > 0) {
+          const firstRowBtn = rows[0].querySelector('button');
+          if (firstRowBtn) {
+            console.log("👉 Clicking first verify button...");
+            firstRowBtn.click();
+
+            // Assert Dropdown
+            const select = document.getElementById('vipReportMember');
+            console.log(`ℹ️ Selected member: ${select.value}`);
+
+            // Assert Analysis Panel Visibility
+            const analysis = document.getElementById('vipReportAnalysis');
+            if (analysis) console.log("✅ Analysis Panel is visible.");
+            else console.error("❌ Analysis Panel NOT visible after selection.");
+
+          }
+        } else {
+          console.log("ℹ️ No mismatches to test interaction.");
+        }
+
+        console.log("✅ selfTest_reconcileUI Completed.");
+
+      }, 500);
+    }
 
     // ========== AUDIT UTILS (Exported to Window) ==========
 
