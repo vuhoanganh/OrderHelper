@@ -1,0 +1,100 @@
+PROMPT 2.2 — VIP Report “Sổ phụ” phải đọc FULL DB (orders + vip tx), show toàn bộ giao dịch 1 người, chạy số dư chuẩn
+
+PHẠM VI
+- Chỉ sửa file: order_helper_v3_advanced.html
+- Không đổi nghiệp vụ ngoài phần Báo cáo VIP – Sổ phụ
+- Không thay đổi theme/CSS tổng thể (chỉ thêm cột/badge nếu bắt buộc)
+
+MỤC TIÊU (CHỐT)
+Khi chọn 1 VIP Member trong dropdown, tab “📋 Báo cáo VIP - Sổ phụ” phải:
+1) HIỂN THỊ FULL TIMELINE tất cả giao dịch của người đó từ DB:
+   - Orders từ orderHistory.details: hiển thị cả Cash & VIP
+   - VIP ledger tx từ vipTransactions: topup/cashout/opening/adjustment (nếu có)
+   - vipTransactions.type="order" chỉ dùng để audit/link; không double-count
+   - Orphan vipTransactions order (thiếu orderId/detailIndex/refId) phải vẫn hiển thị nhưng gắn nhãn ORPHAN
+
+2) CHẠY “SỐ DƯ” ĐÚNG theo logic tạp hoá:
+   ending = opening + Σ(deltaVip)
+   Trong đó:
+   - Order VIP: deltaVip = -due
+   - Order Cash: deltaVip = 0 (vẫn show số tiền món để minh bạch)
+   - Topup: deltaVip = +amount
+   - Cashout: deltaVip = -amount
+   - Opening/Adjustment: deltaVip = amount
+   - ORPHAN (unlinked vipTx order): mặc định deltaVip = 0 (KHÔNG tự động trừ/cộng vào số dư), chỉ hiển thị để đối soát
+
+3) ENDING BALANCE phải KHỚP số dư hiện tại trong “Quản lý VIP (vipList)” theo DB hiện tại.
+   - Sau khi tính xong, computedEnding của report phải bằng vipListBalance (Name=xxxđ).
+   - Nếu không khớp: hiện warning “MISMATCH diff=...”, và hiển thị danh sách ORPHAN + các dòng VIP order/topup/cashout để người vận hành kiểm tra.
+
+YÊU CẦU KỸ THUẬT (BẮT BUỘC)
+A) Tạo builder thống nhất:
+   function buildVipStatementFromDB(memberName, options) -> { rows, summary, meta }
+   - options: { from?:Date, to?:Date, includeCashOrders?:true, includeOrphans?:true }
+
+B) Đọc từ 2 nguồn DB:
+1) orderHistory:
+   - Duyệt mọi order + detailIndex.
+   - Nếu details[i].name === memberName => tạo 1 row type="order"
+   - Lấy:
+     + ts = order.date || new Date(Number(order.id)) || new Date(order.id)
+     + itemName = (detail.itemName || order.itemName || "")
+     + due = Number(detail.due)
+     + paid = !!detail.paid
+     + pm = detail.paymentMethod || (detail.isVipPayment ? "vip" : "cash") || "cash"
+   - Set:
+     + paymentType = (pm === "vip" && paid) ? "VIP" : "Cash"
+     + displayAmount = -due (luôn show số tiền món)
+     + deltaVip = (paymentType==="VIP") ? -due : 0
+     + ref = `${order.id}-${i}`
+
+2) vipTransactions:
+   - Lấy các tx của memberName.
+   - Với tx.type in ["topup","cashout","opening","adjust","adjustment"]:
+     + tạo row tương ứng, deltaVip = tx.amount
+   - Với tx.type==="order":
+     + Nếu có đủ orderId & detailIndex (hoặc refId) => KHÔNG đưa vào rows tính toán (tránh double-count vì orderHistory đã tạo row order).
+     + Nếu thiếu link => tạo row ORPHAN:
+       - type="orphan"
+       - displayAmount = tx.amount
+       - deltaVip = 0 (mặc định không ảnh hưởng số dư)
+       - note="ORPHAN: missing orderId/detailIndex/refId"
+       - meta.orphans.push(tx)
+
+C) Sort & running balance:
+   - Xây rows full-history rồi sort theo ts tăng dần (opening có thể pin lên đầu nếu muốn).
+   - running = openingAmount (sum tx.type="opening" + adjustments nếu tính vào opening)
+   - For each row: running += row.deltaVip; set row.balanceAfter = running
+
+D) Summary:
+   - opening = sum(opening rows deltaVip)
+   - totalTopup = sum(deltaVip where type="topup")
+   - totalCashout = sum(abs(deltaVip) where type="cashout") (hoặc giữ dấu âm tuỳ UI)
+   - totalVipSpend = sum(abs(deltaVip) where row is order VIP)  (cash orders không tính)
+   - ending = last row.balanceAfter (hoặc opening nếu không có row)
+
+E) Render UI tab “Báo cáo VIP - Sổ phụ”:
+   - Bảng phải có ít nhất: Ngày giờ | Loại | Nội dung | PT | Số tiền (displayAmount) | Delta VIP (deltaVip) | Số dư (balanceAfter) | Ref
+   - Nếu UI không muốn thêm cột “Delta VIP”, thì cột +/- phải là deltaVip; còn số tiền món đưa vào “Nội dung” (vd: “Đơn: Phở bò (Cash -38đ)”)
+
+F) CSV export:
+   - Xuất đúng rows đang hiển thị, cột tối thiểu:
+     tsISO, tsLocal, name, rowType, paymentType, description, displayAmount, deltaVip, balanceAfter, ref, orderId, detailIndex, txId, note
+
+AUTO TEST (BẮT BUỘC)
+Tạo:
+window.selfTest_vipReportFromDB = function() {
+  - parse vipList => expected balances map
+  - for each member:
+      statement = buildVipStatementFromDB(member)
+      diff = statement.summary.ending - expected[member]
+      console.table([{member, expected, ending, diff, orphanCount}])
+  - Nếu có diff != 0: console.warn + in ra 10 rows cuối của statement để debug
+}
+
+DOD (DONE DEFINITION)
+- Với mọi member trong vipList: endingBalance của report == vipListBalance
+- Report hiển thị đủ order cash/vip + topup/cashout/opening/adjustment
+- Orphan vẫn hiển thị nhưng không ảnh hưởng balance (deltaVip=0) và có warning
+- CSV export đúng dữ liệu đang xem
+- selfTest_vipReportFromDB chạy ra diff=0 cho toàn bộ member (hoặc log rõ member nào còn mismatch và orphanCount)
