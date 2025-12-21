@@ -1003,31 +1003,50 @@
     // Recompute VIP balances from current data to keep VIP management in sync with reports
     function recomputeVipBalances() {
       console.log(`[${BUILD_TAG}] recomputeVipBalances`);
+
+      // 1. Read current state (inputs only, no modifications)
       const vipAreaText = document.getElementById('vipArea')?.value || '';
-      const vipMap = parseVip(vipAreaText);
 
-      // Minimal rollback mode:
-      // - Only apply vipTransactions onto the existing vipList.
-      // - Do NOT look at orderHistory (avoid legacy inference).
-      (vipTransactions || []).forEach(tx => {
-        if (tx.orphan) return; // Exclude orphan transactions
-        const name = (tx?.name || '').trim();
-        if (!name) return;
-        const amount = Number(tx?.amount);
-        if (!Number.isFinite(amount)) return;
+      // 2. Use pure functions for calculation
+      if (window.vipBalanceCore) {
+        // NEW CODE PATH: Use pure functions from vipBalanceCore module
+        // CRITICAL: Calculate balances ONLY from transaction ledger
+        // Do NOT use initialBalances - that would double-count!
+        // The ledger IS the source of truth.
+        const newBalances = window.vipBalanceCore.calculateVipBalances(vipTransactions);
+        const vipText = window.vipBalanceCore.vipMapToText(newBalances);
 
-        const type = tx?.type || (amount >= 0 ? 'topup' : 'cashout');
-        if (type !== 'topup' && type !== 'cashout' && type !== 'order') return;
-        if (type === 'order' && tx?.isVipPayment !== true && tx?.paymentMethod !== 'vip') return;
+        // 3. Update UI & storage (explicit side effects)
+        const vipArea = document.getElementById('vipArea');
+        if (vipArea) vipArea.value = vipText;
+        persistVipList(vipText);
+      } else {
+        // FALLBACK: Old code path (will be removed after migration complete)
+        const vipMap = parseVip(vipAreaText);
 
-        const current = Number(vipMap.get(name) || 0);
-        vipMap.set(name, current + amount);
-      });
+        // Minimal rollback mode:
+        // - Only apply vipTransactions onto the existing vipList.
+        // - Do NOT look at orderHistory (avoid legacy inference).
+        (vipTransactions || []).forEach(tx => {
+          if (tx.orphan) return; // Exclude orphan transactions
+          const name = (tx?.name || '').trim();
+          if (!name) return;
+          const amount = Number(tx?.amount);
+          if (!Number.isFinite(amount)) return;
 
-      const vipText = vipToText(vipMap);
-      const vipArea = document.getElementById('vipArea');
-      if (vipArea) vipArea.value = vipText;
-      persistVipList(vipText);
+          const type = tx?.type || (amount >= 0 ? 'topup' : 'cashout');
+          if (type !== 'topup' && type !== 'cashout' && type !== 'order') return;
+          if (type === 'order' && tx?.isVipPayment !== true && tx?.paymentMethod !== 'vip') return;
+
+          const current = Number(vipMap.get(name) || 0);
+          vipMap.set(name, current + amount);
+        });
+
+        const vipText = vipToText(vipMap);
+        const vipArea = document.getElementById('vipArea');
+        if (vipArea) vipArea.value = vipText;
+        persistVipList(vipText);
+      }
     }
 
     // Update dish name suggestions from order history

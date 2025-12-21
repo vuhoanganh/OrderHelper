@@ -10,6 +10,11 @@
 import { BUILD_TAG } from './config.js';
 import storage from './utils/storage.js';
 import dom from './utils/dom.js';
+import vipBalanceCore from './core/vipBalance.js';
+
+// Expose to window for gradual migration
+// Inline functions can access via window.vipBalanceCore
+window.vipBalanceCore = vipBalanceCore;
 
 console.log(`[App] OrderHelper Pro - Build: ${BUILD_TAG}`);
 console.log('[App] Modular bootstrap initialized');
