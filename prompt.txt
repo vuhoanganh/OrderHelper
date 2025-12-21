@@ -1,100 +1,217 @@
-PROMPT 2.2 — VIP Report “Sổ phụ” phải đọc FULL DB (orders + vip tx), show toàn bộ giao dịch 1 người, chạy số dư chuẩn
+PROMPTS_TỔNG_HỢP_ORDERHELPER (bao gồm refactor + Share Backup iCloud)
+Phiên bản: 2025-12-21
+Ngôn ngữ: VI (dùng để đưa cho Antigravity/Claude/Cursor triển khai)
 
-PHẠM VI
-- Chỉ sửa file: order_helper_v3_advanced.html
-- Không đổi nghiệp vụ ngoài phần Báo cáo VIP – Sổ phụ
-- Không thay đổi theme/CSS tổng thể (chỉ thêm cột/badge nếu bắt buộc)
+======================================================================
+PROMPT 0 — DOD.README (GATE / RULES BẮT BUỘC TRƯỚC KHI CODE)
+======================================================================
+Mục tiêu: Refactor cấu trúc và wiring để dễ maintain + giảm rủi ro sai số, nhưng TUYỆT ĐỐI KHÔNG thay đổi nghiệp vụ/domain/data.
+Hệ thống đang chạy: GitHub Pages (static site), không bắt buộc build tool.
 
-MỤC TIÊU (CHỐT)
-Khi chọn 1 VIP Member trong dropdown, tab “📋 Báo cáo VIP - Sổ phụ” phải:
-1) HIỂN THỊ FULL TIMELINE tất cả giao dịch của người đó từ DB:
-   - Orders từ orderHistory.details: hiển thị cả Cash & VIP
-   - VIP ledger tx từ vipTransactions: topup/cashout/opening/adjustment (nếu có)
-   - vipTransactions.type="order" chỉ dùng để audit/link; không double-count
-   - Orphan vipTransactions order (thiếu orderId/detailIndex/refId) phải vẫn hiển thị nhưng gắn nhãn ORPHAN
+Ràng buộc bất biến (INVARIANTS — phải giữ đúng):
+1) VIP Balance = opening_balance + SUM(topup) - SUM(cashout) - SUM(order_paid_by_vip) +/- SUM(adjustments).
+2) Không được double-count giao dịch khi restore/import/backup hoặc khi render lại UI.
+3) Mọi report/báo cáo số dư VIP phải được tính từ “ledger/transactions” (single source of truth), không dựa vào UI text area làm nguồn tính toán.
+4) Không thay đổi cấu trúc dữ liệu hiện hữu (key localStorage, schema JSON backup, tên trường), trừ khi có migration rõ ràng + backward compatible.
+5) Refactor chỉ được phép:
+   - Tách file, module hoá, chuẩn hoá event binding, chuẩn hoá storage, giảm coupling logic/UI.
+   - Thêm nút Share Backup (Save to Files) + fallback Download (không làm thay đổi nội dung file backup).
+6) Mọi thay đổi phải giữ UI hoạt động được ngay trên GitHub Pages:
+   - Không yêu cầu webpack/vite bắt buộc.
+   - Cho phép dùng ES Modules: <script type="module" ...>.
+7) Phải có cơ chế kiểm chứng (Self-test hoặc debug report) để xác nhận refactor không làm lệch số.
 
-2) CHẠY “SỐ DƯ” ĐÚNG theo logic tạp hoá:
-   ending = opening + Σ(deltaVip)
-   Trong đó:
-   - Order VIP: deltaVip = -due
-   - Order Cash: deltaVip = 0 (vẫn show số tiền món để minh bạch)
-   - Topup: deltaVip = +amount
-   - Cashout: deltaVip = -amount
-   - Opening/Adjustment: deltaVip = amount
-   - ORPHAN (unlinked vipTx order): mặc định deltaVip = 0 (KHÔNG tự động trừ/cộng vào số dư), chỉ hiển thị để đối soát
+Definition of Done (DOD) cho toàn bộ chuỗi prompts:
+- App vẫn chạy được trên GitHub Pages (HTTPS).
+- Không còn inline event handlers trong HTML (on*="...").
+- Toàn bộ localStorage được bọc qua storage service (không gọi trực tiếp rải rác).
+- compute() được tách theo ranh giới nghiệp vụ; các phần tính toán chính không phụ thuộc DOM.
+- Có nút “Share Backup (Save to Files)” hoạt động (nếu browser hỗ trợ) + fallback download.
+- Có self-test tối thiểu khóa các invariant về VIP balance và không double-count.
 
-3) ENDING BALANCE phải KHỚP số dư hiện tại trong “Quản lý VIP (vipList)” theo DB hiện tại.
-   - Sau khi tính xong, computedEnding của report phải bằng vipListBalance (Name=xxxđ).
-   - Nếu không khớp: hiện warning “MISMATCH diff=...”, và hiển thị danh sách ORPHAN + các dòng VIP order/topup/cashout để người vận hành kiểm tra.
+======================================================================
+PROMPT 1 — REFACTOR FOUNDATION: MODULE WIRING + EVENT HANDLERS + STORAGE SERVICE
+======================================================================
+Mục tiêu: Giảm monolith, giảm rủi ro, tạo nền để refactor tiếp mà không gãy.
+Phạm vi:
+- Tạo entry module: js/app.js
+- Chuyển inline <script> logic chính sang module files.
+- Loại bỏ inline handlers trong HTML, thay bằng addEventListener + event delegation.
+- Tạo storage service layer để tất cả get/set localStorage đi qua 1 nơi.
 
-YÊU CẦU KỸ THUẬT (BẮT BUỘC)
-A) Tạo builder thống nhất:
-   function buildVipStatementFromDB(memberName, options) -> { rows, summary, meta }
-   - options: { from?:Date, to?:Date, includeCashOrders?:true, includeOrphans?:true }
+Yêu cầu cấu trúc (không bắt buộc giống 100%, nhưng phải đạt mục tiêu):
+/css (giữ nguyên nếu đang tách)
+/js
+  app.js                  // bootstrap + bind events
+  config.js               // constants/keys/feature flags
+  /utils
+    storage.js            // getJSON/setJSON/remove/validate/try-catch
+    dom.js                // helpers render, createEl, fragment
+    formatters.js         // format date/number dùng chung
+  /features
+    vip.js                // VIP UI wiring + gọi vip-ledger logic
+    orders.js             // order UI wiring + gọi compute broken-down functions
+    backup.js             // backup/export/import
+  /core
+    compute.js            // các hàm tính toán tách từ compute()
 
-B) Đọc từ 2 nguồn DB:
-1) orderHistory:
-   - Duyệt mọi order + detailIndex.
-   - Nếu details[i].name === memberName => tạo 1 row type="order"
-   - Lấy:
-     + ts = order.date || new Date(Number(order.id)) || new Date(order.id)
-     + itemName = (detail.itemName || order.itemName || "")
-     + due = Number(detail.due)
-     + paid = !!detail.paid
-     + pm = detail.paymentMethod || (detail.isVipPayment ? "vip" : "cash") || "cash"
-   - Set:
-     + paymentType = (pm === "vip" && paid) ? "VIP" : "Cash"
-     + displayAmount = -due (luôn show số tiền món)
-     + deltaVip = (paymentType==="VIP") ? -due : 0
-     + ref = `${order.id}-${i}`
+Chi tiết triển khai:
+1) HTML:
+   - Thêm <script type="module" src="js/app.js"></script> (đặt cuối body).
+   - Xoá/giảm inline <script> cũ theo từng bước (đảm bảo app vẫn chạy).
+   - Gỡ toàn bộ on*="..." và thay bằng:
+     - data-action="..." + event delegation (recommended),
+     - hoặc bind trực tiếp theo id/class trong app.js/features/*.
+2) storage service (js/utils/storage.js):
+   - API tối thiểu:
+     - getJSON(key, fallback)
+     - setJSON(key, value)
+     - getText(key, fallback)
+     - setText(key, value)
+     - remove(key)
+   - Bọc try/catch JSON.parse, validate basic type, fallback khi lỗi.
+   - (Optional) versioning: meta.version để future migration, nhưng không bắt buộc trong prompt này.
+3) Replace trực tiếp localStorage:
+   - Tìm toàn bộ localStorage.getItem/setItem/removeItem và thay bằng storage.*.
+   - Không thay đổi key hiện có.
+4) Event binding:
+   - Không dùng onclick="..." / onchange="...".
+   - Dùng addEventListener.
+   - Với danh sách render động: dùng event delegation (gắn 1 listener ở container).
+5) Logging (debug flag):
+   - Cho phép bật cờ DEBUG_STORAGE để console.log mọi setJSON/setText, giúp trace sai số.
 
-2) vipTransactions:
-   - Lấy các tx của memberName.
-   - Với tx.type in ["topup","cashout","opening","adjust","adjustment"]:
-     + tạo row tương ứng, deltaVip = tx.amount
-   - Với tx.type==="order":
-     + Nếu có đủ orderId & detailIndex (hoặc refId) => KHÔNG đưa vào rows tính toán (tránh double-count vì orderHistory đã tạo row order).
-     + Nếu thiếu link => tạo row ORPHAN:
-       - type="orphan"
-       - displayAmount = tx.amount
-       - deltaVip = 0 (mặc định không ảnh hưởng số dư)
-       - note="ORPHAN: missing orderId/detailIndex/refId"
-       - meta.orphans.push(tx)
+Acceptance Criteria:
+- HTML không còn inline handlers.
+- Code chạy và thao tác cơ bản hoạt động: tạo order, quản lý VIP, xem report, backup/restore.
+- Không còn localStorage.* gọi trực tiếp ở ngoài storage.js.
 
-C) Sort & running balance:
-   - Xây rows full-history rồi sort theo ts tăng dần (opening có thể pin lên đầu nếu muốn).
-   - running = openingAmount (sum tx.type="opening" + adjustments nếu tính vào opening)
-   - For each row: running += row.deltaVip; set row.balanceAfter = running
+======================================================================
+PROMPT 1.1 — SHARE BACKUP TO ICLOUD (SAVE TO FILES) + FALLBACK DOWNLOAD
+======================================================================
+Mục tiêu: Thêm nút “Share Backup (Save to Files)” để giảm thao tác copy file giữa thiết bị, nhưng vẫn giữ Download backup làm fallback.
+Bối cảnh: GitHub Pages, iPhone Safari + Mac (Safari/Chrome).
 
-D) Summary:
-   - opening = sum(opening rows deltaVip)
-   - totalTopup = sum(deltaVip where type="topup")
-   - totalCashout = sum(abs(deltaVip) where type="cashout") (hoặc giữ dấu âm tuỳ UI)
-   - totalVipSpend = sum(abs(deltaVip) where row is order VIP)  (cash orders không tính)
-   - ending = last row.balanceAfter (hoặc opening nếu không có row)
+Yêu cầu:
+1) Thêm 1 button mới cạnh “Download backup”:
+   - id gợi ý: btnShareBackup
+   - label: “Share Backup (Save to Files)”
+2) Khi click:
+   - Tạo JSON backup giống hệt nội dung download hiện tại (không thay schema).
+   - Tạo File: new File([jsonText], filename, { type: 'application/json' })
+   - Nếu hỗ trợ Web Share file:
+     - if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) => await navigator.share({ files: [file] })
+     - Chỉ share { files: [file] } (không kèm title/text/url) để tăng tương thích iOS.
+   - Nếu không hỗ trợ: fallback download (Blob + a.download) y như nút Download cũ.
+3) Bắt buộc gọi share trong click handler trực tiếp (không defer sang timer).
+4) UI feedback:
+   - Nếu method=share: hiển thị toast/alert ngắn: “Đã mở Share Sheet, chọn Save to Files và lưu vào iCloud Drive.”
+   - Nếu method=download: “Thiết bị không hỗ trợ share file, đã tải về theo cách thường.”
+5) Không dùng inline onclick.
 
-E) Render UI tab “Báo cáo VIP - Sổ phụ”:
-   - Bảng phải có ít nhất: Ngày giờ | Loại | Nội dung | PT | Số tiền (displayAmount) | Delta VIP (deltaVip) | Số dư (balanceAfter) | Ref
-   - Nếu UI không muốn thêm cột “Delta VIP”, thì cột +/- phải là deltaVip; còn số tiền món đưa vào “Nội dung” (vd: “Đơn: Phở bò (Cash -38đ)”)
+Code gợi ý (được phép copy):
+- Tạo hàm shareBackupJson({ filename, jsonObject }):
+  - build File
+  - check canShare
+  - share files-only
+  - fallback download
 
-F) CSV export:
-   - Xuất đúng rows đang hiển thị, cột tối thiểu:
-     tsISO, tsLocal, name, rowType, paymentType, description, displayAmount, deltaVip, balanceAfter, ref, orderId, detailIndex, txId, note
+Acceptance Criteria:
+- iPhone Safari: bấm Share mở share sheet và có thể “Save to Files”.
+- Nếu share không khả dụng: fallback download hoạt động.
+- Nội dung file backup tạo ra giống 100% so với cách download hiện tại (chỉ khác cách xuất).
 
-AUTO TEST (BẮT BUỘC)
-Tạo:
-window.selfTest_vipReportFromDB = function() {
-  - parse vipList => expected balances map
-  - for each member:
-      statement = buildVipStatementFromDB(member)
-      diff = statement.summary.ending - expected[member]
-      console.table([{member, expected, ending, diff, orphanCount}])
-  - Nếu có diff != 0: console.warn + in ra 10 rows cuối của statement để debug
-}
+======================================================================
+PROMPT 2 — REFACTOR compute(): TÁCH THEO RANH GIỚI NGHIỆP VỤ (PURE FUNCTIONS)
+======================================================================
+Mục tiêu: compute() không còn là god function; tách ra để dễ test và giảm sai số khi sửa.
+Không thay đổi output/logic nghiệp vụ.
 
-DOD (DONE DEFINITION)
-- Với mọi member trong vipList: endingBalance của report == vipListBalance
-- Report hiển thị đủ order cash/vip + topup/cashout/opening/adjustment
-- Orphan vẫn hiển thị nhưng không ảnh hưởng balance (deltaVip=0) và có warning
-- CSV export đúng dữ liệu đang xem
-- selfTest_vipReportFromDB chạy ra diff=0 cho toàn bộ member (hoặc log rõ member nào còn mismatch và orphanCount)
+Yêu cầu:
+1) Từ compute() hiện tại, tách tối thiểu thành các hàm:
+   - readOrderDraftFromUI()             // đọc DOM -> draft object
+   - validateOrderDraft(draft)          // trả về {ok, errors[]}
+   - calculatePricing(draft, rules)     // pure, không DOM
+   - buildOrderRecord(draft, pricing)   // pure
+   - applyVipSettlement(order, ledger)  // pure, không DOM; chỉ làm bút toán/transaction
+   - persistAll(state)                  // gọi storage service
+   - renderAfterCompute(result)         // chỉ DOM/UI
+2) “Pure” nghĩa là:
+   - Không đọc/ghi DOM trong calculatePricing/buildOrderRecord/applyVipSettlement.
+   - Không đọc/ghi localStorage trong các pure functions.
+3) Sau refactor:
+   - compute() chỉ điều phối (orchestrator), gọi các hàm trên.
+4) Phải đảm bảo:
+   - Không thay đổi cách tính tiền, cách ghi orderHistory, cách ghi VIP transactions.
+
+Acceptance Criteria:
+- compute() ngắn đáng kể, chỉ còn flow điều phối.
+- Các hàm pure có thể chạy bằng cách truyền object, không cần DOM.
+
+======================================================================
+PROMPT 3 — SECURITY/PERF CLEANUP: innerHTML RỦI RO + DOM FRAGMENT
+======================================================================
+Mục tiêu: Giảm rủi ro XSS và cải thiện render performance, không thay UI output.
+Nguyên tắc triển khai thực dụng (không cực đoan):
+- Nhóm A (render chứa dữ liệu người dùng nhập: tên người, note, item text…) => không dùng innerHTML trực tiếp với dữ liệu; dùng createElement + textContent.
+- Nhóm B (template tĩnh, không chứa input người dùng) => có thể giữ innerHTML.
+
+Yêu cầu:
+1) Với render bảng/list lớn:
+   - Dùng DocumentFragment để append 1 lần, giảm reflow.
+2) Audit các điểm container.innerHTML = html:
+   - Nếu html có dữ liệu động từ input/user => refactor sang DOM API hoặc sanitize.
+3) Không thay đổi HTML cấu trúc hiển thị cuối cùng (UI snapshot phải tương đương).
+
+Acceptance Criteria:
+- Các vùng có dữ liệu user không còn concatenate string đưa vào innerHTML mà không escape.
+- Render list lớn dùng DocumentFragment hoặc tối thiểu giảm số lần append.
+
+======================================================================
+PROMPT 4 — SELF-TEST (BROWSER) KHÓA INVARIANTS VIP
+======================================================================
+Mục tiêu: Có “kiểm chứng” tự chạy trong browser để đảm bảo refactor không lệch số.
+Không yêu cầu Jest/Vitest; làm self-test chạy trong UI/console.
+
+Yêu cầu:
+1) Thêm nút “Run Self-Test” (ví dụ trong tab Settings/Tools).
+2) Test tối thiểu 3 invariant:
+   A) Với mỗi VIP member: balance = opening + sum(topup) - sum(cashout) - sum(orderPaidByVip) +/- adjustments.
+   B) Không double-count: nếu chạy recompute nhiều lần hoặc render lại, balance không đổi.
+   C) Backup/restore roundtrip: export -> import (trên object in-memory) -> recompute cho ra kết quả cân bằng như trước.
+3) Output:
+   - PASS/FAIL rõ ràng.
+   - Nếu FAIL: in console chi tiết member nào, chênh bao nhiêu, giao dịch nghi vấn (ids) hoặc breakdown theo type.
+
+Acceptance Criteria:
+- Self-test chạy được trên GitHub Pages.
+- Khi PASS: hiển thị kết quả.
+- Khi FAIL: đủ thông tin để debug nhanh.
+
+======================================================================
+PROMPT 5 — CLEANUP: CONSOLIDATE UTILITIES + NAMING + DEAD CODE
+======================================================================
+Mục tiêu: Giảm tech debt, thống nhất conventions, không đổi nghiệp vụ.
+Yêu cầu:
+1) Consolidate formatters:
+   - Chỉ còn 1 bộ hàm formatDate/formatMoney/formatNumber dùng chung trong js/utils/formatters.js.
+2) Naming conventions:
+   - camelCase cho biến/hàm, UPPER_SNAKE_CASE cho constants.
+3) Loại bỏ dead flags/code path không dùng (ví dụ feature flag false mãi), nhưng chỉ khi chắc chắn không cần.
+4) Thêm JSDoc cho các hàm core (compute split functions, ledger functions, storage functions).
+
+Acceptance Criteria:
+- Không còn 3-4 hàm formatDate khác nhau.
+- Code lint-friendly hơn (tối thiểu: giảm global namespace).
+- JSDoc có ở các hàm core.
+
+======================================================================
+GỢI Ý QUY TRÌNH TRIỂN KHAI (KHÔNG BẮT BUỘC, NHƯNG KHUYẾN NGHỊ)
+======================================================================
+1) Làm Prompt 1 trước (wiring + storage + events) => app chạy ổn.
+2) Làm Prompt 1.1 (Share backup) => cải thiện workflow đa thiết bị ngay.
+3) Làm Prompt 2 (split compute) => giảm rủi ro sai số khi sửa tiếp.
+4) Làm Prompt 4 (self-test) => khóa invariant, yên tâm refactor sâu.
+5) Làm Prompt 3 và 5 (security/perf/cleanup) => dọn đẹp, giảm debt.
+
+Hết.
