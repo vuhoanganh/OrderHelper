@@ -699,6 +699,9 @@
           <button class="btn btn-success" onclick="downloadBackup()" style="flex: 1;">
             💾 Download Backup
           </button>
+          <button class="btn btn-primary" onclick="shareBackup()" style="flex: 1;">
+            📤 Share Backup
+          </button>
           <button class="btn btn-info" onclick="restoreFromFile()" style="flex: 1;">
             📥 Restore from File
           </button>
@@ -2924,6 +2927,86 @@
       } catch (err) {
         alert('❌ Lỗi khi tạo backup: ' + err.message);
         console.error(err);
+      }
+    }
+
+    /**
+     * Share backup file via Web Share API (Save to Files on iOS)
+     * Falls back to download if share not supported
+     */
+    async function shareBackup() {
+      try {
+        addBackupLog('📤 Starting backup share...');
+
+        // Collect backup data (same as downloadBackup)
+        const backup = {
+          version: "1.0",
+          timestamp: new Date().toISOString(),
+          backupTime: Date.now(),
+          data: {
+            orderHistory: JSON.parse(localStorage.getItem('orderHistory') || '[]'),
+            vipTransactions: JSON.parse(localStorage.getItem('vipTransactions') || '[]'),
+            vipList: localStorage.getItem('vipList') || ''
+          },
+          metadata: {
+            orderCount: JSON.parse(localStorage.getItem('orderHistory') || '[]').length,
+            transactionCount: JSON.parse(localStorage.getItem('vipTransactions') || '[]').length,
+            exportedBy: 'Order Helper Pro',
+            exportDate: new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
+          }
+        };
+
+        addBackupLog(`📊 Data: ${backup.metadata.orderCount} orders, ${backup.metadata.transactionCount} transactions`);
+
+        // Generate filename
+        const now = new Date();
+        const datePart = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+        const timePart = now.toLocaleTimeString('en-GB', { hour12: false }).replace(/:/g, '');
+        const filename = `backup-${datePart}-${timePart}.json`;
+
+        // Create File object
+        const jsonText = JSON.stringify(backup, null, 2);
+        const file = new File([jsonText], filename, { type: 'application/json' });
+
+        // Check if Web Share API supports files
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          addBackupLog('✅ Share API available, opening share sheet...');
+
+          // Share files-only (no title/text for better iOS compatibility)
+          await navigator.share({
+            files: [file]
+          });
+
+          addBackupLog(`✅ Shared: ${filename}`);
+          alert('✅ Đã mở Share Sheet!\n\nChọn "Save to Files" để lưu vào iCloud Drive.');
+        } else {
+          // Fallback to download
+          addBackupLog('⚠️ Share API not supported, falling back to download...');
+
+          const blob = new Blob([jsonText], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          addBackupLog(`✅ Downloaded: ${filename}`);
+          alert('✅ Thiết bị không hỗ trợ share file.\nĐã tải xuống file backup thay thế!');
+        }
+
+      } catch (err) {
+        // Handle share cancellation or errors
+        if (err.name === 'AbortError') {
+          addBackupLog('ℹ️ Share cancelled by user');
+          console.log('Share cancelled');
+        } else {
+          addBackupLog(`❌ Share error: ${err.message}`);
+          console.error('Share error:', err);
+          alert('❌ Lỗi khi share backup: ' + err.message);
+        }
       }
     }
 
