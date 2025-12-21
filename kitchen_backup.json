@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "timestamp": "2025-12-19T13:22:34.828Z",
-  "backupTime": 1766150554828,
+  "timestamp": "2025-12-21T08:33:27.641Z",
+  "backupTime": 1766306007641,
   "data": {
     "orderHistory": [
       {
@@ -18,73 +18,55 @@
             "name": "a Duck",
             "qty": 1,
             "due": 38,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
+            "paid": true
           },
           {
             "name": "a Dave",
             "qty": 8,
             "due": 304,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
+            "paid": true
           },
           {
             "name": "Lucas",
             "qty": 1,
             "due": 38,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
+            "paid": true
           },
           {
             "name": "Alvis",
             "qty": 1,
             "due": 38,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
+            "paid": true
           },
           {
             "name": "Hunter",
             "qty": 1,
             "due": 38,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
+            "paid": true
           },
           {
             "name": "Harrison",
             "qty": 1,
             "due": 38,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
+            "paid": true
           },
           {
             "name": "Ryan",
             "qty": 2,
             "due": 76,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
+            "paid": true
           },
           {
             "name": "Daniel",
             "qty": 2,
             "due": 76,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
+            "paid": true
           },
           {
             "name": "Ben",
             "qty": 2,
             "due": 76,
-            "paid": true,
-            "isVipPayment": false,
-            "payMethod": null
+            "paid": true
           }
         ],
         "vipSnapshot": [
@@ -122,9 +104,7 @@
             "due": 40,
             "paid": true,
             "isVIP": true,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 40
           },
           {
             "name": "a Dave",
@@ -134,9 +114,7 @@
             "due": 316,
             "paid": true,
             "isVIP": true,
-            "unitPrice": "36đ / 40đ",
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": "36đ / 40đ"
           },
           {
             "name": "Lucas",
@@ -146,9 +124,7 @@
             "due": 36,
             "paid": true,
             "isVIP": false,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 36
           },
           {
             "name": "Alvis",
@@ -158,9 +134,7 @@
             "due": 36,
             "paid": true,
             "isVIP": false,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 36
           },
           {
             "name": "Hunter",
@@ -170,9 +144,7 @@
             "due": 36,
             "paid": true,
             "isVIP": false,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 36
           },
           {
             "name": "Ryan",
@@ -182,9 +154,7 @@
             "due": 72,
             "paid": true,
             "isVIP": false,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 36
           },
           {
             "name": "Nathan",
@@ -194,9 +164,7 @@
             "due": 76,
             "paid": true,
             "isVIP": true,
-            "unitPrice": "36đ / 40đ",
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": "36đ / 40đ"
           },
           {
             "name": "Annie",
@@ -206,9 +174,7 @@
             "due": 36,
             "paid": true,
             "isVIP": false,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 36
           },
           {
             "name": "Alvin",
@@ -218,9 +184,7 @@
             "due": 40,
             "paid": true,
             "isVIP": false,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 40
           }
         ],
         "vipSnapshot": [
@@ -262,9 +226,7 @@
             "due": 40,
             "paid": true,
             "isVIP": true,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 40
           },
           {
             "name": "a Dave",
@@ -274,9 +236,7 @@
             "due": 320,
             "paid": true,
             "isVIP": true,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 40
           },
           {
             "name": "Alvis",
@@ -286,9 +246,7 @@
             "due": 40,
             "paid": true,
             "isVIP": false,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 40
           },
           {
             "name": "Lucas",
@@ -298,9 +256,7 @@
             "due": 40,
             "paid": true,
             "isVIP": false,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 40
           },
           {
             "name": "Hunter",
@@ -310,9 +266,7 @@
             "due": 40,
             "paid": true,
             "isVIP": false,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 40
           },
           {
             "name": "Annie",
@@ -322,9 +276,7 @@
             "due": 40,
             "paid": true,
             "isVIP": false,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 40
           },
           {
             "name": "Alvin",
@@ -334,9 +286,7 @@
             "due": 40,
             "paid": true,
             "isVIP": false,
-            "unitPrice": 40,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 40
           }
         ],
         "vipSnapshot": [
@@ -378,9 +328,7 @@
             "due": 39,
             "paid": true,
             "isVIP": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           },
           {
             "name": "a Dave",
@@ -390,9 +338,7 @@
             "due": 312,
             "paid": true,
             "isVIP": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           },
           {
             "name": "Hunter",
@@ -402,9 +348,7 @@
             "due": 39,
             "paid": true,
             "isVIP": false,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           }
         ],
         "vipSnapshot": [
@@ -445,9 +389,7 @@
             "nonShipQty": 1,
             "due": 39,
             "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           },
           {
             "name": "a Dave",
@@ -456,9 +398,7 @@
             "nonShipQty": 8,
             "due": 312,
             "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           },
           {
             "name": "Lucas",
@@ -467,9 +407,7 @@
             "nonShipQty": 2,
             "due": 78,
             "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           }
         ],
         "vipSnapshot": [
@@ -510,9 +448,7 @@
             "nonShipQty": 1,
             "due": 39,
             "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           },
           {
             "name": "a Dave",
@@ -521,9 +457,7 @@
             "nonShipQty": 8,
             "due": 312,
             "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           },
           {
             "name": "Alvis",
@@ -532,9 +466,7 @@
             "nonShipQty": 1,
             "due": 39,
             "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           },
           {
             "name": "Bảo",
@@ -543,9 +475,7 @@
             "nonShipQty": 1,
             "due": 39,
             "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           },
           {
             "name": "Hunter",
@@ -554,9 +484,7 @@
             "nonShipQty": 1,
             "due": 39,
             "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           },
           {
             "name": "Ben",
@@ -565,9 +493,7 @@
             "nonShipQty": 1,
             "due": 39,
             "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           }
         ],
         "vipSnapshot": [
@@ -608,9 +534,7 @@
             "nonShipQty": 1,
             "due": 34,
             "paid": true,
-            "unitPrice": 34,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 34
           },
           {
             "name": "a Dave",
@@ -619,9 +543,7 @@
             "nonShipQty": 8,
             "due": 272,
             "paid": true,
-            "unitPrice": 34,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 34
           },
           {
             "name": "Bảo",
@@ -630,9 +552,7 @@
             "nonShipQty": 1,
             "due": 34,
             "paid": true,
-            "unitPrice": 34,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 34
           }
         ],
         "vipSnapshot": [
@@ -680,9 +600,7 @@
             "nonShipQty": 1,
             "due": 27,
             "paid": true,
-            "unitPrice": 27,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 27
           },
           {
             "name": "a Dave",
@@ -691,9 +609,7 @@
             "nonShipQty": 8,
             "due": 216,
             "paid": true,
-            "unitPrice": 27,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 27
           },
           {
             "name": "Vương",
@@ -702,9 +618,7 @@
             "nonShipQty": 3,
             "due": 81,
             "paid": true,
-            "unitPrice": 27,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 27
           },
           {
             "name": "Alvis",
@@ -713,9 +627,7 @@
             "nonShipQty": 1,
             "due": 27,
             "paid": true,
-            "unitPrice": 27,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 27
           },
           {
             "name": "Bảo",
@@ -724,9 +636,7 @@
             "nonShipQty": 1,
             "due": 27,
             "paid": true,
-            "unitPrice": 27,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 27
           },
           {
             "name": "Alvin",
@@ -735,9 +645,7 @@
             "nonShipQty": 1,
             "due": 27,
             "paid": true,
-            "unitPrice": 27,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 27
           }
         ],
         "vipSnapshot": [
@@ -786,9 +694,7 @@
             "nonShipQty": 1,
             "due": 37,
             "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 37
           },
           {
             "name": "a Dave",
@@ -797,9 +703,7 @@
             "nonShipQty": 8,
             "due": 296,
             "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 37
           },
           {
             "name": "Alvis",
@@ -808,9 +712,7 @@
             "nonShipQty": 1,
             "due": 37,
             "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 37
           },
           {
             "name": "Park",
@@ -819,9 +721,7 @@
             "nonShipQty": 1,
             "due": 37,
             "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 37
           },
           {
             "name": "Kudo",
@@ -830,9 +730,7 @@
             "nonShipQty": 1,
             "due": 37,
             "paid": true,
-            "unitPrice": 37,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 37
           }
         ],
         "vipSnapshot": [
@@ -881,9 +779,7 @@
             "nonShipQty": 1,
             "due": 28,
             "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 28
           },
           {
             "name": "a Dave",
@@ -892,9 +788,7 @@
             "nonShipQty": 8,
             "due": 224,
             "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 28
           },
           {
             "name": "Alvis",
@@ -903,9 +797,7 @@
             "nonShipQty": 1,
             "due": 28,
             "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 28
           },
           {
             "name": "Kudo",
@@ -914,9 +806,7 @@
             "nonShipQty": 1,
             "due": 28,
             "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 28
           },
           {
             "name": "Ryan",
@@ -925,9 +815,7 @@
             "nonShipQty": 1,
             "due": 28,
             "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 28
           }
         ],
         "vipSnapshot": [
@@ -976,9 +864,7 @@
             "nonShipQty": 1,
             "due": 28,
             "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 28
           },
           {
             "name": "a Dave",
@@ -987,9 +873,7 @@
             "nonShipQty": 8,
             "due": 224,
             "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 28
           },
           {
             "name": "Bảo",
@@ -998,9 +882,7 @@
             "nonShipQty": 1,
             "due": 28,
             "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 28
           },
           {
             "name": "Alvis",
@@ -1009,9 +891,7 @@
             "nonShipQty": 1,
             "due": 28,
             "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 28
           },
           {
             "name": "Kudo",
@@ -1020,9 +900,7 @@
             "nonShipQty": 1,
             "due": 28,
             "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 28
           },
           {
             "name": "Evan",
@@ -1031,9 +909,7 @@
             "nonShipQty": 1,
             "due": 28,
             "paid": true,
-            "unitPrice": 28,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 28
           }
         ],
         "vipSnapshot": [
@@ -1082,9 +958,7 @@
             "nonShipQty": 1,
             "due": 30,
             "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 30
           },
           {
             "name": "a Duck",
@@ -1093,9 +967,7 @@
             "nonShipQty": 1,
             "due": 30,
             "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 30
           }
         ],
         "vipSnapshot": [
@@ -1148,9 +1020,7 @@
             "nonShipQty": 1,
             "due": 60,
             "paid": true,
-            "unitPrice": 60,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 60
           },
           {
             "name": "Ben",
@@ -1159,9 +1029,7 @@
             "nonShipQty": 1,
             "due": 60,
             "paid": true,
-            "unitPrice": 60,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 60
           },
           {
             "name": "Park",
@@ -1170,9 +1038,7 @@
             "nonShipQty": 1,
             "due": 60,
             "paid": true,
-            "unitPrice": 60,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 60
           }
         ],
         "vipSnapshot": [
@@ -1225,9 +1091,7 @@
             "nonShipQty": 1,
             "due": 30,
             "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 30
           },
           {
             "name": "a Dave",
@@ -1236,9 +1100,7 @@
             "nonShipQty": 8,
             "due": 240,
             "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 30
           },
           {
             "name": "Tùng",
@@ -1247,9 +1109,7 @@
             "nonShipQty": 1,
             "due": 30,
             "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 30
           },
           {
             "name": "Alvis",
@@ -1258,9 +1118,7 @@
             "nonShipQty": 1,
             "due": 30,
             "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 30
           },
           {
             "name": "Kudo",
@@ -1269,9 +1127,7 @@
             "nonShipQty": 1,
             "due": 30,
             "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 30
           }
         ],
         "vipSnapshot": [
@@ -1324,9 +1180,7 @@
             "nonShipQty": 1,
             "due": 50,
             "paid": true,
-            "unitPrice": 50,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 50
           }
         ],
         "vipSnapshot": [
@@ -1379,9 +1233,7 @@
             "nonShipQty": 1,
             "due": 38,
             "paid": true,
-            "unitPrice": 38,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 38
           },
           {
             "name": "a Dave",
@@ -1390,9 +1242,7 @@
             "nonShipQty": 8,
             "due": 304,
             "paid": true,
-            "unitPrice": 38,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 38
           },
           {
             "name": "Kudo",
@@ -1401,9 +1251,7 @@
             "nonShipQty": 1,
             "due": 38,
             "paid": true,
-            "unitPrice": 38,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 38
           },
           {
             "name": "Alvis",
@@ -1412,9 +1260,7 @@
             "nonShipQty": 2,
             "due": 76,
             "paid": true,
-            "unitPrice": 38,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 38
           },
           {
             "name": "Tùng",
@@ -1423,9 +1269,7 @@
             "nonShipQty": 1,
             "due": 38,
             "paid": true,
-            "unitPrice": 38,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 38
           }
         ],
         "vipSnapshot": [
@@ -1478,9 +1322,7 @@
             "nonShipQty": 1,
             "due": 60,
             "paid": true,
-            "unitPrice": 60,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 60
           },
           {
             "name": "Ben",
@@ -1489,9 +1331,7 @@
             "nonShipQty": 1,
             "due": 60,
             "paid": true,
-            "unitPrice": 60,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 60
           },
           {
             "name": "Park",
@@ -1500,9 +1340,7 @@
             "nonShipQty": 1,
             "due": 60,
             "paid": true,
-            "unitPrice": 60,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 60
           }
         ],
         "vipSnapshot": [
@@ -1559,9 +1397,7 @@
             "nonShipQty": 1,
             "due": 35,
             "paid": true,
-            "unitPrice": 35,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 35
           },
           {
             "name": "a Dave",
@@ -1570,9 +1406,7 @@
             "nonShipQty": 6,
             "due": 210,
             "paid": true,
-            "unitPrice": 35,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 35
           },
           {
             "name": "Kudo",
@@ -1581,9 +1415,7 @@
             "nonShipQty": 1,
             "due": 35,
             "paid": true,
-            "unitPrice": 35,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 35
           },
           {
             "name": "Nathan",
@@ -1592,9 +1424,7 @@
             "nonShipQty": 2,
             "due": 70,
             "paid": true,
-            "unitPrice": 35,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 35
           },
           {
             "name": "Alvis",
@@ -1603,9 +1433,7 @@
             "nonShipQty": 1,
             "due": 35,
             "paid": true,
-            "unitPrice": 35,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 35
           },
           {
             "name": "Ben",
@@ -1614,9 +1442,7 @@
             "nonShipQty": 3,
             "due": 105,
             "paid": true,
-            "unitPrice": 35,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 35
           },
           {
             "name": "Tùng",
@@ -1625,9 +1451,7 @@
             "nonShipQty": 1,
             "due": 35,
             "paid": true,
-            "unitPrice": 35,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 35
           }
         ],
         "vipSnapshot": [
@@ -1684,9 +1508,7 @@
             "nonShipQty": 1,
             "due": 36,
             "paid": true,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 36
           },
           {
             "name": "a Dave",
@@ -1695,9 +1517,7 @@
             "nonShipQty": 6,
             "due": 216,
             "paid": true,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 36
           },
           {
             "name": "Alvis",
@@ -1706,9 +1526,7 @@
             "nonShipQty": 1,
             "due": 36,
             "paid": true,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 36
           },
           {
             "name": "Kudo",
@@ -1717,9 +1535,7 @@
             "nonShipQty": 1,
             "due": 36,
             "paid": true,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 36
           },
           {
             "name": "Tùng",
@@ -1728,9 +1544,7 @@
             "nonShipQty": 1,
             "due": 36,
             "paid": true,
-            "unitPrice": 36,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 36
           }
         ],
         "vipSnapshot": [
@@ -1791,9 +1605,7 @@
             "nonShipQty": 5,
             "due": 150,
             "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 30
           },
           {
             "name": "Nathan",
@@ -1802,9 +1614,7 @@
             "nonShipQty": 2,
             "due": 60,
             "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 30
           },
           {
             "name": "Tùng",
@@ -1813,9 +1623,7 @@
             "nonShipQty": 1,
             "due": 30,
             "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 30
           },
           {
             "name": "Kudo",
@@ -1824,9 +1632,7 @@
             "nonShipQty": 1,
             "due": 30,
             "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 30
           },
           {
             "name": "Ryan",
@@ -1835,9 +1641,7 @@
             "nonShipQty": 2,
             "due": 60,
             "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 30
           },
           {
             "name": "Park",
@@ -1846,9 +1650,7 @@
             "nonShipQty": 1,
             "due": 30,
             "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 30
           },
           {
             "name": "Kane",
@@ -1857,9 +1659,7 @@
             "nonShipQty": 1,
             "due": 30,
             "paid": false,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 30
           },
           {
             "name": "Alvis",
@@ -1867,10 +1667,8 @@
             "shipQty": 0,
             "nonShipQty": 1,
             "due": 30,
-            "paid": true,
-            "unitPrice": 30,
-            "isVipPayment": false,
-            "payMethod": null
+            "paid": false,
+            "unitPrice": 30
           }
         ],
         "vipSnapshot": [
@@ -1931,9 +1729,7 @@
             "nonShipQty": 1,
             "due": 39,
             "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           },
           {
             "name": "Kudo",
@@ -1942,9 +1738,7 @@
             "nonShipQty": 1,
             "due": 39,
             "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           },
           {
             "name": "a Dave",
@@ -1953,9 +1747,7 @@
             "nonShipQty": 6,
             "due": 234,
             "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           },
           {
             "name": "Tùng",
@@ -1964,9 +1756,7 @@
             "nonShipQty": 1,
             "due": 39,
             "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           },
           {
             "name": "Ryan",
@@ -1975,9 +1765,7 @@
             "nonShipQty": 2,
             "due": 78,
             "paid": true,
-            "unitPrice": 39,
-            "isVipPayment": false,
-            "payMethod": null
+            "unitPrice": 39
           }
         ],
         "vipSnapshot": [
@@ -2221,7 +2009,7 @@
         "signature": "{\"itemName\":\"bánh mì xíu mại\",\"totalParts\":11,\"alvinFree\":true,\"totalCostInput\":308,\"costPerUnitInput\":0,\"shipFee\":0,\"targetProfit\":6,\"priceNonShip\":32,\"priceShip\":32,\"splitShipMode\":false,\"details\":[{\"name\":\"a Duck\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":32,\"unitPrice\":32},{\"name\":\"a Dave\",\"qty\":6,\"shipQty\":0,\"paid\":true,\"due\":192,\"unitPrice\":32},{\"name\":\"Tùng\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":32,\"unitPrice\":32},{\"name\":\"Harrison\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":32,\"unitPrice\":32},{\"name\":\"Kudo\",\"qty\":1,\"shipQty\":0,\"paid\":true,\"due\":32,\"unitPrice\":32}]}"
       }
     ],
-    "vipList": "a Duck=1429đ\na Dave=424đ\nNathan=220đ\nKudo=693đ\nTùng=260đ\nRyan=102đ",
+    "vipList": "a Duck=429đ\na Dave=424đ\nNathan=220đ\nKudo=193đ\nTùng=260đ\nRyan=102đ",
     "vipTransactions": [
       {
         "id": "90bc90de-1653-4704-95fa-029a19ad517c",
@@ -2470,6 +2258,6 @@
     "orderCount": 23,
     "transactionCount": 31,
     "exportedBy": "Order Helper Pro",
-    "exportDate": "17:22:34 19/12/2025"
+    "exportDate": "12:33:27 21/12/2025"
   }
 }
