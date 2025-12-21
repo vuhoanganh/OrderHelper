@@ -44,7 +44,7 @@
       <div class="tab active" onclick="switchTab(event, 'newOrder')">
         🆕 Tạo đơn mới
       </div>
-      <div class="tab" onclick="switchTab(event, 'history')">
+      <div class="tab" onclick="switchTab(event, 'history')" style="display: none;">
         📜 Lịch sử đơn hàng
       </div>
       <div class="tab" onclick="switchTab(event, 'debt')">
@@ -53,8 +53,8 @@
       <div class="tab" onclick="switchTab(event, 'stats')">
         📊 Thống kê
       </div>
-      <div class="tab" onclick="switchTab(event, 'vipReport')">
-        📋 Báo cáo VIP
+      <div class="tab" onclick="switchTab(event, 'reports')">
+        📋 Báo cáo
       </div>
       <div class="tab" onclick="switchTab(event, 'backup')">
         ☁️ Backup
@@ -488,6 +488,55 @@
     </div>
 
     <!-- Tab: Backup -->
+
+    <!-- Tab: Reports Menu -->
+    <div id="reports" class="tab-content">
+      <div class="glass-card">
+        <div class="section-title">📋 Chọn loại báo cáo</div>
+
+        <div
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 24px;">
+
+          <!-- Option 1: VIP Report -->
+          <div class="report-option-card" onclick="switchTab(event, 'vipReport')"
+            style="cursor: pointer; padding: 32px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border-radius: 16px; border: 2px solid rgba(102, 126, 234, 0.3); transition: all 0.3s ease;">
+            <div style="font-size: 48px; margin-bottom: 16px; text-align: center;">📊</div>
+            <h3
+              style="font-size: 20px; font-weight: 700; margin-bottom: 12px; text-align: center; color: var(--text-primary);">
+              Báo cáo VIP - Sổ phụ</h3>
+            <p style="color: var(--text-secondary); text-align: center; font-size: 14px; line-height: 1.6;">
+              Xem chi tiết giao dịch VIP: nạp tiền, rút tiền, thanh toán đơn hàng và số dư hiện tại
+            </p>
+            <div style="margin-top: 20px; text-align: center;">
+              <span
+                style="display: inline-block; padding: 8px 20px; background: rgba(102, 126, 234, 0.2); color: #667eea; border-radius: 20px; font-size: 13px; font-weight: 600;">
+                Xem chi tiết →
+              </span>
+            </div>
+          </div>
+
+          <!-- Option 2: Order History -->
+          <div class="report-option-card" onclick="switchTab(event, 'history')"
+            style="cursor: pointer; padding: 32px; background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%); border-radius: 16px; border: 2px solid rgba(251, 191, 36, 0.3); transition: all 0.3s ease;">
+            <div style="font-size: 48px; margin-bottom: 16px; text-align: center;">📜</div>
+            <h3
+              style="font-size: 20px; font-weight: 700; margin-bottom: 12px; text-align: center; color: var(--text-primary);">
+              Lịch sử đơn hàng</h3>
+            <p style="color: var(--text-secondary); text-align: center; font-size: 14px; line-height: 1.6;">
+              Xem toàn bộ lịch sử đơn hàng, lọc theo ngày, tìm kiếm và xuất báo cáo
+            </p>
+            <div style="margin-top: 20px; text-align: center;">
+              <span
+                style="display: inline-block; padding: 8px 20px; background: rgba(251, 191, 36, 0.2); color: #fbbf24; border-radius: 20px; font-size: 13px; font-weight: 600;">
+                Xem chi tiết →
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
     <!-- Tab: VIP Report -->
     <div id="vipReport" class="tab-content">
       <div class="glass-card">
@@ -7018,7 +7067,16 @@
       });
     };
 
+
   </script>
+
+  <!-- Modular Architecture Bootstrap (PROMPT 1 - Gradual Migration) -->
+  <script type="module" src="js/app.js"></script>
+  <!-- 
+    NOTE: The above module runs alongside existing inline code.
+    This is a gradual migration approach - both systems coexist safely.
+    As we migrate functions, the inline code will be progressively removed.
+  -->
 
 </body>
 
