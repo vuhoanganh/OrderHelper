@@ -715,6 +715,25 @@
         </div>
       </div>
 
+      <!-- Self-Test Section -->
+      <div class="glass-card" style="margin-top: 24px;">
+        <div class="section-title">🧪 Self-Test - Kiểm tra tính toàn vẹn</div>
+
+        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+          Chạy các test tự động để verify:
+        </p>
+        <ul style="color: var(--text-secondary); margin-bottom: 20px; padding-left: 20px;">
+          <li>✓ VIP balance formula đúng (opening + topup - cashout - orders)</li>
+          <li>✓ Không double-count khi recompute</li>
+          <li>✓ Backup/restore roundtrip giữ nguyên data</li>
+        </ul>
+
+        <button class="btn btn-primary" onclick="runSelfTests()" style="width: 100%;">
+          🧪 Run Self-Tests
+        </button>
+
+        <div id="selfTestResults" style="margin-top: 20px; display: none;"></div>
+      </div>
 
 
       <!-- Backup Log -->
@@ -3068,6 +3087,76 @@
       };
 
       input.click();
+    }
+
+    /**
+     * Run Self-Tests
+     * Execute automated tests to verify critical invariants
+     */
+    async function runSelfTests() {
+      const resultsDiv = document.getElementById('selfTestResults');
+      resultsDiv.style.display = 'block';
+      resultsDiv.innerHTML = '<p style="color: var(--text-secondary);">🔄 Running tests...</p>';
+
+      try {
+        // Dynamically import selfTest module
+        const { runAllTests } = await import('./js/utils/selfTest.js');
+
+        // Run all tests
+        const results = await runAllTests();
+
+        // Display results
+        let html = '';
+
+        // Overall status
+        if (results.allPassed) {
+          html += '<div style="padding: 16px; background: rgba(16, 185, 129, 0.1); border: 2px solid rgba(16, 185, 129, 0.3); border-radius: 12px; margin-bottom: 16px;">';
+          html += '<h3 style="color: #10b981; margin: 0 0 8px 0;">✅ ALL TESTS PASSED</h3>';
+          html += `<p style="color: var(--text-secondary); margin: 0;">${results.passed} tests passed, ${results.failed} failed</p>`;
+          html += '</div>';
+        } else {
+          html += '<div style="padding: 16px; background: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); border-radius: 12px; margin-bottom: 16px;">';
+          html += '<h3 style="color: #ef4444; margin: 0 0 8px 0;">❌ TESTS FAILED</h3>';
+          html += `<p style="color: var(--text-secondary); margin: 0;">${results.passed} passed, ${results.failed} failed</p>`;
+          html += '</div>';
+        }
+
+        // Individual test results
+        for (const test of results.tests) {
+          const bgColor = test.passed ? 'rgba(16, 185, 129, 0.05)' : 'rgba(239, 68, 68, 0.05)';
+          const borderColor = test.passed ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+          const icon = test.passed ? '✅' : '❌';
+
+          html += `<div style="padding: 12px; background: ${bgColor}; border: 1px solid ${borderColor}; border-radius: 8px; margin-bottom: 12px;">`;
+          html += `<h4 style="margin: 0 0 8px 0;">${icon} ${test.name}</h4>`;
+
+          if (test.details && test.details.length > 0) {
+            html += '<ul style="margin: 0; padding-left: 20px; font-size: 0.9em; color: var(--text-secondary);">';
+            for (const detail of test.details) {
+              html += `<li>${detail}</li>`;
+            }
+            html += '</ul>';
+          }
+
+          if (test.error) {
+            html += `<p style="color: #ef4444; margin: 8px 0 0 0; font-size: 0.9em;">Error: ${test.error}</p>`;
+          }
+
+          html += '</div>';
+        }
+
+        // Timestamp
+        html += `<p style="color: var(--text-secondary); font-size: 0.85em; margin-top: 16px; text-align: center;">Completed at ${new Date().toLocaleString('vi-VN')}</p>`;
+
+        resultsDiv.innerHTML = html;
+
+      } catch (err) {
+        resultsDiv.innerHTML = `<div style="padding: 16px; background: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); border-radius: 12px;">
+          <h3 style="color: #ef4444; margin: 0 0 8px 0;">❌ Test Execution Failed</h3>
+          <p style="color: var(--text-secondary); margin: 0;">Error: ${err.message}</p>
+        </div>`;
+        console.error('[SelfTest] Execution error:', err);
+      }
     }
 
     async function backupToGithub() {
