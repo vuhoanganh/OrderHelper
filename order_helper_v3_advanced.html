@@ -2949,21 +2949,25 @@
         // Also download draft file if exists
         const draft = localStorage.getItem(DRAFT_STORAGE_KEY);
         if (draft) {
+          // Use confirm() to ensure user interaction (required for Chromium browsers like Cốc Cốc)
           setTimeout(() => {
-            const draftBlob = new Blob([draft], { type: 'application/json' });
-            const draftUrl = URL.createObjectURL(draftBlob);
-            const draftLink = document.createElement('a');
-            draftLink.href = draftUrl;
-            draftLink.download = 'draft.json';
-            document.body.appendChild(draftLink);
-            draftLink.click();
-            document.body.removeChild(draftLink);
-            URL.revokeObjectURL(draftUrl);
-            addBackupLog('✅ Downloaded: draft.json');
-          }, 500); // Small delay to avoid browser blocking multiple downloads
+            if (confirm('✅ File backup đã tải xong!\n\n📝 Bấm OK để tải file draft.json')) {
+              const draftBlob = new Blob([draft], { type: 'application/json' });
+              const draftUrl = URL.createObjectURL(draftBlob);
+              const draftLink = document.createElement('a');
+              draftLink.href = draftUrl;
+              draftLink.download = 'draft.json';
+              document.body.appendChild(draftLink);
+              draftLink.click();
+              document.body.removeChild(draftLink);
+              URL.revokeObjectURL(draftUrl);
+              addBackupLog('✅ Downloaded: draft.json');
+            }
+          }, 300);
+        } else {
+          alert('✅ Đã tải xuống file backup!');
         }
 
-        alert('✅ Đã tải xuống file backup!' + (draft ? ' + draft.json' : ''));
       } catch (err) {
         alert('❌ Lỗi khi tạo backup: ' + err.message);
         console.error(err);
