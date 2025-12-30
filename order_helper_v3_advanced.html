@@ -978,34 +978,59 @@
       localStorage.setItem('vipUpdatedAt', String(timestamp));
     }
 
-    // Recompute VIP balances from current data to keep VIP management in sync with reports
+    /**
+     * Recompute VIP balances from current data to keep VIP management in sync with reports
+     * Uses the SAME LOGIC as buildVipStatementFromDB to ensure consistency
+     */
     function recomputeVipBalances() {
-      console.log(`[${BUILD_TAG}] recomputeVipBalances`);
+      console.log(`[${BUILD_TAG}] recomputeVipBalances - Using accurate calculation from buildVipStatementFromDB logic`);
+
+      // Get all unique VIP member names from all sources
       const vipAreaText = document.getElementById('vipArea')?.value || '';
-      const vipMap = parseVip(vipAreaText);
+      const vipMapCurrent = parseVip(vipAreaText);
+      const allNames = new Set();
 
-      // Minimal rollback mode:
-      // - Only apply vipTransactions onto the existing vipList.
-      // - Do NOT look at orderHistory (avoid legacy inference).
+      // Names from current VIP list
+      vipMapCurrent.keys().forEach(name => allNames.add(name));
+
+      // Names from vipTransactions
       (vipTransactions || []).forEach(tx => {
-        if (tx.orphan) return; // Exclude orphan transactions
-        const name = (tx?.name || '').trim();
-        if (!name) return;
-        const amount = Number(tx?.amount);
-        if (!Number.isFinite(amount)) return;
-
-        const type = tx?.type || (amount >= 0 ? 'topup' : 'cashout');
-        if (type !== 'topup' && type !== 'cashout' && type !== 'order') return;
-        if (type === 'order' && tx?.isVipPayment !== true && tx?.paymentMethod !== 'vip') return;
-
-        const current = Number(vipMap.get(name) || 0);
-        vipMap.set(name, current + amount);
+        const name = (tx.member || tx.name || '').trim();
+        if (name) allNames.add(name);
       });
 
-      const vipText = vipToText(vipMap);
+      // Names from orderHistory
+      (orderHistory || []).forEach(order => {
+        if (!order.details || !Array.isArray(order.details)) return;
+        order.details.forEach(detail => {
+          const name = (detail.name || '').trim();
+          if (name) allNames.add(name);
+        });
+      });
+
+      if (allNames.size === 0) return;
+
+      const newBalances = new Map();
+
+      // Calculate accurate balance for each member using buildVipStatementFromDB logic
+      allNames.forEach(memberName => {
+        // Use the same calculation logic as buildVipStatementFromDB
+        const statement = buildVipStatementFromDB(memberName, {});
+        const balance = statement.summary.ending;
+
+        // Only include members with non-zero balance or who are in the current list
+        if (balance !== 0 || vipMapCurrent.has(memberName)) {
+          newBalances.set(memberName, balance);
+        }
+      });
+
+      // Update VIP area and persist
+      const vipText = vipToText(newBalances);
       const vipArea = document.getElementById('vipArea');
       if (vipArea) vipArea.value = vipText;
       persistVipList(vipText);
+
+      console.log(`[${BUILD_TAG}] recomputeVipBalances - Updated ${newBalances.size} VIP members`);
     }
 
     // Update dish name suggestions from order history
@@ -6344,63 +6369,22 @@
         if (inRange) {
           viewRows.push(row);
 
-          // If first row in view, capture the running balance BEFORE this row as "Opening for View"
-          if (isFirstInView) {
-            viewOpening = running - delta;
-            isFirstInView = false;
+          // Accumulate stats based on row type
+          if (row.rowType === 'opening') {
+            // Opening balance transactions contribute to the opening stat
+            viewOpening += delta;
           }
-
-          if (row.rowType === 'topup') viewTopup += delta;
+          else if (row.rowType === 'topup') viewTopup += delta;
           else if (row.rowType === 'order' && row.paymentType === 'VIP') viewOrder += Math.abs(delta);
           else if (row.rowType === 'cashout') viewCashout += Math.abs(delta);
           else if (row.rowType === 'adjustment') viewAdjustment += delta;
-          else if (row.rowType === 'opening') {
-            // If opening tx is inside the range, it contributes to stats? 
-            // Or is it just "Opening"?
-            // Usually "Opening" stat in summary refers to balance at Start Date.
-            // If 'opening' tx exists, it's just a transaction.
-          }
         }
       });
-
-      // If no rows in view, viewOpening is running at end (if range is future) or running at matching point?
-      // If fromDate is set, viewOpening is balance at fromDate.
-      if (viewRows.length === 0 && fromDate) {
-        // Find balance at fromDate
-        // We already iterated. 
-        // Let's keep it simple: viewOpening set during iteration is correct if we hit something.
-        // If we didn't hit anything, we need to know why.
-      }
-
-      // If no date filter, Opening is 0 (or sum of opening txs if we want to separate them).
-      // Prompt says: "opening = sum(opening rows deltaVip)". This likely refers to specific 'opening' type txs in the Summary.
-      // BUT "running = openingAmount + ..."
-      // Let's stick to the prompt's Summary definition strictly if possible.
-      // "Summary: opening = sum(opening rows deltaVip)"
-      // "totalTopup = sum ... type='topup'"
-      // "ending = last row.balanceAfter"
-
-      // If I interpret "Summary" as global summary (ignoring date filter?):
-      // But options has {from, to}.
-      // If I return `rows` filtered, `summary` should match `rows`.
-      // I will implement "Summary for the View".
-
-      // Update: If no date filter, viewOpening starts at 0. 
-      // AND we add up 'opening' txs?
-      // Actually, if we use standard accounting:
-      // 'Opening' in summary = Balance at 'From' date.
-
-      // Re-read prompt E: "opening = sum(opening rows deltaVip)". 
-      // This implies it sums the 'opening' transactions specifically, presumably for the whole history or view?
-      // If view is filtered, we usually want "Balance brought forward".
-
-      // Let's use the calculated viewOpening (Balance Brought Forward) as 'opening'.
-      // This is most useful for users. 
 
       return {
         rows: viewRows,
         summary: {
-          opening: viewOpening, // Balance before first row of view
+          opening: viewOpening, // Sum of all 'opening' type transactions in view
           totalTopup: viewTopup,
           totalOrder: viewOrder, // Spending
           totalCashout: viewCashout,
