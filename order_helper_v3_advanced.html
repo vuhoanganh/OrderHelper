@@ -2911,20 +2911,17 @@
           data: {
             orderHistory: JSON.parse(localStorage.getItem('orderHistory') || '[]'),
             vipTransactions: JSON.parse(localStorage.getItem('vipTransactions') || '[]'),
-            vipList: localStorage.getItem('vipList') || '',
-            draft: JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || 'null')
+            vipList: localStorage.getItem('vipList') || ''
           },
           metadata: {
             orderCount: JSON.parse(localStorage.getItem('orderHistory') || '[]').length,
             transactionCount: JSON.parse(localStorage.getItem('vipTransactions') || '[]').length,
-            hasDraft: !!localStorage.getItem(DRAFT_STORAGE_KEY),
             exportedBy: 'Order Helper Pro',
             exportDate: new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
           }
         };
 
-        const draftInfo = backup.metadata.hasDraft ? ' + đơn nháp' : '';
-        addBackupLog(`📊 Data: ${backup.metadata.orderCount} orders, ${backup.metadata.transactionCount} transactions${draftInfo}`);
+        addBackupLog(`📊 Data: ${backup.metadata.orderCount} orders, ${backup.metadata.transactionCount} transactions`);
 
         // Check first item encoding
         if (backup.data.orderHistory.length > 0) {
@@ -2948,7 +2945,25 @@
         URL.revokeObjectURL(url);
 
         addBackupLog(`✅ Downloaded: backup-${datePart}-${timePart}.json`);
-        alert('✅ Đã tải xuống file backup!');
+
+        // Also download draft file if exists
+        const draft = localStorage.getItem(DRAFT_STORAGE_KEY);
+        if (draft) {
+          setTimeout(() => {
+            const draftBlob = new Blob([draft], { type: 'application/json' });
+            const draftUrl = URL.createObjectURL(draftBlob);
+            const draftLink = document.createElement('a');
+            draftLink.href = draftUrl;
+            draftLink.download = 'draft.json';
+            document.body.appendChild(draftLink);
+            draftLink.click();
+            document.body.removeChild(draftLink);
+            URL.revokeObjectURL(draftUrl);
+            addBackupLog('✅ Downloaded: draft.json');
+          }, 500); // Small delay to avoid browser blocking multiple downloads
+        }
+
+        alert('✅ Đã tải xuống file backup!' + (draft ? ' + draft.json' : ''));
       } catch (err) {
         alert('❌ Lỗi khi tạo backup: ' + err.message);
         console.error(err);
@@ -2967,10 +2982,34 @@
         try {
           addBackupLog(`📂 Restoring from: ${file.name}`);
           const text = await file.text();
-          const backup = JSON.parse(text);
+          const data = JSON.parse(text);
+
+          // Detect file type: draft.json or backup.json
+          const isDraftFile = data.draftOrder && !data.data;
+
+          if (isDraftFile) {
+            // This is a draft.json file
+            addBackupLog('📄 Detected: Draft file');
+
+            const draftData = data;
+            const lastModified = draftData.draftOrder?.lastModified || 0;
+            const modifiedDate = lastModified ? new Date(lastModified).toLocaleString('vi-VN') : 'Không rõ';
+
+            const confirmMsg = `Restore đơn nháp từ:\n${file.name}\n\nĐơn: ${draftData.draftOrder?.itemName || '(trống)'}\nSố người: ${(draftData.draftOrder?.people || []).length}\nSửa lần cuối: ${modifiedDate}\n\n⚠️ Đơn nháp hiện tại sẽ bị ghi đè!`;
+            if (!confirm(confirmMsg)) return;
+
+            localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftData));
+            addBackupLog('✅ Restored draft order');
+            alert('✅ Đã restore đơn nháp thành công!');
+            setTimeout(() => location.reload(), 500);
+            return;
+          }
+
+          // This is a backup.json file
+          const backup = data;
 
           // Check encoding of restored data
-          if (backup.data.orderHistory.length > 0) {
+          if (backup.data?.orderHistory?.length > 0) {
             const firstItem = backup.data.orderHistory[0].itemName;
             addBackupLog(`🔤 File first item: ${firstItem}`);
             addBackupLog(`🔍 Bytes: ${firstItem.split('').map(c => c.charCodeAt(0)).slice(0, 5).join(', ')}`);
@@ -2981,10 +3020,8 @@
             return;
           }
 
-          const draftMsg = backup.data.draft ? '\n+ 1 đơn nháp' : '';
-          const confirmMsg = `Restore từ:\n${file.name}\n\n${backup.data.orderHistory.length} orders\n${backup.data.vipTransactions.length} transactions${draftMsg}\n\n⚠️ Dữ liệu hiện tại sẽ bị ghi đè!`;
+          const confirmMsg = `Restore từ:\n${file.name}\n\n${backup.data.orderHistory.length} orders\n${backup.data.vipTransactions.length} transactions\n\n⚠️ Dữ liệu hiện tại sẽ bị ghi đè!`;
           if (!confirm(confirmMsg)) return;
-
 
           localStorage.setItem('orderHistory', JSON.stringify(backup.data.orderHistory));
 
@@ -2998,14 +3035,7 @@
           localStorage.setItem('vipTransactions', JSON.stringify(cleanedVipTx));
           localStorage.setItem('vipList', backup.data.vipList);
 
-          // Restore draft if exists
-          if (backup.data.draft) {
-            localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(backup.data.draft));
-            addBackupLog('✅ Restored draft order');
-          }
-
-          const draftInfo = backup.data.draft ? ' + đơn nháp' : '';
-          addBackupLog(`✅ Restored: ${backup.data.orderHistory.length} orders, ${backup.data.vipTransactions.length} transactions${draftInfo}`);
+          addBackupLog(`✅ Restored: ${backup.data.orderHistory.length} orders, ${backup.data.vipTransactions.length} transactions`);
 
           // Verify localStorage encoding
           const restored = JSON.parse(localStorage.getItem('orderHistory'));
@@ -3060,13 +3090,11 @@
           data: {
             orderHistory: orderHistory,
             vipList: localStorage.getItem('vipList') || '',
-            vipTransactions: vipTransactions,
-            draft: JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || 'null')
+            vipTransactions: vipTransactions
           },
           metadata: {
             orderCount: orderHistory.length,
             transactionCount: vipTransactions.length,
-            hasDraft: !!localStorage.getItem(DRAFT_STORAGE_KEY),
             exportedBy: 'Order Helper Pro',
             exportDate: `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`
           }
@@ -3172,12 +3200,6 @@
           vipTransactions = backupData.data.vipTransactions;
           localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
           addBackupLog(`✅ Đã restore ${vipTransactions.length} VIP transactions`);
-        }
-
-        // Restore draft if exists
-        if (backupData.data?.draft) {
-          localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(backupData.data.draft));
-          addBackupLog('✅ Đã restore đơn nháp');
         }
 
         // Refresh UI (rollback: no auto normalize/recompute)
