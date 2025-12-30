@@ -2911,17 +2911,20 @@
           data: {
             orderHistory: JSON.parse(localStorage.getItem('orderHistory') || '[]'),
             vipTransactions: JSON.parse(localStorage.getItem('vipTransactions') || '[]'),
-            vipList: localStorage.getItem('vipList') || ''
+            vipList: localStorage.getItem('vipList') || '',
+            draft: JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || 'null')
           },
           metadata: {
             orderCount: JSON.parse(localStorage.getItem('orderHistory') || '[]').length,
             transactionCount: JSON.parse(localStorage.getItem('vipTransactions') || '[]').length,
+            hasDraft: !!localStorage.getItem(DRAFT_STORAGE_KEY),
             exportedBy: 'Order Helper Pro',
             exportDate: new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
           }
         };
 
-        addBackupLog(`📊 Data: ${backup.metadata.orderCount} orders, ${backup.metadata.transactionCount} transactions`);
+        const draftInfo = backup.metadata.hasDraft ? ' + đơn nháp' : '';
+        addBackupLog(`📊 Data: ${backup.metadata.orderCount} orders, ${backup.metadata.transactionCount} transactions${draftInfo}`);
 
         // Check first item encoding
         if (backup.data.orderHistory.length > 0) {
@@ -2978,7 +2981,8 @@
             return;
           }
 
-          const confirmMsg = `Restore từ:\n${file.name}\n\n${backup.data.orderHistory.length} orders\n${backup.data.vipTransactions.length} transactions\n\n⚠️ Dữ liệu hiện tại sẽ bị ghi đè!`;
+          const draftMsg = backup.data.draft ? '\n+ 1 đơn nháp' : '';
+          const confirmMsg = `Restore từ:\n${file.name}\n\n${backup.data.orderHistory.length} orders\n${backup.data.vipTransactions.length} transactions${draftMsg}\n\n⚠️ Dữ liệu hiện tại sẽ bị ghi đè!`;
           if (!confirm(confirmMsg)) return;
 
 
@@ -2994,7 +2998,14 @@
           localStorage.setItem('vipTransactions', JSON.stringify(cleanedVipTx));
           localStorage.setItem('vipList', backup.data.vipList);
 
-          addBackupLog(`✅ Restored: ${backup.data.orderHistory.length} orders, ${backup.data.vipTransactions.length} transactions`);
+          // Restore draft if exists
+          if (backup.data.draft) {
+            localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(backup.data.draft));
+            addBackupLog('✅ Restored draft order');
+          }
+
+          const draftInfo = backup.data.draft ? ' + đơn nháp' : '';
+          addBackupLog(`✅ Restored: ${backup.data.orderHistory.length} orders, ${backup.data.vipTransactions.length} transactions${draftInfo}`);
 
           // Verify localStorage encoding
           const restored = JSON.parse(localStorage.getItem('orderHistory'));
@@ -3049,11 +3060,13 @@
           data: {
             orderHistory: orderHistory,
             vipList: localStorage.getItem('vipList') || '',
-            vipTransactions: vipTransactions
+            vipTransactions: vipTransactions,
+            draft: JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || 'null')
           },
           metadata: {
             orderCount: orderHistory.length,
             transactionCount: vipTransactions.length,
+            hasDraft: !!localStorage.getItem(DRAFT_STORAGE_KEY),
             exportedBy: 'Order Helper Pro',
             exportDate: `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`
           }
@@ -3159,6 +3172,12 @@
           vipTransactions = backupData.data.vipTransactions;
           localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
           addBackupLog(`✅ Đã restore ${vipTransactions.length} VIP transactions`);
+        }
+
+        // Restore draft if exists
+        if (backupData.data?.draft) {
+          localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(backupData.data.draft));
+          addBackupLog('✅ Đã restore đơn nháp');
         }
 
         // Refresh UI (rollback: no auto normalize/recompute)
