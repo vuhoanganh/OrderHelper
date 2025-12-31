@@ -5423,39 +5423,6 @@
       select.value = names[0];
     }
 
-    function renderVipReport(name) {
-      const content = document.getElementById('vipReportContent');
-      if (!content) return;
-
-      if (!name) {
-        content.innerHTML = '<div class="empty-state" style="padding:12px 0;">Chọn VIP để xem lịch sử</div>';
-        return;
-      }
-
-      const records = vipTransactions.filter(tx => tx.name === name);
-      if (records.length === 0) {
-        content.innerHTML = '<div class="empty-state" style="padding:12px 0;">Không có giao dịch cho VIP này</div>';
-        return;
-      }
-
-      const html = `
-    <ul class="mini-list">
-      ${records.map(tx => `
-        <li>
-          <div>
-	            <div><strong>${tx.name}</strong> • ${tx.type === 'order' ? 'Order' : (tx.type === 'cashout' ? 'Rút' : 'Nạp')}</div>
-            <div class="note">${formatDate(tx.ts)}</div>
-          </div>
-            <div class="${tx.amount >= 0 ? 'amount-positive' : 'amount-negative'}">
-              ${tx.amount >= 0 ? '+' : ''}${formatMoney(tx.amount)}
-            </div>
-        </li>
-      `).join('')}
-    </ul>
-  `;
-
-      content.innerHTML = html;
-    }
 
     // Load VIP on page load
     document.addEventListener('DOMContentLoaded', () => {
@@ -6118,14 +6085,19 @@
       summaryDiv.style.display = 'block';
 
       // Sort rows based on current sort order
-      // IMPORTANT: Since buildVipStatementRows calculates running balance in ascending order,
-      // we need to reverse the array for descending display
+      // buildVipStatementRows returns data in ASCENDING order (oldest first)
+      // We need to reverse it for DESCENDING display (newest first)
       let sortedRows = [...statement.rows];
+
+      console.log('[VIP Report] Sort order:', vipReportSortDesc ? 'DESC (newest first)' : 'ASC (oldest first)');
+      console.log('[VIP Report] Original first date:', sortedRows[0]?.dateLocal);
+      console.log('[VIP Report] Original last date:', sortedRows[sortedRows.length - 1]?.dateLocal);
+
       if (vipReportSortDesc) {
         // Descending (newest first) - reverse the array
         sortedRows = sortedRows.reverse();
+        console.log('[VIP Report] After reverse - first date:', sortedRows[0]?.dateLocal);
       }
-      // else: Ascending (oldest first) - already in correct order from buildVipStatementRows
 
 
       // Render Table
@@ -6478,158 +6450,6 @@
     /**
      * Render VIP Report
      */
-    function renderVipReport(forceHighlight = false) {
-      const memberSelect = document.getElementById('vipReportMember');
-      const memberName = memberSelect.value;
-      const summaryDiv = document.getElementById('vipReportSummary');
-      const table = document.getElementById('vipReportTable');
-      const tbody = document.getElementById('vipReportTableBody');
-      const emptyDiv = document.getElementById('vipReportEmpty');
-
-      // Clear previous analysis if any
-      const existingAnalysis = document.getElementById('vipReportAnalysis');
-      if (existingAnalysis) existingAnalysis.remove();
-
-      if (!memberName) {
-        summaryDiv.style.display = 'none'; table.style.display = 'none'; emptyDiv.style.display = 'block'; return;
-      }
-
-      const fromDate = document.getElementById('vipReportFromDate')?.value;
-      const toDate = document.getElementById('vipReportToDate')?.value;
-
-      const statement = buildVipStatementFromDB(memberName, { from: fromDate, to: toDate });
-      const currentVipList = parseVip(document.getElementById('vipArea')?.value || '');
-      const expectedBalance = currentVipList.get(memberName) || 0;
-
-      // Check Mismatch
-      const mismatch = Math.abs(statement.summary.ending - expectedBalance) > 1; // Tolerance 1d
-      const showHighlight = forceHighlight || mismatch;
-
-      if (statement.rows.length === 0) {
-        summaryDiv.style.display = 'none'; table.style.display = 'none';
-        emptyDiv.innerHTML = `<div style="text-align:center;padding:40px;color:#999;">Không có giao dịch nào cho ${memberName}</div>`;
-        emptyDiv.style.display = 'block';
-      } else {
-        emptyDiv.style.display = 'none';
-        const s = statement.summary;
-
-        let warningHTML = '';
-        if (mismatch) {
-          warningHTML = `<div style="background:#fee2e2; color:#b91c1c; padding:12px; border-radius:8px; margin-bottom:12px; font-weight:600; font-size:14px;">
-              ⚠️ MISMATCH: Report (${formatMoney(s.ending)}) ≠ Saved Balance (${formatMoney(expectedBalance)})
-              <div style="font-weight:400; font-size:12px; margin-top:4px;">Chế độ "Đối soát" đang được kích hoạt để tìm nguyên nhân.</div>
-           </div>`;
-        }
-
-        let summaryHTML = `${warningHTML}
-          <div style="font-size:18px; font-weight:600; margin-bottom:16px;">📊 Tổng kết: ${memberName}</div>
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px;">
-            <div class="stat-box">
-              <div style="opacity:0.7; font-size:12px;">Dư đầu kỳ</div>
-              <div style="font-size:18px; font-weight:700;">${formatMoney(s.opening)}</div>
-            </div>
-            <div class="stat-box">
-              <div style="opacity:0.7; font-size:12px;">Tổng nạp</div>
-              <div style="font-size:18px; font-weight:700; color:#4ade80;">+${formatMoney(s.totalTopup)}</div>
-            </div>
-            <div class="stat-box">
-              <div style="opacity:0.7; font-size:12px;">Tổng tiêu (VIP)</div>
-              <div style="font-size:18px; font-weight:700; color:#f87171;">-${formatMoney(s.totalOrder)}</div>
-            </div>
-             <div class="stat-box">
-              <div style="opacity:0.7; font-size:12px;">Tổng rút</div>
-              <div style="font-size:18px; font-weight:700; color:#fbbf24;">-${formatMoney(s.totalCashout)}</div>
-            </div>
-             <div class="stat-box" style="background: rgba(255,255,255,0.1); border-radius:8px; padding:8px;">
-              <div style="opacity:0.9; font-size:12px; color:var(--text-primary);">SỐ DƯ CUỐI</div>
-              <div style="font-size:20px; font-weight:700; color:${mismatch ? '#ef4444' : 'var(--accent)'};">${formatMoney(s.ending)}</div>
-            </div>
-          </div>
-        `;
-        summaryDiv.innerHTML = summaryHTML; summaryDiv.style.display = 'block';
-
-        // Filter Top Contributors for Analysis
-        // Filter Top Contributors for Analysis (ONLY IF showHighlight IS TRUE)
-        if (showHighlight && statement.rows.length > 0) {
-          const contributors = statement.rows
-            .filter(r => Math.abs(r.deltaVip) > 0)
-            .sort((a, b) => Math.abs(b.deltaVip) - Math.abs(a.deltaVip))
-            .slice(0, 10);
-
-          if (contributors.length > 0) {
-            const analysisHTML = `
-               <div id="vipReportAnalysis" style="margin-top: 20px; margin-bottom: 20px; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 16px;">
-                 <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #fbbf24;">🔍 Phân tích Đối soát (Top ảnh hưởng)</div>
-                 <table style="width:100%; font-size:12px; text-align:left;">
-                   <thead style="opacity:0.7;"><tr><th>Thời gian</th><th>Loại</th><th>Mô tả</th><th style="text-align:right">Ảnh hưởng</th></tr></thead>
-                   <tbody>
-                     ${contributors.map(r => `
-                        <tr>
-                          <td style="padding:4px 0;">${r.dateLocal}</td>
-                          <td>${r.rowType}</td>
-                          <td>${r.description}</td>
-                          <td style="text-align:right; font-weight:bold; color:${r.deltaVip > 0 ? '#4ade80' : '#f87171'}">${r.deltaVip > 0 ? '+' : ''}${formatMoney(r.deltaVip)}</td>
-                        </tr>
-                     `).join('')}
-                   </tbody>
-                 </table>
-               </div>
-             `;
-            // Insert after summary, before table
-            summaryDiv.insertAdjacentHTML('afterend', analysisHTML);
-          }
-        }
-
-        const rowsHTML = statement.rows.map((row, idx) => {
-          const deltaColor = row.deltaVip >= 0 ? '#4ade80' : '#f87171';
-          const deltaSign = row.deltaVip > 0 ? '+' : '';
-
-          // Logic Highlight Mode
-          let rowBg = idx % 2 === 0 ? 'rgba(0,0,0,0.02)' : 'transparent';
-          let borderStyle = '1px solid rgba(0,0,0,0.05)';
-
-          if (showHighlight) {
-            if (row.rowType === 'orphan') {
-              rowBg = 'rgba(239, 68, 68, 0.15)'; // Red warning for orphan
-              borderStyle = '1px solid rgba(239, 68, 68, 0.3)';
-            } else if (row.paymentType === 'VIP' || ['topup', 'cashout', 'adjustment', 'opening'].includes(row.rowType)) {
-              rowBg = 'rgba(251, 191, 36, 0.05)'; // Mild yellow for balance contributors
-            }
-          } else {
-            // Standard highlighting (orphan still warn)
-            if (row.rowType === 'orphan') rowBg = 'rgba(245, 158, 11, 0.1)';
-          }
-
-          const typeBadgeColor = row.paymentType === 'VIP' ? '#8b5cf6' : row.paymentType === 'Cash' ? '#6b7280' : '#3b82f6';
-
-          return `
-            <tr style="background: ${rowBg}; border-bottom: ${borderStyle};">
-              <td style="padding: 10px 8px; font-size: 13px;">${row.dateLocal}</td>
-              <td style="padding: 10px 8px;">
-                <span style="background: ${typeBadgeColor}20; color:${typeBadgeColor}; padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: 600;">
-                  ${row.rowType === 'orphan' ? 'ORPHAN' : row.paymentType}
-                </span>
-                <div style="font-size:10px; opacity:0.7; margin-top:2px;">${row.rowType}</div>
-              </td>
-              <td style="padding: 10px 8px; font-size: 13px;">
-                 ${row.description}
-                 ${row.rowType === 'orphan' ? '<div style="color:#ef4444; font-weight:bold; font-size:10px;">⚠️ Cần kiểm tra</div>' : ''}
-              </td>
-              <td style="padding: 10px 8px; text-align: right; font-weight: 600; color: ${deltaColor};">
-                ${row.deltaVip !== 0 ? deltaSign + formatMoney(row.deltaVip) : '-'}
-              </td>
-              <td style="padding: 10px 8px; text-align: right; font-weight: 500;">
-                ${row.displayAmount !== 0 ? formatMoney(row.displayAmount) : '-'}
-              </td>
-              <td style="padding: 10px 8px; text-align: right; font-weight: 700; font-size: 14px; color: var(--accent);">
-                ${formatMoney(row.balanceAfter)}
-              </td>
-            </tr>
-          `;
-        }).join('');
-        tbody.innerHTML = rowsHTML; table.style.display = 'table';
-      }
-    }
 
     /**
      * Self Test: VIP Report from DB
