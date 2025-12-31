@@ -551,13 +551,17 @@
             </select>
           </div>
 
-          <div style="flex: 0 0 auto; display: flex; align-items: flex-end;">
+          <div style="flex: 0 0 auto; display: flex; align-items: flex-end; gap: 8px;">
             <button class="btn btn-success" onclick="exportVipReportCSV()">
               📤 Xuất CSV
             </button>
             <button id="btnReconcile" class="btn btn-secondary" onclick="toggleReconcile()"
-              style="margin-left: 8px; background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5);">
+              style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5);">
               🔍 Đối soát
+            </button>
+            <button id="btnSortToggle" class="btn btn-secondary" onclick="toggleVipReportSort()"
+              style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.5);">
+              <span id="sortIcon">🔽</span> Ngày giờ
             </button>
           </div>
         </div>
@@ -814,6 +818,8 @@
     ];
 
     let vipTransactions = [];
+    let vipReportSortDesc = true; // true = newest first (descending), false = oldest first (ascending)
+
 
     // GitHub Backup Variables
     let githubAutoBackupInterval = null;
@@ -6112,8 +6118,18 @@
       summaryDiv.innerHTML = summaryHTML;
       summaryDiv.style.display = 'block';
 
+      // Sort rows based on current sort order
+      let sortedRows = [...statement.rows];
+      if (!vipReportSortDesc) {
+        // Ascending (oldest first) - already in this order from buildVipStatementRows
+        sortedRows = sortedRows;
+      } else {
+        // Descending (newest first) - reverse the array
+        sortedRows = sortedRows.reverse();
+      }
+
       // Render Table
-      const rowsHTML = statement.rows.map((row, idx) => {
+      const rowsHTML = sortedRows.map((row, idx) => {
         const deltaColor = row.delta >= 0 ? '#4ade80' : '#f87171';
         const deltaSign = row.delta >= 0 ? '+' : '';
         const rowBg = idx % 2 === 0 ? 'rgba(0,0,0,0.02)' : 'transparent';
@@ -6140,6 +6156,22 @@
 
       tbody.innerHTML = rowsHTML;
       table.style.display = 'table';
+    }
+
+    /**
+     * Toggle VIP Report Sort Order (Ascending/Descending by date)
+     */
+    function toggleVipReportSort() {
+      vipReportSortDesc = !vipReportSortDesc;
+
+      // Update icon
+      const sortIcon = document.getElementById('sortIcon');
+      if (sortIcon) {
+        sortIcon.textContent = vipReportSortDesc ? '🔽' : '🔼';
+      }
+
+      // Re-render the report
+      renderVipReport();
     }
 
     /**
