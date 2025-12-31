@@ -559,10 +559,6 @@
               style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5);">
               🔍 Đối soát
             </button>
-            <button id="btnSortToggle" class="btn btn-secondary" onclick="toggleVipReportSort()"
-              style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.5);">
-              <span id="sortIcon">🔽</span> Ngày giờ
-            </button>
           </div>
         </div>
 
@@ -589,7 +585,10 @@
           <table id="vipReportTable" style="width: 100%; border-collapse: collapse; display: none;">
             <thead>
               <tr style="background: rgba(102, 126, 234, 0.1); border-bottom: 2px solid rgba(102, 126, 234, 0.3);">
-                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Ngày giờ</th>
+                <th style="padding: 12px 8px; text-align: left; font-weight: 600; cursor: pointer; user-select: none;"
+                  onclick="toggleVipReportSort()">
+                  Ngày giờ <span id="sortIcon">🔽</span>
+                </th>
                 <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Loại</th>
                 <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Nội dung</th>
                 <th style="padding: 12px 8px; text-align: right; font-weight: 600;">+/-</th>
@@ -6119,14 +6118,15 @@
       summaryDiv.style.display = 'block';
 
       // Sort rows based on current sort order
+      // IMPORTANT: Since buildVipStatementRows calculates running balance in ascending order,
+      // we need to reverse the array for descending display
       let sortedRows = [...statement.rows];
-      if (!vipReportSortDesc) {
-        // Ascending (oldest first) - already in this order from buildVipStatementRows
-        sortedRows = sortedRows;
-      } else {
+      if (vipReportSortDesc) {
         // Descending (newest first) - reverse the array
         sortedRows = sortedRows.reverse();
       }
+      // else: Ascending (oldest first) - already in correct order from buildVipStatementRows
+
 
       // Render Table
       const rowsHTML = sortedRows.map((row, idx) => {
