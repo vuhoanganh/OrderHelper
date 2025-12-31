@@ -5472,7 +5472,8 @@
         vipArea.title = 'Chỉ có thể thay đổi qua Nạp VIP, Cash Out, hoặc Order';
       }
 
-      initDraftAutosave();
+      // DISABLED: Draft autosave (UI hidden, causing iCloud bridge errors)
+      // initDraftAutosave();
 
       // Add listener for alvinFree checkbox to adjust min value of n
       const alvinFreeCheckbox = document.getElementById('alvinFree');
