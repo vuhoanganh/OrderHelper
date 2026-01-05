@@ -869,6 +869,7 @@
     background: rgba(16, 185, 129, 0.1);
     border-color: var(--accent-green);
 }
+
 /* Report Option Cards */
 .report-option-card:hover {
     transform: translateY(-4px);
@@ -878,4 +879,74 @@
 
 .report-option-card:active {
     transform: translateY(-2px);
+}
+
+/* Draft Manager */
+.draft-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.draft-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.draft-list-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-blue);
+    transform: translateX(4px);
+}
+
+.draft-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.draft-item-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.draft-item-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.draft-item-action {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-delete-draft {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 8px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btn-delete-draft:hover {
+    background: rgba(239, 68, 68, 0.3);
+    color: white;
+    transform: scale(1.1);
 }

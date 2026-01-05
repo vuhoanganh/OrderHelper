@@ -176,7 +176,7 @@
         </div>
       </div>
 
-      <div class="glass-card draft-save-card" style="display: none;">
+      <div class="glass-card draft-save-card">
         <div class="draft-status">
           <span id="draftStatusDot" class="draft-dot unsaved" aria-label="Trạng thái lưu nháp"></span>
           <div>
@@ -186,67 +186,16 @@
           </div>
         </div>
         <div class="draft-actions">
-          <button class="btn btn-primary" onclick="manualSaveDraft()">💾 Lưu nháp</button>
-          <button class="btn btn-secondary" onclick="loadLatestDraftFromICloud()">📂 Tải nháp</button>
-          <button class="btn btn-danger" onclick="clearDraft()">🗑️ Xóa nháp</button>
+          <button class="btn btn-primary" onclick="saveTempDraft()" title="Lưu đơn hiện tại vào bộ nhớ tạm">💾 Lưu
+            tạm</button>
+          <button class="btn btn-secondary" onclick="showDraftManager()" title="Xem danh sách các đơn đã lưu tạm">📂
+            Quản lý nháp</button>
+          <button class="btn btn-ghost" onclick="startNewOrder()" title="Dọn dẹp form để bắt đầu đơn mới">➕ Đơn
+            mới</button>
+          <button class="btn btn-danger" onclick="clearDraft()" title="Xoá đơn nháp hiện tại">🗑️ Xoá nháp</button>
         </div>
       </div>
 
-      <!-- VIP Top-up Modal -->
-      <div id="vipTopupModal" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
-          <div class="modal-header">
-            <h2>➕ Nạp VIP</h2>
-            <button class="close-btn" onclick="closeVipTopupModal()">×</button>
-          </div>
-          <div class="modal-body">
-            <div class="form-group">
-              <label>Tên VIP</label>
-              <input type="text" id="vipTopupName" class="form-input" placeholder="Nhập tên VIP..." autofocus>
-            </div>
-            <div class="form-group">
-              <label>Số tiền nạp (đ)</label>
-              <input type="number" id="vipTopupAmount" class="form-input" placeholder="Nhập số tiền..." min="1">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeVipTopupModal()">Hủy</button>
-            <button type="button" class="btn btn-primary" onclick="submitVipTopup()">Nạp tiền</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- VIP Cash Out Modal -->
-      <div id="vipCashOutModal" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
-          <div class="modal-header">
-            <h2>💸 Cash Out VIP</h2>
-            <button class="close-btn" onclick="closeVipCashOutModal()">×</button>
-          </div>
-          <div class="modal-body">
-            <div class="form-group">
-              <label>Chọn VIP</label>
-              <select id="vipCashOutName" class="form-input" onchange="updateCashOutBalance()">
-                <option value="">-- Chọn VIP --</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Số dư hiện tại</label>
-              <input type="text" id="vipCashOutCurrentBalance" class="form-input" readonly disabled>
-            </div>
-            <div class="form-group">
-              <label>Số tiền rút (để trống để rút hết)</label>
-              <input type="number" id="vipCashOutAmount" class="form-input" placeholder="Nhập số tiền..." min="1">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeVipCashOutModal()">Hủy</button>
-            <button type="button" class="btn btn-warning" onclick="submitVipCashOut()">Rút tiền</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Order Detail Modal -->
       <!-- Order Table -->
       <div class="glass-card" style="margin-top: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -774,6 +723,101 @@
         <button class="modal-close" onclick="closeModal()">×</button>
       </div>
       <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Global Modals (Accessible from any tab) -->
+  <div id="vipTopupModal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+      <div class="modal-header">
+        <h2>➕ Nạp VIP</h2>
+        <button class="modal-close" onclick="closeModal('vipTopupModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Tên VIP</label>
+          <input type="text" id="vipTopupName" class="form-input" placeholder="Nhập tên VIP..." autofocus>
+        </div>
+        <div class="form-group">
+          <label>Số tiền nạp (đ)</label>
+          <input type="number" id="vipTopupAmount" class="form-input" placeholder="Nhập số tiền..." min="1">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('vipTopupModal')">Hủy</button>
+        <button type="button" class="btn btn-primary" onclick="submitVipTopup()">Nạp tiền</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="vipCashOutModal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+      <div class="modal-header">
+        <h2>💸 Cash Out VIP</h2>
+        <button class="modal-close" onclick="closeModal('vipCashOutModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Chọn VIP</label>
+          <select id="vipCashOutName" class="form-input" onchange="updateCashOutBalance()">
+            <option value="">-- Chọn VIP --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Số dư hiện tại</label>
+          <input type="text" id="vipCashOutCurrentBalance" class="form-input" readonly disabled>
+        </div>
+        <div class="form-group">
+          <label>Số tiền rút (để trống để rút hết)</label>
+          <input type="number" id="vipCashOutAmount" class="form-input" placeholder="Nhập số tiền..." min="1">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('vipCashOutModal')">Hủy</button>
+        <button type="button" class="btn btn-warning" onclick="submitVipCashOut()">Rút tiền</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="draftManagerModal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2 class="modal-title">📂 Quản lý đơn nháp</h2>
+        <button class="modal-close" onclick="closeModal('draftManagerModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="draftListContainer" class="draft-list-container">
+          <!-- Draft items will be injected here -->
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button type="button" class="btn btn-ghost" onclick="refreshDraftListFromDisk()">🔄 Quét file trên
+          máy</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('draftManagerModal')">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="paymentMethodModal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+      <div class="modal-header">
+        <h2 id="paymentModalTitle">Chọn phương thức thanh toán</h2>
+        <button class="modal-close" onclick="closeModal('paymentMethodModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="paymentModalInfo" style="margin-bottom: 16px; font-size: 14px; color: var(--text-secondary);"></div>
+        <div class="form-group">
+          <label class="form-label">Phương thức thanh toán</label>
+          <select id="paymentMethodSelect" class="form-input">
+            <option value="cash" selected>Tiền mặt (Cash)</option>
+            <option value="vip">Ví VIP</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('paymentMethodModal')">Hủy</button>
+        <button type="button" class="btn btn-primary" id="paymentModalConfirmBtn">Xác nhận</button>
+      </div>
     </div>
   </div>
 
@@ -3008,8 +3052,14 @@
 
             localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftData));
             addBackupLog('✅ Restored draft order');
+
+            // Apply draft to UI immediately
+            if (typeof restoreDraftToUI === 'function') {
+              restoreDraftToUI(draftData);
+            }
+
             alert('✅ Đã restore đơn nháp thành công!');
-            setTimeout(() => location.reload(), 500);
+            // setTimeout(() => location.reload(), 500); // Reloading is no longer strictly necessary if UI is updated
             return;
           }
 
@@ -3561,6 +3611,11 @@
       draftDirty = !!data.hasChanges;
       updateDraftStatusUI(data);
       setDraftBanner('📋 Đã khôi phục đơn nháp');
+
+      // Clear pricing fields when restoring draft (after F5 or restore)
+      if (typeof clearPricingFields === 'function') {
+        clearPricingFields();
+      }
     }
 
     function markDraftChanged() {
@@ -3576,9 +3631,9 @@
       }
     }
 
-    function recordDraftMeta(path, savedAt) {
+    function recordDraftMeta(path, savedAt, name = '') {
       const meta = JSON.parse(localStorage.getItem(DRAFT_META_KEY) || '[]').filter(Boolean);
-      meta.unshift({ path, savedAt });
+      meta.unshift({ path, savedAt, name });
 
       // Deduplicate by path
       const unique = [];
@@ -3718,8 +3773,10 @@
           draftDirty = false;
           lastDraftBackupPath = path;
           updateDraftStatusUI(draft.draftOrder);
+
+          // NEW: Ensure metadata is recorded with the item name
+          recordDraftMeta(path, now, draft.draftOrder.itemName);
           setDraftBanner(`✅ Đã backup iCloud (${filename})`);
-          recordDraftMeta(path, now);
           cleanupOldDraftBackups();
           if (draftBackupRetryTimeout) {
             clearTimeout(draftBackupRetryTimeout);
@@ -3745,27 +3802,338 @@
     }
 
     async function readFileFromICloud(path) {
-      try {
-        if (window.orderHelperNative?.readFile) {
-          return await window.orderHelperNative.readFile(path);
+      appendLog(`[NativeDebug] Attempting to read: ${path}`);
+
+      if (!window.orderHelperNative) {
+        appendLog(`[NativeDebug] window.orderHelperNative is MISSING`);
+      } else {
+        const methods = Object.keys(window.orderHelperNative);
+        appendLog(`[NativeDebug] Bridge found. Methods: ${methods.join(', ')}`);
+
+        try {
+          // Attempt 1: readTextFile(path)
+          if (typeof window.orderHelperNative.readTextFile === 'function') {
+            appendLog(`[NativeDebug] Trying readTextFile(path)...`);
+            const res = await window.orderHelperNative.readTextFile(path);
+            if (res && res.length > 0) {
+              appendLog(`[NativeDebug] readTextFile success (${res.length} chars)`);
+              return res;
+            }
+            appendLog(`[NativeDebug] readTextFile(path) returned empty/falsy`);
+          }
+
+          // Attempt 2: readFile(path)
+          if (typeof window.orderHelperNative.readFile === 'function') {
+            appendLog(`[NativeDebug] Trying readFile(path)...`);
+            const res = await window.orderHelperNative.readFile(path);
+            if (res && (typeof res === 'string' || (res && res.content))) {
+              appendLog(`[NativeDebug] readFile success`);
+              return typeof res === 'string' ? res : res.content;
+            }
+            appendLog(`[NativeDebug] readFile(path) returned empty/falsy`);
+          }
+
+          // Attempt 3: readFile({ path })
+          if (typeof window.orderHelperNative.readFile === 'function') {
+            appendLog(`[NativeDebug] Trying readFile({path})...`);
+            const res = await window.orderHelperNative.readFile({ path });
+            if (res && (typeof res === 'string' || (res && res.content))) {
+              appendLog(`[NativeDebug] readFile({path}) success`);
+              return typeof res === 'string' ? res : res.content;
+            }
+          }
+        } catch (err) {
+          appendLog(`[NativeDebug] Bridge exception: ${err.message}`);
         }
-        if (window.orderHelperNative?.readTextFile) {
-          return await window.orderHelperNative.readTextFile(path);
-        }
-      } catch (err) {
-        appendLog(`Read draft failed: ${err?.message || err}`);
       }
 
-      try {
-        const res = await fetch(`file://${encodeURI(path)}`);
-        if (res.ok) {
-          return await res.text();
-        }
-      } catch (_err) {
-        // ignore fetch errors
+      appendLog(`[NativeDebug] All native attempts failed. Protocol: ${location.protocol}`);
+
+      // Fallback for non-file origins
+      if (location.protocol !== 'file:') {
+        try {
+          const res = await fetch(`file://${encodeURI(path)}`);
+          if (res.ok) return await res.text();
+        } catch (_err) { }
       }
 
       return null;
+    }
+
+
+    async function deleteDraftFromManager(path, event) {
+      if (event) event.stopPropagation(); // Don't load the draft if clicking delete
+
+      const filename = path.split('/').pop();
+      if (!confirm(`Bạn có chắc chắn muốn xoá vĩnh viễn file nháp "${filename}"?`)) return;
+
+      setDraftBanner('🗑️ Đang xoá...');
+
+      // 1. Delete actual file if native bridge is available
+      if (window.orderHelperNative?.deleteFile) {
+        try {
+          await window.orderHelperNative.deleteFile(path);
+        } catch (err) {
+          console.error('Delete file error:', err);
+        }
+      }
+
+      // 2. Update metadata in localStorage
+      const meta = JSON.parse(localStorage.getItem(DRAFT_META_KEY) || '[]').filter(e => e && e.path !== path);
+      localStorage.setItem(DRAFT_META_KEY, JSON.stringify(meta));
+
+      // 3. Refresh the UI
+      showDraftManager();
+      setDraftBanner('✅ Đã xoá file nháp');
+    }
+
+    async function loadDraftByPath(path) {
+      // Check if native bridge exists
+      const hasBridge = !!(window.orderHelperNative?.readFile || window.orderHelperNative?.readTextFile);
+
+      if (!hasBridge) {
+        // Browser mode - can't read files directly, show file picker
+        alert('⚠️ Trình duyệt không thể đọc file trực tiếp.\n\nVui lòng chuyển sang tab "Backup" và sử dụng nút "Tải từ file" để load lại đơn nháp.');
+        closeModal('draftManagerModal');
+        return;
+      }
+
+      setDraftBanner('⌛ Đang tải...');
+      const content = await readFileFromICloud(path);
+      if (!content) {
+        setDraftBanner('❌ Lỗi: Không thể đọc file');
+        return;
+      }
+      try {
+        const data = JSON.parse(content);
+        const payload = data && data.draftOrder ? data.draftOrder : data;
+        restoreDraftToUI({ draftOrder: { ...payload, hasChanges: false } });
+        draftDirty = false;
+        updateDraftStatusUI({ ...payload, hasChanges: false });
+        setDraftBanner('📂 Đã khôi phục nháp');
+        closeModal('draftManagerModal');
+      } catch (err) {
+        setDraftBanner('❌ File không hợp lệ');
+      }
+    }
+
+    async function refreshDraftListFromDisk() {
+      if (!window.orderHelperNative?.listFiles) {
+        alert('Tính năng này chỉ hỗ trợ trên ứng dụng Desktop.');
+        return;
+      }
+
+      setDraftBanner('🔍 Đang quét file nháp...');
+      try {
+        const files = await window.orderHelperNative.listFiles(DRAFT_DIR);
+        if (!Array.isArray(files)) return;
+
+        const entries = files
+          .filter(f => typeof f === 'string' && f.startsWith('draft_order_') && f.endsWith('.json'))
+          .map(name => {
+            // Try to parse timestamp from filename: draft_order_2026-01-01_1331.json
+            const parts = name.replace('draft_order_', '').replace('.json', '').split('_');
+            let ts = Date.now();
+            if (parts.length >= 2) {
+              const datePart = parts[0]; // 2026-01-01
+              const timePart = parts[1]; // 1331
+              const year = datePart.split('-')[0];
+              const month = datePart.split('-')[1];
+              const day = datePart.split('-')[2];
+              const hour = timePart.substring(0, 2);
+              const min = timePart.substring(2, 4);
+              ts = new Date(`${year}-${month}-${day}T${hour}:${min}:00`).getTime();
+            }
+            return { path: `${DRAFT_DIR}/${name}`, savedAt: ts, name: '' };
+          });
+
+        // Merge with existing meta to preserve names if possible
+        const existingMap = new Map();
+        const currentMeta = JSON.parse(localStorage.getItem(DRAFT_META_KEY) || '[]').filter(Boolean);
+        currentMeta.forEach(m => existingMap.set(m.path, m.name));
+
+        const merged = entries.map(e => ({
+          ...e,
+          name: existingMap.get(e.path) || ''
+        })).sort((a, b) => b.savedAt - a.savedAt);
+
+        localStorage.setItem(DRAFT_META_KEY, JSON.stringify(merged.slice(0, 20)));
+        showDraftManager(); // Re-render
+        setDraftBanner(`✅ Đã tìm thấy ${merged.length} file nháp`);
+      } catch (err) {
+        alert('Lỗi khi quét file: ' + err.message);
+      }
+    }
+
+    function showDraftManager() {
+      const entries = JSON.parse(localStorage.getItem(DRAFT_META_KEY) || '[]').filter(e => e && e.path);
+      const container = document.getElementById('draftListContainer');
+      if (!container) return;
+
+      const hasBridge = !!(window.orderHelperNative?.readFile || window.orderHelperNative?.readTextFile);
+
+      if (entries.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 20px; opacity: 0.7;">Chưa có đơn nháp nào được lưu.</div>';
+      } else {
+        if (!hasBridge) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 20px; background: rgba(251, 191, 36, 0.1); border-radius: 12px; border: 1px solid rgba(251, 191, 36, 0.3); margin-bottom: 16px;">
+              <div style="font-size: 1.2rem; margin-bottom: 8px;">⚠️ Trình duyệt không thể đọc file trực tiếp</div>
+              <div style="font-size: 0.9rem; opacity: 0.9;">Bạn có ${entries.length} đơn nháp đã lưu. Để tải lại, vui lòng:</div>
+              <ol style="text-align: left; margin-top: 12px; padding-left: 20px; font-size: 0.85rem;">
+                <li>Chuyển sang tab <strong>☁️ Backup</strong></li>
+                <li>Bấm nút <strong>📂 Tải từ file</strong></li>
+                <li>Chọn file nháp từ thư mục: <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">/Kitchen/drafts</code></li>
+              </ol>
+            </div>
+            ` + entries.map((e, idx) => {
+            const name = e.name || '(Không có tên)';
+            const date = new Date(e.savedAt).toLocaleString('vi-VN');
+            const filename = e.path.split('/').pop();
+            return `
+                <div class="draft-list-item" style="opacity: 0.6; cursor: default;">
+                  <div class="draft-item-info">
+                    <div class="draft-item-name">${name}</div>
+                    <div class="draft-item-meta">${date} • ${filename}</div>
+                  </div>
+                  <div class="draft-item-action">
+                    <button class="btn btn-ghost" style="padding: 8px 12px; font-size: 13px; opacity: 0.5;" disabled>🔒 Khóa</button>
+                  </div>
+                </div>
+              `;
+          }).join('');
+        } else {
+          container.innerHTML = entries.map((e, idx) => {
+            const name = e.name || '(Không có tên)';
+            const date = new Date(e.savedAt).toLocaleString('vi-VN');
+            return `
+              <div class="draft-list-item" onclick="loadDraftByPath('${e.path}')">
+                <div class="draft-item-info">
+                  <div class="draft-item-name">${name}</div>
+                  <div class="draft-item-meta">${date}</div>
+                </div>
+                <div class="draft-item-action">
+                  <button class="btn btn-ghost" style="padding: 8px 12px; font-size: 13px;">📂 Tải</button>
+                  <button class="btn-delete-draft" onclick="deleteDraftFromManager('${e.path}', event)" title="Xoá vĩnh viễn file này">✕</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      const modal = document.getElementById('draftManagerModal');
+      if (modal) modal.classList.add('active');
+    }
+
+    // ========== Simple Draft Management (localStorage only) ==========
+
+    function saveTempDraft() {
+      const draft = getDraftPayload(true);
+      const timestamp = Date.now();
+      const key = `draft-${timestamp}`;
+      const itemName = draft.draftOrder?.itemName || 'Không có tên';
+
+      localStorage.setItem(key, JSON.stringify(draft));
+      setDraftBanner(`✅ Đã lưu tạm: ${itemName}`);
+
+      // Update UI
+      setTimeout(() => setDraftBanner(''), 2000);
+    }
+
+    function loadTempDraft(key) {
+      const data = localStorage.getItem(key);
+      if (!data) {
+        alert('❌ Không tìm thấy đơn nháp');
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(data);
+        const payload = parsed.draftOrder || parsed;
+        restoreDraftToUI({ draftOrder: { ...payload, hasChanges: false } });
+        draftDirty = false;
+        updateDraftStatusUI({ ...payload, hasChanges: false });
+        setDraftBanner('📂 Đã khôi phục đơn tạm');
+        closeModal('draftManagerModal');
+
+        // Clear pricing fields after loading draft
+        clearPricingFields();
+      } catch (err) {
+        alert('❌ Lỗi khi tải đơn: ' + err.message);
+      }
+    }
+
+    function deleteTempDraft(key, event) {
+      if (event) event.stopPropagation();
+
+      if (!confirm('🗑️ Bạn có chắc muốn xoá đơn này?')) return;
+
+      localStorage.removeItem(key);
+      showDraftManager(); // Refresh
+      setDraftBanner('✅ Đã xoá');
+    }
+
+    function showDraftManager() {
+      const allKeys = Object.keys(localStorage);
+      const draftKeys = allKeys.filter(k => k.startsWith('draft-'));
+
+      const drafts = draftKeys.map(key => {
+        try {
+          const data = JSON.parse(localStorage.getItem(key));
+          const order = data.draftOrder || data;
+          const timestamp = parseInt(key.replace('draft-', ''));
+          return {
+            key,
+            name: order.itemName || 'Không có tên',
+            totalParts: order.totalParts || 0,
+            people: order.people?.length || 0,
+            savedAt: timestamp
+          };
+        } catch {
+          return null;
+        }
+      }).filter(Boolean).sort((a, b) => b.savedAt - a.savedAt); // Mới nhất trước
+
+      const container = document.getElementById('draftListContainer');
+      if (!container) return;
+
+      if (drafts.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px; opacity: 0.7;">
+            <div style="font-size: 3rem; margin-bottom: 12px;">📂</div>
+            <div style="font-size: 1.1rem;">Chưa có đơn tạm nào</div>
+            <div style="font-size: 0.9rem; margin-top: 8px; opacity: 0.7;">Bấm "Lưu tạm" để lưu đơn hiện tại</div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = drafts.map(d => {
+          const date = new Date(d.savedAt).toLocaleString('vi-VN');
+          return `
+            <div class="draft-list-item" onclick="loadTempDraft('${d.key}')">
+              <div class="draft-item-info">
+                <div class="draft-item-name">${d.name}</div>
+                <div class="draft-item-meta">${date} • ${d.totalParts} phần • ${d.people} người</div>
+              </div>
+              <div class="draft-item-action">
+                <button class="btn btn-ghost" style="padding: 8px 12px; font-size: 13px;">📂 Tải</button>
+                <button class="btn-delete-draft" onclick="deleteTempDraft('${d.key}', event)" title="Xoá đơn này">✕</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      const modal = document.getElementById('draftManagerModal');
+      if (modal) modal.classList.add('active');
+    }
+
+    function startNewOrder() {
+      if (draftDirty) {
+        if (!confirm('⚠️ Đơn hiện tại chưa được lưu. Bạn có chắc muốn bắt đầu đơn mới?')) return;
+      }
+      clearDraft();
+      setDraftBanner('➕ Sẵn sàng cho đơn mới');
     }
 
     async function loadLatestDraftFromICloud() {
@@ -4473,11 +4841,27 @@
         }
 
         // Rollback: do not auto recompute VIP balances
+
+        // Clear pricing fields after successful save
+        clearPricingFields();
       } else {
         setDraftBanner('ℹ️ Đã tính tạm, bấm "Lưu đơn" để ghi vào lịch sử');
+
+        // Also clear pricing fields even if not saving to history
+        clearPricingFields();
       }
 
       return { order, saved: savedToHistory || skipSave, signature: orderSignature };
+    }
+
+    // Clear pricing fields after compute
+    function clearPricingFields() {
+      document.getElementById('totalCost').value = '0';
+      document.getElementById('costPerUnit').value = '0';
+      document.getElementById('shipFee').value = '0';
+      document.getElementById('targetProfit').value = '6'; // Default
+      document.getElementById('desiredPrice').value = '';
+      document.getElementById('priceSuggestion').innerHTML = '';
     }
 
     // Generate Open Order Message
@@ -4537,7 +4921,6 @@
       }
 
       copyMsg('finalMsg', event);
-      updateData('orderValue', formatMoney(totalPayable));
     }
 
     // ========== Order History Filters ==========
@@ -4855,9 +5238,11 @@
       setDraftBanner('✏️ Đang chỉnh sửa đơn từ lịch sử. Bấm "Lưu đơn" để cập nhật.');
     }
 
-    function closeModal() {
-      document.getElementById('orderModal').classList.remove('active');
-      activeOrderModalId = null;
+    function closeModal(id) {
+      const targetId = id || 'orderModal';
+      const el = document.getElementById(targetId);
+      if (el) el.classList.remove('active');
+      if (targetId === 'orderModal') activeOrderModalId = null;
     }
 
     function deleteOrder(orderId) {
@@ -4882,6 +5267,27 @@
       alert('✅ Đã đánh dấu tất cả đã thanh toán');
     }
 
+    function openPaymentMethodModal(options) {
+      const { title, info, onConfirm } = options;
+      const modal = document.getElementById('paymentMethodModal');
+      const titleEl = document.getElementById('paymentModalTitle');
+      const infoEl = document.getElementById('paymentModalInfo');
+      const selectEl = document.getElementById('paymentMethodSelect');
+      const confirmBtn = document.getElementById('paymentModalConfirmBtn');
+
+      if (titleEl) titleEl.textContent = title || 'Chọn phương thức thanh toán';
+      if (infoEl) infoEl.textContent = info || '';
+      if (selectEl) selectEl.value = 'cash'; // Default to cash
+
+      confirmBtn.onclick = () => {
+        const method = selectEl.value;
+        closeModal('paymentMethodModal');
+        if (onConfirm) onConfirm(method);
+      };
+
+      modal.classList.add('active');
+    }
+
     function markDebtorPaid(name) {
       console.log(`[${BUILD_TAG}] markDebtorPaid`);
       if (!name) return;
@@ -4903,70 +5309,72 @@
         return;
       }
 
-      const vipArea = document.getElementById('vipArea');
-      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
-      const hasVip = vipMap.has(target);
+      openPaymentMethodModal({
+        title: `Trả hết nợ cho ${target}`,
+        info: `Tổng cộng: ${formatMoney(totalCleared)} (${changes.length} đơn chưa thanh toán)`,
+        onConfirm: (paymentMethod) => {
+          const vipArea = document.getElementById('vipArea');
+          const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
+          const hasVip = vipMap.has(target);
 
-      // Always show payment method selection popup, default to VIP
-      const methodInput = prompt(`Chọn phương thức thanh toán cho ${target}: nhập 'vip' hoặc 'cash' (mặc định VIP)`, 'vip');
-      let paymentMethod = (methodInput || 'vip').trim().toLowerCase() === 'vip' ? 'vip' : 'cash';
-
-      // Mark as paid (source of truth: detail.paid === true)
-      changes.forEach(change => {
-        const order = orderHistory.find(o => o.id === change.orderId);
-        if (order && order.details[change.detailIndex]) {
-          if (paymentMethod === 'vip') {
-            order.details[change.detailIndex].isVipPayment = true;
-            order.details[change.detailIndex].paymentMethod = 'vip';
-            order.details[change.detailIndex].paid = true;
-            const existingTx = vipTransactions.find(tx =>
-              tx.type === 'order' &&
-              tx.orderId === order.id &&
-              tx.name === target &&
-              tx.detailIndex === change.detailIndex
-            );
-            if (!existingTx) {
-              recordVipTransaction({
-                name: target,
-                amount: -change.due,
-                type: 'order',
-                itemName: order.itemName,
-                orderId: order.id,
-                detailIndex: change.detailIndex,
-                isVipPayment: true,
-                paymentMethod: 'vip'
-              });
+          // Mark as paid
+          changes.forEach(change => {
+            const order = orderHistory.find(o => o.id === change.orderId);
+            if (order && order.details[change.detailIndex]) {
+              if (paymentMethod === 'vip') {
+                order.details[change.detailIndex].isVipPayment = true;
+                order.details[change.detailIndex].paymentMethod = 'vip';
+                order.details[change.detailIndex].paid = true;
+                const existingTx = vipTransactions.find(tx =>
+                  tx.type === 'order' &&
+                  tx.orderId === order.id &&
+                  tx.name === target &&
+                  tx.detailIndex === change.detailIndex
+                );
+                if (!existingTx) {
+                  recordVipTransaction({
+                    name: target,
+                    amount: -change.due,
+                    type: 'order',
+                    itemName: order.itemName,
+                    orderId: order.id,
+                    detailIndex: change.detailIndex,
+                    isVipPayment: true,
+                    paymentMethod: 'vip'
+                  });
+                }
+              } else {
+                order.details[change.detailIndex].isVipPayment = false;
+                order.details[change.detailIndex].paymentMethod = 'cash';
+                order.details[change.detailIndex].paid = true;
+              }
             }
-          } else {
-            order.details[change.detailIndex].isVipPayment = false;
-            order.details[change.detailIndex].paymentMethod = 'cash';
-            order.details[change.detailIndex].paid = true;
+          });
+
+          if (paymentMethod === 'vip') {
+            if (hasVip) {
+              vipMap.set(target, Number(vipMap.get(target) || 0) - Number(totalCleared || 0));
+            } else {
+              // User chose VIP but is not in VIP list - add them with negative balance
+              vipMap.set(target, -Number(totalCleared || 0));
+            }
+            const vipText = vipToText(vipMap);
+            if (vipArea) vipArea.value = vipText;
+            persistVipList(vipText);
           }
+
+          lastDebtorPaidSnapshot = { name: target, changes };
+          localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+          loadDebtManagement();
+          loadHistory();
+          if (activeOrderModalId !== null) showOrderDetail(activeOrderModalId);
+          renderVipHistory();
+          populateVipMemberSelect();
+
+          const paymentText = paymentMethod === 'vip' ? 'từ VIP' : 'bằng tiền mặt';
+          alert(`✅ Đã đánh dấu ${target} đã trả hết nợ ${paymentText}\nTổng: ${formatMoney(totalCleared)}`);
         }
       });
-
-      if (paymentMethod === 'vip') {
-        if (hasVip) {
-          vipMap.set(target, Number(vipMap.get(target) || 0) - Number(totalCleared || 0));
-        } else {
-          // User chose VIP but is not in VIP list - add them with negative balance
-          vipMap.set(target, -Number(totalCleared || 0));
-        }
-        const vipText = vipToText(vipMap);
-        if (vipArea) vipArea.value = vipText;
-        persistVipList(vipText);
-      }
-
-      lastDebtorPaidSnapshot = { name: target, changes };
-      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-      loadDebtManagement();
-      loadHistory();
-      if (activeOrderModalId !== null) showOrderDetail(activeOrderModalId);
-      renderVipHistory();
-      populateVipMemberSelect();
-
-      const paymentText = paymentMethod === 'vip' ? 'từ VIP' : 'bằng tiền mặt';
-      alert(`✅ Đã đánh dấu ${target} đã trả hết nợ ${paymentText}\nTổng: ${formatMoney(totalCleared)}`);
     }
 
     function markSingleDebtPaid(orderId, detailIndex, name) {
@@ -4980,75 +5388,73 @@
         return;
       }
 
-      const confirmMsg = `Đánh dấu đã trả cho ${name || detail.name}?\n` +
-        `${order.itemName} - ${formatMoney(detail.due)} (${detail.qty} phần)`;
-      if (!confirm(confirmMsg)) return;
-
       const target = (name || detail.name).trim();
 
-      const vipArea = document.getElementById('vipArea');
-      const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
-      const hasVip = vipMap.has(target);
+      openPaymentMethodModal({
+        title: `Đánh dấu đã trả cho ${target}`,
+        info: `${order.itemName} - ${formatMoney(detail.due)} (${detail.qty} phần)`,
+        onConfirm: (paymentMethod) => {
+          const vipArea = document.getElementById('vipArea');
+          const vipMap = vipArea ? parseVip(vipArea.value) : new Map();
+          const hasVip = vipMap.has(target);
 
-      // Always show payment method selection popup, default to VIP
-      const methodInput = prompt(`Chọn phương thức thanh toán cho ${target}: nhập 'vip' hoặc 'cash' (mặc định VIP)`, 'vip');
-      let paymentMethod = (methodInput || 'vip').trim().toLowerCase() === 'vip' ? 'vip' : 'cash';
+          if (paymentMethod === 'vip') {
+            const existingTx = vipTransactions.find(tx =>
+              tx.type === 'order' &&
+              tx.orderId === order.id &&
+              tx.name === target &&
+              tx.detailIndex === detailIndex
+            );
 
-      if (paymentMethod === 'vip') {
-        const existingTx = vipTransactions.find(tx =>
-          tx.type === 'order' &&
-          tx.orderId === order.id &&
-          tx.name === target &&
-          tx.detailIndex === detailIndex
-        );
+            if (!existingTx) {
+              recordVipTransaction({
+                name: target,
+                amount: -detail.due,
+                type: 'order',
+                itemName: order.itemName,
+                orderId: order.id,
+                detailIndex,
+                isVipPayment: true,
+                paymentMethod: 'vip'
+              });
+            }
+            detail.isVipPayment = true;
+            detail.paymentMethod = 'vip';
+          } else {
+            detail.isVipPayment = false;
+            detail.paymentMethod = 'cash';
+          }
 
-        if (!existingTx) {
-          recordVipTransaction({
+          detail.paid = true;
+
+          if (paymentMethod === 'vip') {
+            if (hasVip) {
+              vipMap.set(target, Number(vipMap.get(target) || 0) - Number(detail.due || 0));
+            } else {
+              // User chose VIP but is not in VIP list - add them with negative balance
+              vipMap.set(target, -Number(detail.due || 0));
+            }
+            const vipText = vipToText(vipMap);
+            if (vipArea) vipArea.value = vipText;
+            persistVipList(vipText);
+          }
+
+          lastDebtorPaidSnapshot = {
             name: target,
-            amount: -detail.due,
-            type: 'order',
-            itemName: order.itemName,
-            orderId: order.id,
-            detailIndex,
-            isVipPayment: true,
-            paymentMethod: 'vip'
-          });
+            changes: [{ orderId, detailIndex, due: detail.due }]
+          };
+
+          localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+          loadDebtManagement();
+          loadHistory();
+          if (activeOrderModalId !== null) showOrderDetail(activeOrderModalId);
+          renderVipHistory();
+          populateVipMemberSelect();
+
+          const paymentText = paymentMethod === 'vip' ? 'từ VIP' : 'bằng tiền mặt';
+          alert(`✅ Đã đánh dấu đã trả ${paymentText}`);
         }
-        detail.isVipPayment = true;
-        detail.paymentMethod = 'vip';
-      } else {
-        detail.isVipPayment = false;
-        detail.paymentMethod = 'cash';
-      }
-
-      detail.paid = true;
-
-      if (paymentMethod === 'vip') {
-        if (hasVip) {
-          vipMap.set(target, Number(vipMap.get(target) || 0) - Number(detail.due || 0));
-        } else {
-          // User chose VIP but is not in VIP list - add them with negative balance
-          vipMap.set(target, -Number(detail.due || 0));
-        }
-        const vipText = vipToText(vipMap);
-        if (vipArea) vipArea.value = vipText;
-        persistVipList(vipText);
-      }
-
-      lastDebtorPaidSnapshot = {
-        name: target,
-        changes: [{ orderId, detailIndex, due: detail.due }]
-      };
-
-      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-      loadDebtManagement();
-      loadHistory();
-      if (activeOrderModalId !== null) showOrderDetail(activeOrderModalId);
-      renderVipHistory();
-      populateVipMemberSelect();
-
-      const paymentText = paymentMethod === 'vip' ? 'từ VIP' : 'bằng tiền mặt';
-      alert(`✅ Đã đánh dấu đã trả ${paymentText}`);
+      });
     }
 
     function undoLastDebtorPaid() {
@@ -5218,7 +5624,7 @@
           </div>
 	          <div style="text-align: right;">
 	            <div style="font-size: 24px; font-weight: 700; color: var(--accent-red);">${formatMoney(data.total)}</div>
-	            <button class="btn btn-primary" style="margin-top: 8px;" onclick='markDebtorPaid(${JSON.stringify(name)})'>Đánh dấu đã trả</button>
+	            <button class="btn btn-primary" style="margin-top: 8px;" onclick='markDebtorPaid(${JSON.stringify(name)})'>Trả hết</button>
 	          </div>
 	        </div>
 
@@ -5472,8 +5878,8 @@
         vipArea.title = 'Chỉ có thể thay đổi qua Nạp VIP, Cash Out, hoặc Order';
       }
 
-      // DISABLED: Draft autosave (UI hidden, causing iCloud bridge errors)
-      // initDraftAutosave();
+      // ENABLED: Draft autosave (previously disabled due to bridge errors)
+      initDraftAutosave();
 
       // Add listener for alvinFree checkbox to adjust min value of n
       const alvinFreeCheckbox = document.getElementById('alvinFree');
