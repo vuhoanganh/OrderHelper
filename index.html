@@ -6879,7 +6879,7 @@
         const amount = formatAmount(row.displayAmount || row.deltaVip || 0);
         const balance = formatAmount(row.balanceAfter || 0);
 
-        return `"${date}","${row.typeLabel}","${desc}",${amount},${balance}`;
+        return `"${date}","${row.paymentType || row.typeLabel}","${desc}",${amount},${balance}`;
       }).join('\n');
 
       const csv = header + rows;
