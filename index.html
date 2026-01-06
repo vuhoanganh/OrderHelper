@@ -6573,17 +6573,30 @@
         return;
       }
 
-      // Build CSV
-      const header = 'dateISO,type,description,delta,balanceAfter,ref,txnId\n';
+      // Build CSV with Vietnamese headers and optimized columns
+      const header = 'Ngày giờ,Loại,Mô tả,Số tiền,Số dư sau,Mã GD\n';
       const rows = statement.rows.map(row => {
-        const desc = (row.description || '').replace(/"/g, '""'); // Escape quotes
-        return `"${row.dateISO}","${row.typeLabel}","${desc}",${row.delta},${row.balanceAfter},"${row.ref}","${row.txnId}"`;
+        // Use dateLocal (DD/MM/YYYY HH:MM) instead of ISO
+        const date = row.dateLocal || row.dateISO;
+
+        // Clean description (escape quotes)
+        const desc = (row.description || '').replace(/"/g, '""');
+
+        // Format amounts with thousand separators
+        const formatAmount = (num) => Number(num).toLocaleString('vi-VN');
+
+        // Shorten ref ID (take last 8 chars if too long)
+        const shortRef = row.ref && row.ref.length > 20
+          ? '...' + row.ref.slice(-8)
+          : (row.ref || '');
+
+        return `"${date}","${row.typeLabel}","${desc}",${formatAmount(row.delta)},${formatAmount(row.balanceAfter)},"${shortRef}"`;
       }).join('\n');
 
       const csv = header + rows;
 
-      // Download
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      // Download (add BOM for Excel UTF-8 support)
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
