@@ -504,6 +504,9 @@
             <button class="btn btn-success" onclick="exportVipReportCSV()">
               📤 Xuất CSV
             </button>
+            <button class="btn btn-primary" onclick="exportVipReportHTML()">
+              🎨 Xuất HTML
+            </button>
             <button id="btnReconcile" class="btn btn-secondary" onclick="toggleReconcile()"
               style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5);">
               🔍 Đối soát
@@ -6902,6 +6905,230 @@
       link.click();
       URL.revokeObjectURL(url);
       alert(`✅ Đã xuất CSV: ${statement.rows.length} giao dịch`);
+    }
+
+    /**
+     * Export VIP Report to HTML with beautiful styling
+     */
+    function exportVipReportHTML() {
+      const memberName = document.getElementById('vipReportMember').value;
+      if (!memberName) { alert('Vui lòng chọn VIP member trước!'); return; }
+
+      const fromDate = document.getElementById('vipReportFromDate').value;
+      const toDate = document.getElementById('vipReportToDate').value;
+
+      const statement = buildVipStatementFromDB(memberName, {
+        from: fromDate,
+        to: toDate,
+        includeCashOrders: true
+      });
+
+      if (statement.rows.length === 0) { alert('Không có dữ liệu để xuất!'); return; }
+
+      // Calculate summary
+      const opening = statement.rows[0]?.balanceAfter - (statement.rows[0]?.displayAmount || 0) || 0;
+      let totalTopup = 0, totalSpent = 0, totalCashout = 0;
+
+      statement.rows.forEach(row => {
+        const amt = row.displayAmount || 0;
+        if (row.paymentType === 'TOPUP') totalTopup += amt;
+        else if (row.paymentType === 'VIP' && amt < 0) totalSpent += Math.abs(amt);
+        else if (row.typeLabel === 'Rút') totalCashout += Math.abs(amt);
+      });
+
+      const ending = statement.rows[statement.rows.length - 1]?.balanceAfter || 0;
+
+      // Build HTML with beautiful dark theme
+      const html = `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tổng kết: ${memberName}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #e2e8f0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    
+    /* Header Card */
+    .header-card {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .header-card h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    /* Summary Grid */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+    }
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .summary-label {
+      font-size: 13px;
+      opacity: 0.9;
+      font-weight: 500;
+    }
+    .summary-value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .positive { color: #34d399; }
+    .negative { color: #f87171; }
+    .neutral { color: #fbbf24; }
+    
+    /* Table */
+    .table-container {
+      background: rgba(30, 41, 59, 0.8);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    thead {
+      background: rgba(51, 65, 85, 0.8);
+    }
+    th {
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #cbd5e1;
+    }
+    tbody tr {
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+      transition: background 0.2s;
+    }
+    tbody tr:hover {
+      background: rgba(51, 65, 85, 0.3);
+    }
+    td {
+      padding: 14px 16px;
+      font-size: 14px;
+    }
+    .date-col { color: #94a3b8; }
+    .type-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .type-vip { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+    .type-cash { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+    .type-topup { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .amount-positive { color: #34d399; font-weight: 600; }
+    .amount-negative { color: #f87171; font-weight: 600; }
+    @media print {
+      body { background: white; color: black; }
+      .header-card { background: #6366f1; color: white; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header-card">
+      <h1>📊 Tổng kết: ${memberName}</h1>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-label">Opening</div>
+          <div class="summary-value">${opening.toLocaleString('vi-VN')}đ</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Tổng nạp</div>
+          <div class="summary-value positive">+${totalTopup.toLocaleString('vi-VN')}đ</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Tổng chi</div>
+          <div class="summary-value negative">-${totalSpent.toLocaleString('vi-VN')}đ</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Tổng rút</div>
+          <div class="summary-value neutral">-${totalCashout.toLocaleString('vi-VN')}đ</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Ending Balance</div>
+          <div class="summary-value">${ending.toLocaleString('vi-VN')}đ</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Ngày giờ 📅</th>
+            <th>Loại</th>
+            <th>Nội dung</th>
+            <th style="text-align: right;">+/-</th>
+            <th style="text-align: right;">Số dư</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${statement.rows.map(row => {
+        const date = row.dateLocal || row.dateISO;
+        const type = row.paymentType || row.typeLabel;
+        const typeClass = type === 'VIP' ? 'type-vip' : type === 'Cash' ? 'type-cash' : 'type-topup';
+
+        let desc = row.description || '';
+        desc = desc.replace(/\s*\((VIP|Cash|TOPUP)\s*[+-]?\d+đ?\)/gi, '').trim();
+
+        const amt = row.displayAmount || 0;
+        const amtClass = amt >= 0 ? 'amount-positive' : 'amount-negative';
+        const amtText = amt >= 0 ? `+${amt.toLocaleString('vi-VN')}đ` : `${amt.toLocaleString('vi-VN')}đ`;
+
+        const balance = (row.balanceAfter || 0).toLocaleString('vi-VN') + 'đ';
+
+        return `
+            <tr>
+              <td class="date-col">${date}</td>
+              <td><span class="type-badge ${typeClass}">${type}</span></td>
+              <td>${desc}</td>
+              <td style="text-align: right;" class="${amtClass}">${amtText}</td>
+              <td style="text-align: right;">${balance}</td>
+            </tr>`;
+      }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>`;
+
+      // Download HTML
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `vip-report-${memberName.replace(/\s+/g, '_')}-${new Date().toISOString().split('T')[0]}.html`;
+      link.click();
+      URL.revokeObjectURL(url);
+      alert(`✅ Đã xuất HTML: ${statement.rows.length} giao dịch`);
     }
 
     function populateVipReportMembers() {
