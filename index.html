@@ -6551,64 +6551,7 @@
       renderVipReport();
     }
 
-    /**
-     * Export VIP Report to CSV
-     */
-    function exportVipReportCSV() {
-      const memberSelect = document.getElementById('vipReportMember');
-      const memberName = memberSelect.value;
 
-      if (!memberName) {
-        alert('Vui lòng chọn VIP member trước!');
-        return;
-      }
-
-      const fromDate = document.getElementById('vipReportFromDate').value;
-      const toDate = document.getElementById('vipReportToDate').value;
-
-      const statement = buildVipStatementRows(memberName, { from: fromDate, to: toDate });
-
-      if (statement.rows.length === 0) {
-        alert('Không có dữ liệu để xuất!');
-        return;
-      }
-
-      // Build CSV with Vietnamese headers and optimized columns
-      const header = 'Ngày giờ,Loại,Mô tả,Số tiền,Số dư sau,Mã GD\n';
-      const rows = statement.rows.map(row => {
-        // Use dateLocal (DD/MM/YYYY HH:MM) instead of ISO
-        const date = row.dateLocal || row.dateISO;
-
-        // Clean description (escape quotes)
-        const desc = (row.description || '').replace(/"/g, '""');
-
-        // Format amounts with thousand separators
-        const formatAmount = (num) => Number(num).toLocaleString('vi-VN');
-
-        // Shorten ref ID (take last 8 chars if too long)
-        const shortRef = row.ref && row.ref.length > 20
-          ? '...' + row.ref.slice(-8)
-          : (row.ref || '');
-
-        return `"${date}","${row.typeLabel}","${desc}",${formatAmount(row.delta)},${formatAmount(row.balanceAfter)},"${shortRef}"`;
-      }).join('\n');
-
-      const csv = header + rows;
-
-      // Download (add BOM for Excel UTF-8 support)
-      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-
-      const dateStr = new Date().toISOString().split('T')[0];
-      link.download = `vip-report-${memberName.replace(/\s+/g, '_')}-${dateStr}.csv`;
-
-      link.click();
-      URL.revokeObjectURL(url);
-
-      alert(`✅ Đã xuất CSV: ${statement.rows.length} giao dịch`);
-    }
 
     /**
      * Populate VIP Member dropdown for report
@@ -6920,15 +6863,29 @@
 
       if (statement.rows.length === 0) { alert('Không có dữ liệu để xuất!'); return; }
 
-      // Updated Header to match new data structure
-      const header = 'dateISO,dateLocal,type,paymentType,description,displayAmount,deltaVip,balanceAfter,ref,txnId\n';
+      // Clean header with only essential columns
+      const header = 'Ngày giờ,Loại,Mô tả,Số tiền,Số dư\n';
       const rows = statement.rows.map(row => {
+        // Use dateLocal for readable format
+        const date = row.dateLocal || row.dateISO;
+
+        // Clean description (escape quotes)
         const desc = (row.description || '').replace(/"/g, '""');
-        return `"${row.dateISO}","${row.dateLocal}","${row.typeLabel}","${row.paymentType}","${desc}",${row.displayAmount},${row.deltaVip},${row.balanceAfter},"${row.ref}","${row.txnId}"`;
+
+        // Format amounts with thousand separators
+        const formatAmount = (num) => Number(num || 0).toLocaleString('vi-VN');
+
+        // Use displayAmount (shows actual transaction amount)
+        const amount = formatAmount(row.displayAmount || row.deltaVip || 0);
+        const balance = formatAmount(row.balanceAfter || 0);
+
+        return `"${date}","${row.typeLabel}","${desc}",${amount},${balance}`;
       }).join('\n');
 
       const csv = header + rows;
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+
+      // Add BOM for Excel UTF-8 support
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
