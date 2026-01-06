@@ -6869,17 +6869,26 @@
         // Use dateLocal for readable format
         const date = row.dateLocal || row.dateISO;
 
-        // Clean description (escape quotes)
-        const desc = (row.description || '').replace(/"/g, '""');
+        // Clean description - remove redundant amount info
+        let desc = (row.description || '');
+        // Remove "(VIP -XXđ)" or "(Cash -XXđ)" pattern from description
+        desc = desc.replace(/\s*\((VIP|Cash|TOPUP)\s*[+-]?\d+đ?\)/gi, '');
+        desc = desc.replace(/"/g, '""'); // Escape quotes
+        desc = desc.trim();
 
-        // Format amounts with thousand separators
-        const formatAmount = (num) => Number(num || 0).toLocaleString('vi-VN');
+        // Format amounts with thousand separators and currency
+        const formatAmount = (num) => {
+          const val = Number(num || 0);
+          const formatted = Math.abs(val).toLocaleString('vi-VN');
+          // Format negative numbers with parentheses and minus sign
+          return val < 0 ? `-${formatted}đ` : `${formatted}đ`;
+        };
 
         // Use displayAmount (shows actual transaction amount)
         const amount = formatAmount(row.displayAmount || row.deltaVip || 0);
         const balance = formatAmount(row.balanceAfter || 0);
 
-        return `"${date}","${row.paymentType || row.typeLabel}","${desc}",${amount},${balance}`;
+        return `"${date}","${row.paymentType || row.typeLabel}","${desc}","${amount}","${balance}"`;
       }).join('\n');
 
       const csv = header + rows;
