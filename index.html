@@ -6534,7 +6534,7 @@
       if (statement.rows.length === 0) {
         summaryDiv.style.display = 'none';
         table.style.display = 'none';
-        emptyDiv.innerHTML = `< div style = "text-align: center; padding: 40px; color: #999;" > Không có giao dịch nào cho ${memberName}</div > `;
+        emptyDiv.innerHTML = `<div style="text-align: center; padding: 40px; color: #999;">Không có giao dịch nào cho ${memberName}</div>`;
         emptyDiv.style.display = 'block';
         return;
       }
@@ -6544,7 +6544,7 @@
       // Render Summary
       const s = statement.summary;
       let summaryHTML = `
-        < div style = "font-size: 18px; font-weight: 600; margin-bottom: 16px;" >📊 Tổng kết: ${memberName}</div >
+        <div style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">📊 Tổng kết: ${memberName}</div>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
             <div>
               <div style="opacity: 0.9; font-size: 13px;">Opening</div>
@@ -6607,7 +6607,7 @@
         const rowBg = idx % 2 === 0 ? 'rgba(0,0,0,0.02)' : 'transparent';
 
         return `
-        < tr style = "background: ${rowBg}; border-bottom: 1px solid rgba(0,0,0,0.05);" >
+          <tr style="background: ${rowBg}; border-bottom: 1px solid rgba(0,0,0,0.05);">
             <td style="padding: 10px 8px; font-size: 13px;">${row.dateLocal}</td>
             <td style="padding: 10px 8px;">
               <span style="background: rgba(102, 126, 234, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">
@@ -6621,7 +6621,7 @@
             <td style="padding: 10px 8px; text-align: right; font-weight: 700; font-size: 14px;">
               ${formatMoney(row.balanceAfter)}
             </td>
-          </tr >
+          </tr>
         `;
       }).join('');
 
