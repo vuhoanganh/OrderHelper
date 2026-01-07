@@ -6099,6 +6099,9 @@
       // Close modal
       closeVipTopupModal();
 
+      // Update VIP Report dropdown
+      populateVipReportMembers();
+
       // Show success
       alert(`✅ Đã nạp ${formatMoney(Number(amount))} cho ${name}\nSố dư mới: ${formatMoney(newBalance)}`);
     }
@@ -6198,6 +6201,9 @@
       // Close modal
       closeVipCashOutModal();
 
+      // Update VIP Report dropdown
+      populateVipReportMembers();
+
       // Show success
       if (newBalance === 0) {
         alert(`✅ Đã rút ${formatMoney(amount)} và xóa ${name} khỏi danh sách VIP`);
@@ -6223,7 +6229,7 @@
               throw new Error('Invalid format');
             }
 
-            if (confirm(`Bạn có chắc muốn import ${data.length} đơn hàng?\n\nLưu ý: Dữ liệu hiện tại sẽ BỊ GHI ĐÈ!`)) {
+            if (confirm(`Bạn có chắc muốn import ${data.length} đơn hàng ?\n\nLưu ý: Dữ liệu hiện tại sẽ BỊ GHI ĐÈ!`)) {
               orderHistory = data;
               orderHistory.sort((a, b) => (Date.parse(a?.date) || 0) - (Date.parse(b?.date) || 0));
               localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
@@ -6244,9 +6250,9 @@
               loadHistory();
 
               const statsMsg = reconcileResult.changed
-                ? `\n\nĐồng bộ VIP:\n- Tạo mới: ${reconcileResult.stats.created}\n- Cập nhật: ${reconcileResult.stats.updated}\n- Xóa trùng: ${reconcileResult.stats.deduped}`
+                ? `\n\nĐồng bộ VIP: \n - Tạo mới: ${reconcileResult.stats.created} \n - Cập nhật: ${reconcileResult.stats.updated} \n - Xóa trùng: ${reconcileResult.stats.deduped} `
                 : '';
-              alert(`✅ Import thành công!${statsMsg}`);
+              alert(`✅ Import thành công!${statsMsg} `);
             }
           } catch (err) {
             alert('❌ File không hợp lệ! Vui lòng chọn file JSON đúng định dạng.');
@@ -6299,7 +6305,7 @@
         if (orderId === undefined || orderId === null) return null;
         if (detailIndex === undefined || detailIndex === null) return null;
         if (!name) return null;
-        return `${String(orderId)}|${detailIndex}|${name}`;
+        return `${String(orderId)}| ${detailIndex}| ${name} `;
       };
 
       const vipOrderKeysFromTx = new Set();
@@ -6437,7 +6443,7 @@
         // Description
         let description = '';
         if (tx.type === 'order') {
-          description = `Đơn: ${tx.itemName || tx.note || ''}`;
+          description = `Đơn: ${tx.itemName || tx.note || ''} `;
         } else if (tx.type === 'topup') {
           description = tx.note || 'Nạp';
         } else if (tx.type === 'cashout') {
@@ -6455,7 +6461,7 @@
         if (tx.refId) {
           ref = tx.refId;
         } else if (tx.orderId && tx.detailIndex != null) {
-          ref = `${tx.orderId}-${tx.detailIndex}`;
+          ref = `${tx.orderId} -${tx.detailIndex} `;
         } else if (tx.orderId) {
           ref = String(tx.orderId);
         }
@@ -6526,7 +6532,7 @@
       if (statement.rows.length === 0) {
         summaryDiv.style.display = 'none';
         table.style.display = 'none';
-        emptyDiv.innerHTML = `<div style="text-align: center; padding: 40px; color: #999;">Không có giao dịch nào cho ${memberName}</div>`;
+        emptyDiv.innerHTML = `< div style = "text-align: center; padding: 40px; color: #999;" > Không có giao dịch nào cho ${memberName}</div > `;
         emptyDiv.style.display = 'block';
         return;
       }
@@ -6536,25 +6542,25 @@
       // Render Summary
       const s = statement.summary;
       let summaryHTML = `
-        <div style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">📊 Tổng kết: ${memberName}</div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
-          <div>
-            <div style="opacity: 0.9; font-size: 13px;">Opening</div>
-            <div style="font-size: 20px; font-weight: 700;">${formatMoney(s.opening)}</div>
-          </div>
-          <div>
-            <div style="opacity: 0.9; font-size: 13px;">Tổng nạp</div>
-            <div style="font-size: 20px; font-weight: 700; color: #4ade80;">+${formatMoney(s.totalTopup)}</div>
-          </div>
-          <div>
-            <div style="opacity: 0.9; font-size: 13px;">Tổng chi</div>
-            <div style="font-size: 20px; font-weight: 700; color: #f87171;">-${formatMoney(s.totalOrder)}</div>
-          </div>
-          <div>
-            <div style="opacity: 0.9; font-size: 13px;">Tổng rút</div>
-            <div style="font-size: 20px; font-weight: 700; color: #fbbf24;">-${formatMoney(s.totalCashout)}</div>
-          </div>
-      `;
+        < div style = "font-size: 18px; font-weight: 600; margin-bottom: 16px;" >📊 Tổng kết: ${memberName}</div >
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+            <div>
+              <div style="opacity: 0.9; font-size: 13px;">Opening</div>
+              <div style="font-size: 20px; font-weight: 700;">${formatMoney(s.opening)}</div>
+            </div>
+            <div>
+              <div style="opacity: 0.9; font-size: 13px;">Tổng nạp</div>
+              <div style="font-size: 20px; font-weight: 700; color: #4ade80;">+${formatMoney(s.totalTopup)}</div>
+            </div>
+            <div>
+              <div style="opacity: 0.9; font-size: 13px;">Tổng chi</div>
+              <div style="font-size: 20px; font-weight: 700; color: #f87171;">-${formatMoney(s.totalOrder)}</div>
+            </div>
+            <div>
+              <div style="opacity: 0.9; font-size: 13px;">Tổng rút</div>
+              <div style="font-size: 20px; font-weight: 700; color: #fbbf24;">-${formatMoney(s.totalCashout)}</div>
+            </div>
+            `;
 
       if (s.totalAdjustment !== 0) {
         summaryHTML += `
@@ -6566,11 +6572,11 @@
       }
 
       summaryHTML += `
-          <div>
-            <div style="opacity: 0.9; font-size: 13px;">Ending Balance</div>
-            <div style="font-size: 24px; font-weight: 700;">${formatMoney(s.ending)}</div>
+            <div>
+              <div style="opacity: 0.9; font-size: 13px;">Ending Balance</div>
+              <div style="font-size: 24px; font-weight: 700;">${formatMoney(s.ending)}</div>
+            </div>
           </div>
-        </div>
       `;
 
       summaryDiv.innerHTML = summaryHTML;
@@ -6599,7 +6605,7 @@
         const rowBg = idx % 2 === 0 ? 'rgba(0,0,0,0.02)' : 'transparent';
 
         return `
-          <tr style="background: ${rowBg}; border-bottom: 1px solid rgba(0,0,0,0.05);">
+        < tr style = "background: ${rowBg}; border-bottom: 1px solid rgba(0,0,0,0.05);" >
             <td style="padding: 10px 8px; font-size: 13px;">${row.dateLocal}</td>
             <td style="padding: 10px 8px;">
               <span style="background: rgba(102, 126, 234, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">
@@ -6613,7 +6619,7 @@
             <td style="padding: 10px 8px; text-align: right; font-weight: 700; font-size: 14px;">
               ${formatMoney(row.balanceAfter)}
             </td>
-          </tr>
+          </tr >
         `;
       }).join('');
 
@@ -6656,7 +6662,8 @@
       const sorted = Array.from(members).sort();
 
       select.innerHTML = '<option value="">-- Chọn người --</option>' +
-        sorted.map(name => `<option value="${name.replace(/"/g, '&quot;')}">${name}</option>`).join('');
+        sorted.map(name => `< option value = "${name.replace(/" / g, '&quot;')
+          } ">${name}</option>`).join('');
     }
 
     // ========== VIP REPORT FUNCTIONS ==========
