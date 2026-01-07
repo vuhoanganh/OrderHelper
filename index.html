@@ -1052,7 +1052,9 @@
       const allNames = new Set();
 
       // Names from current VIP list
-      vipMapCurrent.keys().forEach(name => allNames.add(name));
+      for (const name of vipMapCurrent.keys()) {
+        allNames.add(name);
+      }
 
       // Names from vipTransactions
       (vipTransactions || []).forEach(tx => {
