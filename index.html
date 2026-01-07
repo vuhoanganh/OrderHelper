@@ -152,8 +152,20 @@
           <div class="section-title">Quản lý VIP</div>
 
           <div class="form-group">
-            <label class="form-label">Danh sách VIP (name=balance)</label>
-            <textarea id="vipArea" class="form-textarea" rows="6">a Duck=145</textarea>
+            <label class="form-label">Danh sách VIP (name=balance) - Click để xem báo cáo</label>
+            <div id="vipListContainer" style="
+              background: rgba(30, 41, 59, 0.6);
+              border: 1px solid rgba(99, 102, 241, 0.3);
+              border-radius: 8px;
+              padding: 12px;
+              max-height: 200px;
+              overflow-y: auto;
+              font-family: 'Courier New', monospace;
+              font-size: 14px;
+            ">
+              <!-- VIP list will be rendered here -->
+            </div>
+            <textarea id="vipArea" style="display: none;">a Duck=145</textarea>
           </div>
 
           <div class="btn-group">
@@ -1081,7 +1093,82 @@
       if (vipArea) vipArea.value = vipText;
       persistVipList(vipText);
 
+      // Render clickable VIP list
+      renderClickableVipList(newBalances);
+
       console.log(`[${BUILD_TAG}] recomputeVipBalances - Updated ${newBalances.size} VIP members`);
+    }
+
+    /**
+     * Render clickable VIP list with links to VIP Report
+     */
+    function renderClickableVipList(vipBalances) {
+      const container = document.getElementById('vipListContainer');
+      if (!container) return;
+
+      if (vipBalances.size === 0) {
+        container.innerHTML = '<div style="color: #94a3b8; font-style: italic;">Chưa có VIP member nào</div>';
+        return;
+      }
+
+      // Sort by name
+      const sorted = Array.from(vipBalances.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+
+      const html = sorted.map(([name, balance]) => {
+        const balanceColor = balance >= 0 ? '#34d399' : '#f87171';
+        const balanceText = balance >= 0 ? `${balance}đ` : `${balance}đ`;
+
+        return `
+          <div style="
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+          onmouseover="this.style.background='rgba(99, 102, 241, 0.2)'"
+          onmouseout="this.style.background='transparent'"
+          onclick="selectVipMemberForReport('${name.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')"
+          >
+            <span style="color: #cbd5e1;">${name}</span>
+            <span style="color: ${balanceColor}; font-weight: 600;">${balanceText}</span>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = html;
+    }
+
+    /**
+     * Select VIP member in report and switch to report tab
+     */
+    function selectVipMemberForReport(memberName) {
+      // Switch to VIP Report tab
+      switchTab('vipReportTab');
+
+      // Select member in dropdown
+      const select = document.getElementById('vipReportMember');
+      if (select) {
+        select.value = memberName;
+        // Trigger change event to render report
+        select.dispatchEvent(new Event('change'));
+      }
+    }
+
+    /**
+     * Update VIP display - helper function
+     */
+    function updateVipDisplay(vipText) {
+      const vipArea = document.getElementById('vipArea');
+      if (vipArea) vipArea.value = vipText;
+      persistVipList(vipText);
+
+      // Re-render clickable list
+      const vipMap = parseVip(vipText);
+      renderClickableVipList(vipMap);
     }
 
     // Update dish name suggestions from order history
@@ -1150,10 +1237,7 @@
       if (!latest) return;
 
       const vipText = latest.vipSnapshot.map(([n, b]) => `${n}=${b}đ`).join('\n');
-
-      const vipArea = document.getElementById('vipArea');
-      if (vipArea) vipArea.value = vipText;
-      persistVipList(vipText);
+      updateVipDisplay(vipText);
     }
 
     function hydrateVipAreaFromData(options = {}) {
