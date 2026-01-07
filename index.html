@@ -6664,8 +6664,7 @@
       const sorted = Array.from(members).sort();
 
       select.innerHTML = '<option value="">-- Chọn người --</option>' +
-        sorted.map(name => `< option value = "${name.replace(/" / g, '&quot;')
-          } ">${name}</option>`).join('');
+        sorted.map(name => `<option value="${name.replace(/"/g, '&quot;')}">${name}</option>`).join('');
     }
 
     // ========== VIP REPORT FUNCTIONS ==========
