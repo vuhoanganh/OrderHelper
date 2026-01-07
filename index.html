@@ -5950,6 +5950,7 @@
       populateVipMemberSelect();
       populateVIPFilterDropdown(); // Populate filter dropdown
       populateVipReportMembers(); // Populate VIP Report dropdown
+      recomputeVipBalances(); // Recompute and render VIP list
       // Enable dish name suggestions dropdown
       const itemNameInput = document.getElementById('itemName');
       if (itemNameInput) {
