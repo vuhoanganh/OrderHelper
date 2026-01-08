@@ -9,6 +9,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- PDF Export Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+    integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
   <!-- CSS Files -->
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
@@ -516,6 +522,10 @@
             </button>
             <button class="btn btn-primary" onclick="exportVipReportHTML()">
               🎨 Xuất HTML
+            </button>
+            <button class="btn btn-primary" onclick="exportVipReportPDF()"
+              style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+              📄 Xuất PDF
             </button>
             <button id="btnReconcile" class="btn btn-secondary" onclick="toggleReconcile()"
               style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5);">
@@ -7220,6 +7230,248 @@
       link.click();
       URL.revokeObjectURL(url);
       alert(`✅ Đã xuất HTML: ${statement.rows.length} giao dịch`);
+    }
+
+    function exportVipReportPDF() {
+      const memberName = document.getElementById('vipReportMember').value;
+      if (!memberName) { alert('Vui lòng chọn VIP member trước!'); return; }
+
+      const fromDate = document.getElementById('vipReportFromDate').value;
+      const toDate = document.getElementById('vipReportToDate').value;
+
+      const statement = buildVipStatementFromDB(memberName, {
+        from: fromDate,
+        to: toDate,
+        includeCashOrders: true
+      });
+
+      if (statement.rows.length === 0) { alert('Không có dữ liệu để xuất!'); return; }
+
+      // Store button reference for async callback
+      const button = event.target;
+      const originalText = button.textContent;
+      button.textContent = '⏳ Đang tạo PDF...';
+      button.disabled = true;
+
+      // Calculate summary
+      const opening = statement.rows[0]?.balanceAfter - (statement.rows[0]?.displayAmount || 0) || 0;
+      let totalTopup = 0, totalSpent = 0, totalCashout = 0;
+
+      statement.rows.forEach(row => {
+        const amt = row.displayAmount || 0;
+        if (row.paymentType === 'TOPUP') totalTopup += amt;
+        else if (row.paymentType === 'VIP' && amt < 0) totalSpent += Math.abs(amt);
+        else if (row.typeLabel === 'Rút') totalCashout += Math.abs(amt);
+      });
+
+
+      const ending = statement.rows[statement.rows.length - 1]?.balanceAfter || 0;
+
+      // Calculate order spending analytics for prediction
+      const orderTransactions = statement.rows.filter(row =>
+        row.paymentType === 'VIP' && row.displayAmount < 0
+      );
+
+      const orderCount = orderTransactions.length;
+      const avgSpendingPerOrder = orderCount > 0 ? Math.abs(totalSpent / orderCount) : 0;
+      const predictedOrders = avgSpendingPerOrder > 0 ? Math.floor(ending / avgSpendingPerOrder) : 0;
+      const maxOrders = 20; // Max orders to show in chart
+      const chartWidth = Math.min(predictedOrders, maxOrders);
+      const isExceeded = predictedOrders > maxOrders;
+
+      // Build HTML content for PDF - inline all styles
+      const htmlContent = `
+  <div style="font-family: Arial, sans-serif; padding: 20px; background: #ffffff; color: #1e293b; width: 1000px;">
+    <!-- Header Card -->
+    <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 16px; padding: 24px; margin-bottom: 24px; color: white; page-break-inside: avoid;">
+      <h1 style="font-size: 24px; font-weight: 700; margin: 0 0 20px 0;">📊 Tổng kết: ${memberName}</h1>
+      
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 5px;">
+            <div style="font-size: 13px; margin-bottom: 4px;">Opening</div>
+            <div style="font-size: 20px; font-weight: 700;">${opening.toLocaleString('vi-VN')}đ</div>
+          </td>
+          <td style="padding: 5px;">
+            <div style="font-size: 13px; margin-bottom: 4px;">Tổng nạp</div>
+            <div style="font-size: 20px; font-weight: 700; color: #34d399;">+${totalTopup.toLocaleString('vi-VN')}đ</div>
+          </td>
+          <td style="padding: 5px;">
+            <div style="font-size: 13px; margin-bottom: 4px;">Tổng chi</div>
+            <div style="font-size: 20px; font-weight: 700; color: #f87171;">-${totalSpent.toLocaleString('vi-VN')}đ</div>
+          </td>
+          <td style="padding: 5px;">
+            <div style="font-size: 13px; margin-bottom: 4px;">Tổng rút</div>
+            <div style="font-size: 20px; font-weight: 700; color: #fbbf24;">-${totalCashout.toLocaleString('vi-VN')}đ</div>
+          </td>
+          <td style="padding: 5px;">
+            <div style="font-size: 13px; margin-bottom: 4px;">Ending Balance</div>
+            <div style="font-size: 20px; font-weight: 700;">${ending.toLocaleString('vi-VN')}đ</div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    
+    <!-- Transaction Table -->
+    <table style="width: 100%; border-collapse: collapse; background: white; border: 2px solid #e2e8f0;">
+      <thead style="background: #334155; color: white;">
+        <tr>
+          <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 12px; border: 1px solid #475569;">Ngày giờ 📅</th>
+          <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 12px; border: 1px solid #475569;">Loại</th>
+          <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 12px; border: 1px solid #475569;">Nội dung</th>
+          <th style="padding: 12px; text-align: right; font-weight: 600; font-size: 12px; border: 1px solid #475569;">+/-</th>
+          <th style="padding: 12px; text-align: right; font-weight: 600; font-size: 12px; border: 1px solid #475569;">Số dư</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${statement.rows.map((row, index) => {
+        const date = row.dateLocal || row.dateISO;
+        const type = row.paymentType || row.typeLabel;
+
+        let desc = row.description || '';
+        desc = desc.replace(/\\s*\\((VIP|Cash|TOPUP)\\s*[+-]?\\d+đ?\\)/gi, '').trim();
+
+        const amt = row.displayAmount || 0;
+        const amtColor = amt >= 0 ? '#34d399' : '#f87171';
+        const amtText = amt >= 0 ? `+${amt.toLocaleString('vi-VN')}đ` : `${amt.toLocaleString('vi-VN')}đ`;
+
+        const balance = (row.balanceAfter || 0).toLocaleString('vi-VN') + 'đ';
+        const bgColor = index % 2 === 0 ? '#ffffff' : '#f8fafc';
+
+        // Type badge styling
+        let typeBg = 'rgba(139, 92, 246, 0.1)';
+        let typeColor = '#8b5cf6';
+        if (type === 'Cash') {
+          typeBg = 'rgba(34, 197, 94, 0.1)';
+          typeColor = '#22c55e';
+        } else if (type === 'TOPUP') {
+          typeBg = 'rgba(59, 130, 246, 0.1)';
+          typeColor = '#3b82f6';
+        }
+
+        return `
+          <tr style="background: ${bgColor};">
+            <td style="padding: 10px; font-size: 13px; color: #64748b; border: 1px solid #e2e8f0;">${date}</td>
+            <td style="padding: 10px; font-size: 13px; border: 1px solid #e2e8f0;"><span style="background: ${typeBg}; color: ${typeColor}; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-block;">${type}</span></td>
+            <td style="padding: 10px; font-size: 13px; border: 1px solid #e2e8f0;">${desc}</td>
+            <td style="padding: 10px; text-align: right; font-size: 13px; font-weight: 600; color: ${amtColor}; border: 1px solid #e2e8f0;">${amtText}</td>
+            <td style="padding: 10px; text-align: right; font-size: 13px; border: 1px solid #e2e8f0;">${balance}</td>
+          </tr>`;
+      }).join('')}
+      </tbody>
+    </table>
+    
+    <!-- Prediction Chart -->
+    <div style="margin-top: 30px; padding: 24px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%); border-radius: 16px; border: 2px solid rgba(99, 102, 241, 0.2); page-break-inside: avoid; page-break-before: auto;">
+      <h2 style="font-size: 18px; font-weight: 700; margin: 0 0 16px 0; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+        📈 Dự đoán khả năng chi tiêu
+      </h2>
+      
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <tr>
+          <td style="width: 33%; padding: 12px; background: rgba(255, 255, 255, 0.8); border-radius: 8px; margin-right: 8px;">
+            <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Tổng số đơn đã đặt</div>
+            <div style="font-size: 24px; font-weight: 700; color: #6366f1;">${orderCount} đơn</div>
+          </td>
+          <td style="width: 10px;"></td>
+          <td style="width: 33%; padding: 12px; background: rgba(255, 255, 255, 0.8); border-radius: 8px; margin-right: 8px;">
+            <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Chi tiêu TB/đơn</div>
+            <div style="font-size: 24px; font-weight: 700; color: #8b5cf6;">${avgSpendingPerOrder.toLocaleString('vi-VN', { maximumFractionDigits: 0 })}đ</div>
+          </td>
+          <td style="width: 10px;"></td>
+          <td style="width: 33%; padding: 12px; background: rgba(255, 255, 255, 0.8); border-radius: 8px;">
+            <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">Số đơn còn có thể đặt</div>
+            <div style="font-size: 24px; font-weight: 700; color: ${predictedOrders > 5 ? '#22c55e' : predictedOrders > 2 ? '#f59e0b' : '#ef4444'};">
+              ${predictedOrders} đơn${isExceeded ? '+' : ''}
+            </div>
+          </td>
+        </tr>
+      </table>
+      
+      <div style="margin-top: 16px;">
+        <div style="font-size: 13px; color: #64748b; margin-bottom: 8px; font-weight: 600;">Visualization:</div>
+        <div style="background: #e2e8f0; height: 40px; border-radius: 8px; overflow: hidden; position: relative;">
+          <div style="background: linear-gradient(90deg, #34d399 0%, #10b981 100%); height: 100%; width: ${(chartWidth / maxOrders * 100)}%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; transition: width 0.3s ease;">
+            ${predictedOrders > 0 ? predictedOrders + ' đơn' : ''}
+          </div>
+          ${isExceeded ? `<div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 12px; font-weight: 600;">20+ đơn</div>` : ''}
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 11px; color: #94a3b8;">
+          <span>0 đơn</span>
+          <span>${maxOrders}${isExceeded ? '+' : ''} đơn</span>
+        </div>
+      </div>
+      
+      <div style="margin-top: 16px; padding: 12px; background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; border-radius: 4px;">
+        <div style="font-size: 12px; color: #1e293b; line-height: 1.6;">
+          <strong>💡 Phân tích:</strong> 
+          ${predictedOrders > 5
+          ? `Với số dư hiện tại <strong>${ending.toLocaleString('vi-VN')}đ</strong>, bạn có thể đặt thêm khoảng <strong>${predictedOrders} đơn</strong> nữa (dựa trên chi tiêu trung bình ${avgSpendingPerOrder.toLocaleString('vi-VN', { maximumFractionDigits: 0 })}đ/đơn).`
+          : predictedOrders > 0
+            ? `⚠️ Số dư còn <strong>${ending.toLocaleString('vi-VN')}đ</strong>, chỉ đủ cho khoảng <strong>${predictedOrders} đơn</strong> nữa. Nên nạp thêm tiền!`
+            : `🚨 Số dư hiện tại <strong>${ending.toLocaleString('vi-VN')}đ</strong> không đủ để đặt đơn mới. Cần nạp thêm tiền!`
+        }
+        </div>
+      </div>
+    </div>
+    
+    <div style="margin-top: 20px; text-align: center; font-size: 11px; color: #94a3b8;">
+      Xuất lúc: ${new Date().toLocaleString('vi-VN')} | Order Helper Pro - Advanced Edition
+    </div>
+  </div>`;
+
+      // Create a temporary wrapper with proper visibility
+      const wrapper = document.createElement('div');
+      wrapper.style.position = 'fixed';
+      wrapper.style.top = '0';
+      wrapper.style.left = '0';
+      wrapper.style.width = '100%';
+      wrapper.style.height = '100%';
+      wrapper.style.overflow = 'hidden';
+      wrapper.style.zIndex = '-9999';
+      wrapper.style.opacity = '0';
+      wrapper.style.pointerEvents = 'none';
+
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = htmlContent;
+      wrapper.appendChild(tempDiv);
+      document.body.appendChild(wrapper);
+
+      // Wait for DOM to render, then generate PDF
+      setTimeout(() => {
+        const opt = {
+          margin: [8, 8, 8, 8],
+          filename: `vip-report-${memberName.replace(/\\s+/g, '_')}-${new Date().toISOString().split('T')[0]}.pdf`,
+          image: { type: 'jpeg', quality: 0.95 },
+          html2canvas: {
+            scale: 1.5,
+            useCORS: true,
+            letterRendering: true,
+            logging: false,
+            backgroundColor: '#ffffff'
+          },
+          jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'landscape',
+            compress: true
+          },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        html2pdf().set(opt).from(tempDiv).save().then(() => {
+          document.body.removeChild(wrapper);
+          button.textContent = originalText;
+          button.disabled = false;
+          alert(`✅ Đã xuất PDF: ${statement.rows.length} giao dịch`);
+        }).catch(err => {
+          console.error('PDF export error:', err);
+          document.body.removeChild(wrapper);
+          button.textContent = originalText;
+          button.disabled = false;
+          alert('❌ Lỗi khi xuất PDF: ' + err.message);
+        });
+      }, 500); // Wait 500ms for DOM to fully render
     }
 
     function populateVipReportMembers() {
