@@ -937,7 +937,32 @@
 
       find(name) {
         const normalized = this.normalize(name);
-        return this.nameMap.get(normalized);
+
+        // Try exact match first (fastest)
+        const exactMatch = this.nameMap.get(normalized);
+        if (exactMatch) return exactMatch;
+
+        // Try partial match: check if input matches any word in stored names
+        // Example: "zen" should match "Zen Fox" (zenfox)
+        for (let [storedNormalized, value] of this.nameMap) {
+          // Split stored name into words (by common separators)
+          const words = value.original
+            .toLowerCase()
+            .split(/[\s\-_]+/)
+            .map(w => this.normalize(w));
+
+          // Check if input matches any word
+          if (words.some(word => word === normalized || word.startsWith(normalized))) {
+            return value;
+          }
+
+          // Also check if stored name starts with input
+          if (storedNormalized.startsWith(normalized)) {
+            return value;
+          }
+        }
+
+        return null;
       }
 
       getOriginalName(name) {
@@ -3048,6 +3073,19 @@
     function downloadBackup() {
       try {
         addBackupLog('📥 Starting local backup download...');
+
+        // Collect all draft orders
+        const allKeys = Object.keys(localStorage);
+        const draftKeys = allKeys.filter(k => k.startsWith('draft-'));
+        const drafts = {};
+        draftKeys.forEach(key => {
+          try {
+            drafts[key] = JSON.parse(localStorage.getItem(key));
+          } catch (err) {
+            console.warn(`Failed to parse draft ${key}:`, err);
+          }
+        });
+
         // Collect all data from localStorage
         const backup = {
           version: "1.0",
@@ -3056,17 +3094,20 @@
           data: {
             orderHistory: JSON.parse(localStorage.getItem('orderHistory') || '[]'),
             vipTransactions: JSON.parse(localStorage.getItem('vipTransactions') || '[]'),
-            vipList: localStorage.getItem('vipList') || ''
+            vipList: localStorage.getItem('vipList') || '',
+            drafts: drafts  // Added drafts
           },
           metadata: {
             orderCount: JSON.parse(localStorage.getItem('orderHistory') || '[]').length,
             transactionCount: JSON.parse(localStorage.getItem('vipTransactions') || '[]').length,
+            draftCount: Object.keys(drafts).length,  // Added draft count
             exportedBy: 'Order Helper Pro',
             exportDate: new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
           }
         };
 
-        addBackupLog(`📊 Data: ${backup.metadata.orderCount} orders, ${backup.metadata.transactionCount} transactions`);
+        addBackupLog(`📊 Data: ${backup.metadata.orderCount} orders, ${backup.metadata.transactionCount} transactions, ${backup.metadata.draftCount} drafts`);
+
 
         // Check first item encoding
         if (backup.data.orderHistory.length > 0) {
@@ -3090,28 +3131,8 @@
         URL.revokeObjectURL(url);
 
         addBackupLog(`✅ Downloaded: backup-${datePart}-${timePart}.json`);
+        alert('✅ Đã tải xuống file backup (bao gồm cả drafts)!');
 
-        // Also download draft file if exists
-        const draft = localStorage.getItem(DRAFT_STORAGE_KEY);
-        if (draft) {
-          // Use confirm() to ensure user interaction (required for Chromium browsers like Cốc Cốc)
-          setTimeout(() => {
-            if (confirm('✅ File backup đã tải xong!\n\n📝 Bấm OK để tải file draft.json')) {
-              const draftBlob = new Blob([draft], { type: 'application/json' });
-              const draftUrl = URL.createObjectURL(draftBlob);
-              const draftLink = document.createElement('a');
-              draftLink.href = draftUrl;
-              draftLink.download = 'draft.json';
-              document.body.appendChild(draftLink);
-              draftLink.click();
-              document.body.removeChild(draftLink);
-              URL.revokeObjectURL(draftUrl);
-              addBackupLog('✅ Downloaded: draft.json');
-            }
-          }, 300);
-        } else {
-          alert('✅ Đã tải xuống file backup!');
-        }
 
       } catch (err) {
         alert('❌ Lỗi khi tạo backup: ' + err.message);
@@ -3190,6 +3211,25 @@
           localStorage.setItem('vipTransactions', JSON.stringify(cleanedVipTx));
           localStorage.setItem('vipList', backup.data.vipList);
 
+          // Restore drafts if present
+          if (backup.data?.drafts) {
+            // Clear existing drafts first
+            const existingDraftKeys = Object.keys(localStorage).filter(k => k.startsWith('draft-'));
+            existingDraftKeys.forEach(key => localStorage.removeItem(key));
+
+            // Restore all drafts
+            let restoredCount = 0;
+            Object.entries(backup.data.drafts).forEach(([key, value]) => {
+              try {
+                localStorage.setItem(key, JSON.stringify(value));
+                restoredCount++;
+              } catch (err) {
+                console.warn(`Failed to restore draft ${key}:`, err);
+              }
+            });
+            addBackupLog(`✅ Restored ${restoredCount} drafts`);
+          }
+
           addBackupLog(`✅ Restored: ${backup.data.orderHistory.length} orders, ${backup.data.vipTransactions.length} transactions`);
 
           // Verify localStorage encoding
@@ -3237,6 +3277,18 @@
         const seconds = String(now.getSeconds()).padStart(2, '0');
         const versionedFilename = `backup-${day}-${month}-${year}-${hours}${minutes}${seconds}.json`;
 
+        // Collect all draft orders
+        const allKeys = Object.keys(localStorage);
+        const draftKeys = allKeys.filter(k => k.startsWith('draft-'));
+        const drafts = {};
+        draftKeys.forEach(key => {
+          try {
+            drafts[key] = JSON.parse(localStorage.getItem(key));
+          } catch (err) {
+            console.warn(`Failed to parse draft ${key}:`, err);
+          }
+        });
+
         // Prepare combined backup data
         const backupData = {
           version: '1.0',
@@ -3245,11 +3297,13 @@
           data: {
             orderHistory: orderHistory,
             vipList: localStorage.getItem('vipList') || '',
-            vipTransactions: vipTransactions
+            vipTransactions: vipTransactions,
+            drafts: drafts  // Added drafts to backup
           },
           metadata: {
             orderCount: orderHistory.length,
             transactionCount: vipTransactions.length,
+            draftCount: Object.keys(drafts).length,  // Added draft count
             exportedBy: 'Order Helper Pro',
             exportDate: `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`
           }
@@ -3355,6 +3409,25 @@
           vipTransactions = backupData.data.vipTransactions;
           localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
           addBackupLog(`✅ Đã restore ${vipTransactions.length} VIP transactions`);
+        }
+
+        // Restore drafts
+        if (backupData.data?.drafts) {
+          // Clear existing drafts first
+          const existingDraftKeys = Object.keys(localStorage).filter(k => k.startsWith('draft-'));
+          existingDraftKeys.forEach(key => localStorage.removeItem(key));
+
+          // Restore all drafts
+          let restoredCount = 0;
+          Object.entries(backupData.data.drafts).forEach(([key, value]) => {
+            try {
+              localStorage.setItem(key, JSON.stringify(value));
+              restoredCount++;
+            } catch (err) {
+              console.warn(`Failed to restore draft ${key}:`, err);
+            }
+          });
+          addBackupLog(`✅ Đã restore ${restoredCount} drafts`);
         }
 
         // Refresh UI (rollback: no auto normalize/recompute)
