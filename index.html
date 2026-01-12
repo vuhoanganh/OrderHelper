@@ -111,7 +111,7 @@
           <div class="checkbox-wrapper">
             <input id="alvinFree" type="checkbox" checked>
             <label class="checkbox-label">
-              <strong>Lão nhân gia ăn 1 phần</strong><br>
+              <strong>Bao gồm phần Host</strong><br>
 
             </label>
           </div>
@@ -134,7 +134,7 @@
               <input id="shipFee" class="form-input" type="number" min="0" step="1" value="0">
             </div>
             <div class="form-group">
-              <label class="form-label">Lợi nhuận mục tiêu</label>
+              <label class="form-label">Tích lũy mục tiêu</label>
               <input id="targetProfit" class="form-input" type="number" min="0" step="1" value="6">
             </div>
           </div>
@@ -432,9 +432,6 @@
           <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
             <button onclick="clearVipHistoryFilters()" class="btn-secondary"
               style="padding: 8px 16px; font-size: 13px;">🔄 Đặt lại</button>
-            <button onclick="exportVipHistoryToCSV()" class="btn-primary"
-              style="padding: 8px 16px; font-size: 13px; background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));">📥
-              Xuất CSV</button>
             <div style="flex: 1;"></div>
             <span id="filterResultCount" style="font-size: 13px; color: var(--text-muted); line-height: 32px;"></span>
           </div>
@@ -517,12 +514,6 @@
           </div>
 
           <div style="flex: 0 0 auto; display: flex; align-items: flex-end; gap: 8px;">
-            <button class="btn btn-success" onclick="exportVipReportCSV()">
-              📤 Xuất CSV
-            </button>
-            <button class="btn btn-primary" onclick="exportVipReportHTML()">
-              🎨 Xuất HTML
-            </button>
             <button class="btn btn-primary" onclick="exportVipReportPDF()"
               style="background: linear-gradient(135deg, #ef4444, #dc2626);">
               📄 Xuất PDF
@@ -562,7 +553,9 @@
                   Ngày giờ <span id="sortIcon">🔽</span>
                 </th>
                 <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Loại</th>
-                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Nội dung</th>
+                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Món</th>
+                <th style="padding: 12px 8px; text-align: right; font-weight: 600;">Đơn giá</th>
+                <th style="padding: 12px 8px; text-align: right; font-weight: 600;">Số phần</th>
                 <th style="padding: 12px 8px; text-align: right; font-weight: 600;">+/-</th>
                 <th style="padding: 12px 8px; text-align: right; font-weight: 600;">Số dư</th>
               </tr>
@@ -1514,7 +1507,7 @@
       });
     }
 
-    function recordVipTransaction({ name, amount, type, itemName, orderId, detailIndex, isVipPayment, paymentMethod, ts }) {
+    function recordVipTransaction({ name, amount, type, itemName, orderId, detailIndex, isVipPayment, paymentMethod, ts, qty, unitPrice }) {
       console.log(`[${BUILD_TAG}] recordVipTransaction`);
       if (!name || !Number.isFinite(amount)) return;
 
@@ -1538,6 +1531,8 @@
         entry.isVipPayment = true;
         entry.paid = true;
         entry.paymentMethod = 'vip';
+        if (qty !== undefined) entry.qty = qty;
+        if (unitPrice !== undefined) entry.unitPrice = unitPrice;
       } else {
         if (paymentMethod !== undefined) entry.paymentMethod = paymentMethod;
         if (isVipPayment !== undefined) entry.isVipPayment = isVipPayment;
@@ -4538,7 +4533,7 @@
       // Validation: Check minimum parts
       const minParts = alvinFree ? 2 : 1;
       if (n < minParts) {
-        alert(`⚠️ Lỗi: Khi bật "Lão nhân gia free", tổng phần phải ≥ 2.\n\nHiện tại: ${n} phần\nYêu cầu tối thiểu: ${minParts} phần\n\n💡 Gợi ý: Tăng số phần lên hoặc tắt "Lão nhân gia free".`);
+        alert(`⚠️ Lỗi: Khi bật "Phần Host", tổng phần phải ≥ 2.\n\nHiện tại: ${n} phần\nYêu cầu tối thiểu: ${minParts} phần\n\n💡 Gợi ý: Tăng số phần lên hoặc tắt "Phần Host".`);
         return;
       }
 
@@ -4571,9 +4566,8 @@
         <div class="price-card-desc">Thu = Chi</div>
       </div>
       <div class="price-card active" onclick="selectPrice(${priceProfit}, event)">
-        <div class="price-card-label">Lời ${targetProfit}đ</div>
-        <div class="price-card-value">${priceProfit}đ</div>
-        <div class="price-card-desc">Lời tối thiểu ${targetProfit}đ</div>
+        <div class="price-card-label">Dư ${targetProfit}đ</div>
+        <div class="price-card-desc">Tích lũy tối thiểu ${targetProfit}đ</div>
       </div>
     </div>
   `;
@@ -4630,7 +4624,7 @@
       // Validation: Check minimum parts
       const minParts = alvinFree ? 2 : 1;
       if (n < minParts) {
-        alert(`⚠️ Lỗi: Khi bật "Lão nhân gia free", tổng phần phải ≥ 2.\n\nHiện tại: ${n} phần\nYêu cầu tối thiểu: ${minParts} phần\n\n💡 Gợi ý: Tăng số phần lên hoặc tắt "Lão nhân gia free".`);
+        alert(`⚠️ Lỗi: Khi bật "Phần Host", tổng phần phải ≥ 2.\n\nHiện tại: ${n} phần\nYêu cầu tối thiểu: ${minParts} phần\n\n💡 Gợi ý: Tăng số phần lên hoặc tắt "Phần Host".`);
         return null;
       }
 
@@ -4854,7 +4848,9 @@
             orderId: order.id,
             detailIndex,
             isVipPayment: true,
-            paymentMethod: 'vip'
+            paymentMethod: 'vip',
+            qty: detail.qty,
+            unitPrice: detail.unitPrice
           });
         });
 
@@ -4886,7 +4882,7 @@
       <div class="summary-item">
         <h3>Tổng phần (n)</h3>
         <div class="summary-value">${n} phần</div>
-        <div class="summary-detail">${alvinFree ? `Thu ${denom} phần (Lão nhân gia free)` : `Thu ${n} phần`}</div>
+        <div class="summary-detail">${alvinFree ? `Thu ${denom} phần (Phần Host)` : `Thu ${n} phần`}</div>
       </div>
       <div class="summary-item">
         <h3>Tổng chi (T)</h3>
@@ -4901,7 +4897,7 @@
       <div class="summary-item">
         <h3>Kết quả</h3>
         <div class="summary-value ${profit >= 0 ? 'profit-positive' : 'profit-negative'}">
-          ${profit >= 0 ? 'Lời' : 'Lỗ'} ${formatMoney(Math.abs(profit))}
+          ${profit >= 0 ? 'Dư' : 'Hụt'} ${formatMoney(Math.abs(profit))}
         </div>
         <div class="summary-detail">Hoà vốn: ${ceilInt(T / denom)}đ/phần</div>
       </div>
@@ -5093,7 +5089,72 @@
       copyMsg('finalMsg', event);
     }
 
+    function getFinalMsgFromOrder(order) {
+      if (!order) return '';
+
+      const priceLine = order.splitShipMode
+        ? `${formatMoney(order.sellingPriceNonShip || order.sellingPrice)} ko ship | ${formatMoney(order.sellingPriceShip || order.sellingPrice)} có ship (ship ${order.shipCount || 0} phần, phí ${formatMoney(order.shipFee || 0)})`
+        : `${formatMoney(order.sellingPrice)}/phần`;
+
+      let vipLine = '—';
+      if (order.vipSnapshot && order.vipSnapshot.length > 0) {
+        vipLine = order.vipSnapshot.map(([name, bal]) => `${name} (${formatMoney(bal)})`).join(', ');
+      }
+
+      const unpaidMembers = (order.details || []).filter(d => d.paid === false);
+      const memLine = unpaidMembers.length > 0
+        ? unpaidMembers.map(m => `${m.name}${m.qty > 1 ? ` (${m.qty} phần)` : ''} (-${formatMoney(m.due)})`).join(', ')
+        : '—';
+
+      return `🍽 ${order.itemName}: ${priceLine}\n👑 VIP: ${vipLine}\n👥 Member (chưa trả): ${memLine}`;
+    }
+
+    function showOrderSummaryMsg(orderId, event) {
+      if (event) event.stopPropagation();
+      const order = orderHistory.find(o => o.id === orderId);
+      if (!order) return;
+
+      const msg = getFinalMsgFromOrder(order);
+
+      const modal = document.getElementById('orderModal');
+      const modalBody = document.getElementById('modalBody');
+      const modalTitle = modal.querySelector('.modal-title');
+
+      if (modalTitle) modalTitle.textContent = 'Tin nhắn chốt đơn';
+      modalBody.innerHTML = `
+        <div class="form-group">
+          <textarea id="historyFinalMsg" class="form-textarea" rows="6" readonly style="font-family: inherit; font-size: 14px;">${msg}</textarea>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="copyHistoryMsg('historyFinalMsg', event)">
+          📋 Copy tin chốt
+        </button>
+      `;
+
+      modal.classList.add('active');
+    }
+
+    function copyHistoryMsg(id, event) {
+      const ta = document.getElementById(id);
+      if (!ta) return;
+      ta.select();
+      ta.setSelectionRange(0, 99999);
+      try {
+        document.execCommand('copy');
+        if (event && event.target) {
+          const btn = event.target;
+          const originalText = btn.textContent;
+          btn.textContent = '✓ Đã copy!';
+          setTimeout(() => {
+            btn.textContent = originalText;
+          }, 2000);
+        }
+      } catch (err) {
+        alert('Lỗi copy!');
+      }
+    }
+
     // ========== Order History Filters ==========
+
 
     let historyFilters = {
       fromDate: null,
@@ -5250,12 +5311,15 @@
       <div class="history-item" onclick="showOrderDetail(${order.id})">
         <div class="history-header">
           <div class="history-title">${order.itemName}</div>
-          <div class="history-date">${formatDate(order.date)}</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="btn btn-ghost" style="padding: 4px 8px; font-size: 11px; height: auto; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); color: #818cf8;" onclick="showOrderSummaryMsg(${order.id}, event)">📣 Tin chốt</button>
+            <div class="history-date">${formatDate(order.date)}</div>
+          </div>
         </div>
         <div class="history-details">
           ${historyPriceLine} = ${formatMoney(order.revenue)} 
           <span class="${order.profit >= 0 ? 'profit-positive' : 'profit-negative'}">
-            (${order.profit >= 0 ? 'Lời' : 'Lỗ'} ${formatMoney(Math.abs(order.profit))})
+            (${order.profit >= 0 ? 'Dư' : 'Hụt'} ${formatMoney(Math.abs(order.profit))})
           </span>
           <span class="status-badge ${statusClass}">${statusText}</span>
         </div>
@@ -5279,6 +5343,9 @@
       const modalPriceLabel = order.splitShipMode
         ? `Ko ship ${formatMoney(order.sellingPriceNonShip || order.sellingPrice)} | Ship ${formatMoney(order.sellingPriceShip || order.sellingPrice)}`
         : `${formatMoney(order.sellingPrice)}/phần`;
+
+      const modalTitle = document.querySelector('#orderModal .modal-title');
+      if (modalTitle) modalTitle.textContent = 'Chi tiết đơn hàng';
 
       modalBody.innerHTML = `
     <div class="form-group">
@@ -5309,7 +5376,7 @@
       <div class="summary-item">
         <h3>Kết quả</h3>
         <div class="summary-value ${order.profit >= 0 ? 'profit-positive' : 'profit-negative'}">
-          ${order.profit >= 0 ? 'Lời' : 'Lỗ'} ${formatMoney(Math.abs(order.profit))}
+          ${order.profit >= 0 ? 'Dư' : 'Hụt'} ${formatMoney(Math.abs(order.profit))}
         </div>
       </div>
     </div>
@@ -5845,9 +5912,28 @@
       }
 
       const totalOrders = orderHistory.length;
-      const totalRevenue = orderHistory.reduce((sum, o) => sum + o.revenue, 0);
-      const totalCost = orderHistory.reduce((sum, o) => sum + o.totalCost, 0);
-      const totalProfit = totalRevenue - totalCost;
+      let totalRevenue = 0;
+      let totalCost = 0;
+      let totalCashProfit = 0;
+      let totalMealValue = 0;
+      let myPortionsCount = 0;
+
+      orderHistory.forEach(o => {
+        totalRevenue += (o.revenue || 0);
+        totalCost += (o.totalCost || 0);
+        totalCashProfit += (o.profit || 0);
+
+        if (o.alvinFree) {
+          const detailsQty = (o.details || []).reduce((s, d) => s + (d.qty || 0), 0);
+          const myQty = Math.max(0, (o.totalParts || 0) - detailsQty);
+          if (myQty > 0) {
+            myPortionsCount += myQty;
+            totalMealValue += myQty * (o.sellingPrice || 0);
+          }
+        }
+      });
+
+      const realProfit = totalCashProfit + totalMealValue;
 
       const statsHTML = `
     <div class="stats-grid">
@@ -5866,12 +5952,32 @@
         <div class="stat-value">${formatMoney(totalCost)}</div>
         <div class="stat-label">Tổng chi</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon">${totalProfit >= 0 ? '📈' : '📉'}</div>
-        <div class="stat-value ${totalProfit >= 0 ? 'profit-positive' : 'profit-negative'}">
-          ${formatMoney(Math.abs(totalProfit))}
+      <div class="stat-card" style="border: 1px solid rgba(139, 92, 246, 0.3); background: rgba(139, 92, 246, 0.05);">
+        <div class="stat-icon">🚀</div>
+        <div class="stat-value ${realProfit >= 0 ? 'profit-positive' : 'profit-negative'}">
+          ${formatMoney(Math.abs(realProfit))}
         </div>
-        <div class="stat-label">${totalProfit >= 0 ? 'Lợi nhuận' : 'Thua lỗ'}</div>
+        <div class="stat-label">Tích lũy thực tế</div>
+      </div>
+    </div>
+
+    <div class="glass-card" style="margin-top: 24px; padding: 20px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));">
+      <h3 style="font-size: 16px; margin-bottom: 20px; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
+        📊 Chi tiết tích lũy
+      </h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div style="padding: 16px; background: rgba(0,0,0,0.1); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Tiền mặt dư (Cash)</div>
+          <div style="font-size: 20px; font-weight: 700; color: ${totalCashProfit >= 0 ? 'var(--accent-green)' : '#f87171'};">
+            ${totalCashProfit >= 0 ? '+' : '-'}${formatMoney(Math.abs(totalCashProfit))}
+          </div>
+        </div>
+        <div style="padding: 16px; background: rgba(0,0,0,0.1); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Giá trị phần Host (${myPortionsCount} phần)</div>
+          <div style="font-size: 20px; font-weight: 700; color: #818cf8;">
+            +${formatMoney(totalMealValue)}
+          </div>
+        </div>
       </div>
     </div>
 
@@ -6557,6 +6663,20 @@
         const dateLocal = formatDate(txDate.toISOString()).replace(/(\d{2}\/\d{2}\/\d{4})/, '$1') + ' ' +
           txDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
+        // Lookup missing qty/unitPrice for older records
+        let qty = tx.qty;
+        let unitPrice = tx.unitPrice;
+        if (tx.type === 'order' && tx.orderId && (qty === undefined || unitPrice === undefined)) {
+          const order = orderHistory.find(o => o.id === tx.orderId);
+          if (order && order.details && tx.detailIndex != null) {
+            const detail = order.details[tx.detailIndex];
+            if (detail) {
+              if (qty === undefined) qty = detail.qty;
+              if (unitPrice === undefined) unitPrice = detail.unitPrice;
+            }
+          }
+        }
+
         rows.push({
           dateISO,
           dateLocal,
@@ -6565,7 +6685,9 @@
           delta,
           balanceAfter: running,
           ref,
-          txnId: tx.id
+          txnId: tx.id,
+          qty,
+          unitPrice
         });
 
         // Update summary
@@ -6689,6 +6811,10 @@
         const deltaSign = row.delta >= 0 ? '+' : '';
         const rowBg = idx % 2 === 0 ? 'rgba(0,0,0,0.02)' : 'transparent';
 
+        const cleanDesc = row.description.replace(/^Đơn:\s*/, '');
+        const displayUnitPrice = row.unitPrice != null ? (typeof row.unitPrice === 'number' ? formatMoney(row.unitPrice) : row.unitPrice) : '—';
+        const displayQty = row.qty != null ? row.qty : '—';
+
         return `
           <tr style="background: ${rowBg}; border-bottom: 1px solid rgba(0,0,0,0.05);">
             <td style="padding: 10px 8px; font-size: 13px;">${row.dateLocal}</td>
@@ -6697,7 +6823,9 @@
                 ${row.typeLabel}
               </span>
             </td>
-            <td style="padding: 10px 8px; font-size: 13px;">${row.description}</td>
+            <td style="padding: 10px 8px; font-size: 13px;">${cleanDesc}</td>
+            <td style="padding: 10px 8px; text-align: right; font-size: 13px; color: var(--text-secondary);">${displayUnitPrice}</td>
+            <td style="padding: 10px 8px; text-align: right; font-size: 13px; color: var(--text-secondary);">${displayQty}</td>
             <td style="padding: 10px 8px; text-align: right; font-weight: 600; color: ${deltaColor};">
               ${deltaSign}${formatMoney(row.delta)}
             </td>
@@ -6814,6 +6942,9 @@
               rowType: 'order',
               paymentType: paymentType,
               description: `Đơn: ${itemName} (${paymentType} ${formatMoney(displayAmount)})`,
+              itemName: itemName,
+              qty: detail.qty,
+              unitPrice: detail.unitPrice,
               displayAmount: displayAmount,
               deltaVip: deltaVip,
               balanceAfter: 0,
@@ -6895,6 +7026,9 @@
             rowType: type,
             paymentType: type.toUpperCase(),
             description: desc,
+            qty: tx.qty,
+            unitPrice: tx.unitPrice,
+            itemName: tx.itemName,
             displayAmount: amount,
             deltaVip: deltaVip,
             balanceAfter: 0,
@@ -7391,7 +7525,9 @@
         <tr>
           <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 12px; border: 1px solid #475569;">Ngày giờ 📅</th>
           <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 12px; border: 1px solid #475569;">Loại</th>
-          <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 12px; border: 1px solid #475569;">Nội dung</th>
+          <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 12px; border: 1px solid #475569;">Món</th>
+          <th style="padding: 12px; text-align: right; font-weight: 600; font-size: 12px; border: 1px solid #475569;">Đơn giá</th>
+          <th style="padding: 12px; text-align: right; font-weight: 600; font-size: 12px; border: 1px solid #475569;">Số phần</th>
           <th style="padding: 12px; text-align: right; font-weight: 600; font-size: 12px; border: 1px solid #475569;">+/-</th>
           <th style="padding: 12px; text-align: right; font-weight: 600; font-size: 12px; border: 1px solid #475569;">Số dư</th>
         </tr>
@@ -7422,13 +7558,21 @@
           typeColor = '#3b82f6';
         }
 
+        const cleanDesc = (row.rowType === 'order' || row.type === 'order')
+          ? (row.itemName || desc.replace(/^Đơn:\s*/, ''))
+          : desc;
+        const displayUnitPrice = row.unitPrice != null ? (typeof row.unitPrice === 'number' ? formatMoney(row.unitPrice) : row.unitPrice) : '—';
+        const displayQty = row.qty != null ? row.qty : '—';
+
         return `
           <tr style="background: ${bgColor};">
-            <td style="padding: 10px; font-size: 13px; color: #64748b; border: 1px solid #e2e8f0;">${date}</td>
-            <td style="padding: 10px; font-size: 13px; border: 1px solid #e2e8f0;"><span style="background: ${typeBg}; color: ${typeColor}; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-block;">${type}</span></td>
-            <td style="padding: 10px; font-size: 13px; border: 1px solid #e2e8f0;">${desc}</td>
-            <td style="padding: 10px; text-align: right; font-size: 13px; font-weight: 600; color: ${amtColor}; border: 1px solid #e2e8f0;">${amtText}</td>
-            <td style="padding: 10px; text-align: right; font-size: 13px; border: 1px solid #e2e8f0;">${balance}</td>
+            <td style="padding: 10px; font-size: 12px; color: #64748b; border: 1px solid #e2e8f0;">${date}</td>
+            <td style="padding: 10px; font-size: 12px; border: 1px solid #e2e8f0;"><span style="background: ${typeBg}; color: ${typeColor}; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; display: inline-block;">${type}</span></td>
+            <td style="padding: 10px; font-size: 12px; border: 1px solid #e2e8f0;">${cleanDesc}</td>
+            <td style="padding: 10px; text-align: right; font-size: 12px; border: 1px solid #e2e8f0; color: #64748b;">${displayUnitPrice}</td>
+            <td style="padding: 10px; text-align: right; font-size: 12px; border: 1px solid #e2e8f0; color: #64748b;">${displayQty}</td>
+            <td style="padding: 10px; text-align: right; font-size: 12px; font-weight: 600; color: ${amtColor}; border: 1px solid #e2e8f0;">${amtText}</td>
+            <td style="padding: 10px; text-align: right; font-size: 12px; font-weight: 700; border: 1px solid #e2e8f0;">${balance}</td>
           </tr>`;
       }).join('')}
       </tbody>
