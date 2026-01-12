@@ -134,3 +134,76 @@
     gap: 16px;
     margin-top: 16px;
 }
+
+/* --- Mobile Responsiveness Enhancements --- */
+@media (max-width: 768px) {
+    body {
+        padding: 12px;
+    }
+
+    .container {
+        padding: 0;
+    }
+
+    /* Fixed Table Squashing on Mobile */
+    .table {
+        min-width: 650px;
+        /* Ensure table doesn't squash too much */
+    }
+
+    .table-wrapper {
+        border: 1px solid var(--glass-border);
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Column Widths on Mobile */
+    #orderTable th:nth-child(1) {
+        min-width: 140px;
+    }
+
+    /* Name */
+    #orderTable th:nth-child(2) {
+        min-width: 80px;
+    }
+
+    /* Qty */
+    #orderTable th:nth-child(3) {
+        min-width: 80px;
+    }
+
+    /* Ship */
+    #orderTable th:nth-child(4) {
+        min-width: 70px;
+    }
+
+    /* Paid */
+    #orderTable th:nth-child(5) {
+        min-width: 60px;
+    }
+
+    /* Delete */
+
+    /* Search Bar Adjustment - Non-sticky on mobile to save vertical space */
+    .global-search-container {
+        position: relative;
+        /* Remove sticky */
+        top: 0;
+        margin-bottom: 16px;
+    }
+
+    .global-search-wrapper {
+        border-radius: 12px;
+        padding: 2px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Form rows */
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
