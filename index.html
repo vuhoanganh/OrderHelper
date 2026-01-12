@@ -887,6 +887,33 @@
       initDraftAutosave
     } from './js/core/draft.js';
 
+    import {
+      addRow,
+      delRow,
+      buildOrderSignature,
+      getFinalMsgFromOrder,
+      filterOrderHistory,
+      goToOrder,
+      searchOrdersByItem,
+      startNewOrder,
+      showOrderSummaryMsg,
+      deleteOrder,
+      markAllPaid
+    } from './js/core/order.js';
+
+    import {
+      parseVip,
+      vipToText,
+      persistVipList,
+      recordVipTransaction,
+      getVipOrderTransactions,
+      getInitialBalanceForVip,
+      updateVipDisplay,
+      goToVip,
+      populateVipMemberSelect,
+      normalizeVipTransactions
+    } from './js/core/vip.js';
+
     // Use imported constants
     const VIP_PATCH_ENABLED = FEATURES.VIP_PATCH_ENABLED;
     const DEFAULT_INITIAL_BALANCE = VIP_CONFIG.DEFAULT_INITIAL_BALANCE;
