@@ -42,6 +42,14 @@ export const DRAFT_CONFIG = {
   RETRY_INTERVAL_MS: 5 * 60 * 1000, // 5 minutes
 };
 
+// VIP Configuration
+export const VIP_CONFIG = {
+  DEFAULT_INITIAL_BALANCE: {
+    'a Duck': 145,
+    'a Dave': 1000
+  }
+};
+
 // Export for backward compatibility
 export default {
   FEATURES,
@@ -49,4 +57,5 @@ export default {
   STORAGE_KEYS,
   CONFIRMED_DELETE_TXN_IDS,
   DRAFT_CONFIG,
+  VIP_CONFIG,
 };

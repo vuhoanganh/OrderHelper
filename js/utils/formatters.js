@@ -105,6 +105,16 @@ export function throttle(fn, delay) {
     };
 }
 
+/**
+ * Format draft timestamp to localized string
+ * @param {number} ts - Timestamp to format
+ * @returns {string} Formatted draft time or '—' if no timestamp
+ */
+export function formatDraftTime(ts) {
+    if (!ts) return '—';
+    return new Date(ts).toLocaleString('vi-VN', { hour12: false });
+}
+
 // Export all as default
 export default {
     formatMoney,
@@ -114,4 +124,5 @@ export default {
     ceilInt,
     debounce,
     throttle,
+    formatDraftTime,
 };
