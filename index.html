@@ -223,11 +223,11 @@
           <table class="table" id="orderTable">
             <thead>
               <tr>
-                <th style="width: 36%">Tên</th>
-                <th style="width: 16%; text-align: right;">Số phần</th>
-                <th style="width: 16%; text-align: right;">Phần ship</th>
-                <th style="width: 16%; text-align: center;">Đã trả?</th>
-                <th style="width: 16%; text-align: center;">Xoá</th>
+                <th>Tên</th>
+                <th style="text-align: right;">Số phần</th>
+                <th style="text-align: right;">Phần ship</th>
+                <th style="text-align: center;">Đã trả?</th>
+                <th style="text-align: center;">Xoá</th>
               </tr>
             </thead>
             <tbody>
@@ -1167,7 +1167,29 @@
         `;
       }).join('');
 
-      container.innerHTML = html;
+      // Calculate total balance
+      const totalBalance = sorted.reduce((sum, [_, balance]) => sum + balance, 0);
+      const totalHtml = `
+        <div style="
+          padding: 10px 8px 6px 8px;
+          margin-top: 8px;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-weight: 700;
+          color: #fff;
+          font-size: 15px;
+          letter-spacing: 0.5px;
+        ">
+          <span style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 18px;">💰</span> TỔNG CỘNG
+          </span>
+          <span style="color: var(--accent-blue, #60a5fa);">${formatMoney(totalBalance)}</span>
+        </div>
+      `;
+
+      container.innerHTML = html + totalHtml;
     }
 
     /**
@@ -5012,9 +5034,6 @@
         clearPricingFields();
       } else {
         setDraftBanner('ℹ️ Đã tính tạm, bấm "Lưu đơn" để ghi vào lịch sử');
-
-        // Also clear pricing fields even if not saving to history
-        clearPricingFields();
       }
 
       return { order, saved: savedToHistory || skipSave, signature: orderSignature };
