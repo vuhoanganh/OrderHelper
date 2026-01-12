@@ -856,6 +856,19 @@
       formatDraftTime
     } from './js/utils/formatters.js';
 
+    import {
+      addBackupLog,
+      showBackupStatus,
+      githubApiRequest,
+      getGithubFile,
+      createOrUpdateGithubFile,
+      backupToGithub,
+      saveGithubSettings,
+      loadGithubSettings,
+      updateBackupStatusDisplay,
+      initGithubAutoBackup
+    } from './js/services/github.js';
+
     // Use imported constants
     const VIP_PATCH_ENABLED = FEATURES.VIP_PATCH_ENABLED;
     const DEFAULT_INITIAL_BALANCE = VIP_CONFIG.DEFAULT_INITIAL_BALANCE;
@@ -1329,119 +1342,7 @@
 
     // formatDate and debounce now imported from formatters.js
 
-    // ========== GitHub Backup Functions ==========
-
-    function addBackupLog(message) {
-      const logDiv = document.getElementById('backupLog');
-      if (!logDiv) return;
-      const timestamp = new Date().toLocaleTimeString('vi-VN');
-      const line = `[${timestamp}] ${message}`;
-      if (logDiv.textContent === 'Chưa có log...') {
-        logDiv.textContent = line;
-      } else {
-        logDiv.textContent = line + '\n' + logDiv.textContent;
-      }
-      // Keep only last 50 lines
-      const lines = logDiv.textContent.split('\n');
-      if (lines.length > 50) {
-        logDiv.textContent = lines.slice(0, 50).join('\n');
-      }
-    }
-
-    function showBackupStatus(message, type = 'info') {
-      const statusDiv = document.getElementById('githubBackupStatus');
-      const textDiv = document.getElementById('githubBackupStatusText');
-      if (!statusDiv || !textDiv) return;
-
-      textDiv.textContent = message;
-      statusDiv.style.display = 'flex';
-      statusDiv.className = `alert alert-${type}`;
-
-      // Auto-hide after 5 seconds for success/info messages
-      if (type === 'success' || type === 'info') {
-        setTimeout(() => {
-          statusDiv.style.display = 'none';
-        }, 5000);
-      }
-    }
-
-    async function githubApiRequest(endpoint, method = 'GET', body = null) {
-      const token = localStorage.getItem(GITHUB_TOKEN_KEY);
-      if (!token) {
-        throw new Error('GitHub token không tìm thấy. Vui lòng cài đặt token trong tab Backup.');
-      }
-
-      const url = `https://api.github.com${endpoint}`;
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
-      };
-
-      const options = {
-        method,
-        headers
-      };
-
-      if (body) {
-        options.body = JSON.stringify(body);
-      }
-
-      const response = await fetch(url, options);
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: response.statusText }));
-        throw new Error(`GitHub API Error: ${error.message || response.statusText}`);
-      }
-
-      // Handle 204 No Content
-      if (response.status === 204) {
-        return null;
-      }
-
-      return await response.json();
-    }
-
-    async function getGithubFile(owner, repo, path, branch = 'main') {
-      try {
-        const data = await githubApiRequest(`/repos/${owner}/${repo}/contents/${path}?ref=${branch}`);
-        if (data && data.content) {
-          // Decode base64 content with UTF-8 support
-          const content = decodeURIComponent(escape(atob(data.content.replace(/\n/g, ''))));
-          return {
-            content,
-            sha: data.sha
-          };
-        }
-        return null;
-      } catch (err) {
-        // File not found is not an error in this case
-        if (err.message.includes('Not Found') || err.message.includes('404')) {
-          return null;
-        }
-        throw err;
-      }
-    }
-
-    async function createOrUpdateGithubFile(owner, repo, path, content, message, sha = null) {
-      // Proper UTF-8 to base64 encoding for Vietnamese characters
-      const utf8Bytes = new TextEncoder().encode(content);
-      const base64 = btoa(String.fromCharCode(...utf8Bytes));
-
-      const body = {
-        message,
-        content: base64,
-        branch: localStorage.getItem(GITHUB_BRANCH_KEY) || 'master'
-      };
-
-      if (sha) {
-        body.sha = sha; // Required when updating existing file
-      }
-
-      return await githubApiRequest(`/repos/${owner}/${repo}/contents/${path}`, 'PUT', body);
-    }
-
-    // formatDraftTime now imported from formatters.js
+    // ========== GitHub Backup Functions now imported from js/services/github.js ==========
 
     function normalizeVipTransactions(data = []) {
       console.log(`[${BUILD_TAG}] normalizeVipTransactions`);
