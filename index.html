@@ -837,9 +837,28 @@
     </div>
   </div>
 
-  <script>
-    const VIP_PATCH_ENABLED = false;
-    const BUILD_TAG = "vip-fix-v1.1";
+  <script type="module">
+    // Import modules
+    import {
+      BUILD_TAG,
+      FEATURES,
+      STORAGE_KEYS,
+      CONFIRMED_DELETE_TXN_IDS,
+      DRAFT_CONFIG,
+      VIP_CONFIG
+    } from './js/config.js';
+
+    import {
+      formatMoney,
+      formatDate,
+      ceilInt,
+      debounce,
+      formatDraftTime
+    } from './js/utils/formatters.js';
+
+    // Use imported constants
+    const VIP_PATCH_ENABLED = FEATURES.VIP_PATCH_ENABLED;
+    const DEFAULT_INITIAL_BALANCE = VIP_CONFIG.DEFAULT_INITIAL_BALANCE;
     // Global State
     let orderHistory = JSON.parse(localStorage.getItem('orderHistory') || '[]');
     // Keep deterministic history ordering (recommended): oldest → newest by `date`
@@ -849,11 +868,23 @@
     let selectedPrice = null;
     let activeOrderModalId = null;
     const autoBackupMode = new URLSearchParams(window.location.search).get('autobackup') === 'true';
-    const DRAFT_STORAGE_KEY = 'draftOrder';
-    const DRAFT_META_KEY = 'draftBackupMeta';
-    const DRAFT_DIR = '/Users/alvin/Library/Mobile Documents/com~apple~CloudDocs/Kitchen/drafts';
-    const DRAFT_BACKUP_INTERVAL_MS = 30 * 60 * 1000;
-    const DRAFT_RETRY_INTERVAL_MS = 5 * 60 * 1000;
+
+    // Use imported constants (create aliases for backward compatibility)
+    const DRAFT_STORAGE_KEY = STORAGE_KEYS.DRAFT_ORDER;
+    const DRAFT_META_KEY = STORAGE_KEYS.DRAFT_META;
+    const DRAFT_DIR = DRAFT_CONFIG.DIR;
+    const DRAFT_BACKUP_INTERVAL_MS = DRAFT_CONFIG.BACKUP_INTERVAL_MS;
+    const DRAFT_RETRY_INTERVAL_MS = DRAFT_CONFIG.RETRY_INTERVAL_MS;
+    const VIP_TX_KEY = STORAGE_KEYS.VIP_TRANSACTIONS;
+    const GITHUB_TOKEN_KEY = STORAGE_KEYS.GITHUB_TOKEN;
+    const GITHUB_REPO_KEY = STORAGE_KEYS.GITHUB_REPO;
+    const GITHUB_BRANCH_KEY = STORAGE_KEYS.GITHUB_BRANCH;
+    const GITHUB_BACKUP_FOLDER_KEY = STORAGE_KEYS.GITHUB_BACKUP_FOLDER;
+    const GITHUB_AUTO_BACKUP_ENABLED_KEY = STORAGE_KEYS.GITHUB_AUTO_BACKUP_ENABLED;
+    const GITHUB_BACKUP_INTERVAL_KEY = STORAGE_KEYS.GITHUB_BACKUP_INTERVAL;
+    const GITHUB_LAST_BACKUP_KEY = STORAGE_KEYS.GITHUB_LAST_BACKUP;
+    const GITHUB_LAST_COMMIT_SHA_KEY = STORAGE_KEYS.GITHUB_LAST_COMMIT_SHA;
+
     let draftDirty = false;
     let draftBackupIntervalId = null;
     let draftBackupRetryTimeout = null;
@@ -867,28 +898,12 @@
     let lastComputedOrder = null;
     let editingOrderId = null;
     let editingOrderDate = null;
-    const VIP_TX_KEY = 'vipTransactions';
-
-    // Transaction IDs confirmed for deletion (duplicates)
-    // These transactions will be filtered out during migration/reconciliation
-    const CONFIRMED_DELETE_TXN_IDS = [
-      "9310deae-d8f0-48c4-8dd0-b8031e44886d" // a Duck topup 1000đ duplicate on 2025-12-15
-    ];
 
     let vipTransactions = [];
     let vipReportSortDesc = true; // true = newest first (descending), false = oldest first (ascending)
 
-
     // GitHub Backup Variables
     let githubAutoBackupInterval = null;
-    const GITHUB_TOKEN_KEY = 'github_token';
-    const GITHUB_REPO_KEY = 'github_repo';
-    const GITHUB_BRANCH_KEY = 'github_branch';
-    const GITHUB_BACKUP_FOLDER_KEY = 'github_backup_folder';
-    const GITHUB_AUTO_BACKUP_ENABLED_KEY = 'github_auto_backup_enabled';
-    const GITHUB_BACKUP_INTERVAL_KEY = 'github_backup_interval';
-    const GITHUB_LAST_BACKUP_KEY = 'github_last_backup';
-    const GITHUB_LAST_COMMIT_SHA_KEY = 'github_last_commit_sha';
 
     // Smart Name Matcher Class
     class SmartNameMatcher {
@@ -1017,16 +1032,7 @@
       }
     }
 
-    // Utility Functions
-    function formatMoney(x) {
-      const neg = x < 0;
-      const v = Math.round(Math.abs(x) * 100) / 100;
-      return (neg ? '-' : '') + (Number.isInteger(v) ? v.toString() : v.toFixed(2)) + 'đ';
-    }
-
-    function ceilInt(x) {
-      return Math.ceil(x);
-    }
+    // Utility Functions (formatMoney and ceilInt now imported from formatters.js)
 
     function parseVip(text) {
       const matcher = new SmartNameMatcher();
@@ -1321,24 +1327,7 @@
       }
     }
 
-    function formatDate(date) {
-      const d = new Date(date);
-      return d.toLocaleDateString('vi-VN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    }
-
-    function debounce(fn, wait) {
-      let t;
-      return (...args) => {
-        clearTimeout(t);
-        t = setTimeout(() => fn.apply(null, args), wait);
-      };
-    }
+    // formatDate and debounce now imported from formatters.js
 
     // ========== GitHub Backup Functions ==========
 
@@ -1452,10 +1441,7 @@
       return await githubApiRequest(`/repos/${owner}/${repo}/contents/${path}`, 'PUT', body);
     }
 
-    function formatDraftTime(ts) {
-      if (!ts) return '—';
-      return new Date(ts).toLocaleString('vi-VN', { hour12: false });
-    }
+    // formatDraftTime now imported from formatters.js
 
     function normalizeVipTransactions(data = []) {
       console.log(`[${BUILD_TAG}] normalizeVipTransactions`);
@@ -8138,6 +8124,117 @@
       });
     };
 
+    // ========== Expose functions to window for onclick handlers ==========
+    // Since we're using ES modules, functions are not in global scope by default
+    // We need to explicitly expose them to window for HTML onclick attributes to work
+    Object.assign(window, {
+      // Table Management
+      addRow,
+      delRow,
+      // Computation & Orders
+      compute,
+      startNewOrder,
+      editOrder,
+      deleteOrder,
+      showOrderDetail,
+      goToOrder,
+      // Price Management
+      selectPrice,
+      handleDesiredPriceInput,
+      suggestPrices,
+      openDishSuggestions,
+      clearPricingFields,
+      // Payment
+      markAllPaid,
+      markDebtorPaid,
+      markSingleDebtPaid,
+      undoLastDebtorPaid,
+      openPaymentMethodModal,
+      // Copy Functions
+      copyMsg,
+      copyHistoryMsg,
+      copyAndSaveFinalMsg,
+      generateOpenMsg,
+      showOrderSummaryMsg,
+      // Draft Management
+      saveDraftToLocalStorage,
+      loadDraftFromLocalStorage,
+      clearDraft,
+      showDraftManager,
+      saveTempDraft,
+      loadTempDraft,
+      deleteTempDraft,
+      manualSaveDraft,
+      // History
+      loadHistory,
+      renderHistory,
+      applyHistoryFilters,
+      clearHistory,
+      clearHistoryFilters,
+      filterOrderHistory,
+      exportHistory,
+      importHistory,
+      downloadBackup,
+      restoreFromFile,
+      exportForAutomation,
+      // VIP Management
+      addNewVIP,
+      cashOutVIP,
+      submitVipTopup,
+      submitVipCashOut,
+      closeVipTopupModal,
+      closeVipCashOutModal,
+      updateCashOutBalance,
+      saveInitialBalance,
+      selectVipMemberForReport,
+      showVipMemberHistory,
+      goToVip,
+      // VIP Report & History
+      renderVipReport,
+      renderVipHistory,
+      applyVipHistoryFilters,
+      clearVipHistoryFilters,
+      toggleVipReportSort,
+      exportVipReportCSV,
+      exportVipReportHTML,
+      exportVipReportPDF,
+      exportVipHistoryToCSV,
+      // Reconcile
+      toggleReconcile,
+      openReconcileModal,
+      closeReconcileModal,
+      selectReconcileMember,
+      // Search
+      handleGlobalSearch,
+      clearGlobalSearch,
+      searchAllData,
+      searchOrdersByItem,
+      // Stats
+      loadStats,
+      // Quick Input
+      parseQuickInput,
+      // Modal
+      closeModal,
+      // Tab
+      switchTab,
+      // GitHub Backup
+      backupToGithub,
+      saveGithubSettings,
+      loadGithubSettings,
+      // Utility - expose imported formatters too
+      formatMoney,
+      formatDate,
+      ceilInt,
+      debounce,
+      formatDraftTime,
+      // Debt Management
+      loadDebtManagement,
+      // Constants (for debugging)
+      BUILD_TAG,
+      VIP_PATCH_ENABLED,
+    });
+
+    console.log('[App] Phase 2a: Modules imported, duplicates removed, functions exposed to window');
 
   </script>
 
