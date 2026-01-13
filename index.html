@@ -4569,7 +4569,7 @@
 
       let T = 0;
       if (costPerUnit > 0) {
-        T = n * costPerUnit + shipFee;
+        T = denom * costPerUnit + shipFee;
       } else if (totalCost > 0) {
         T = totalCost + shipFee;
       } else {
@@ -4658,7 +4658,7 @@
 
       let T = 0;
       if (costPerUnit > 0) {
-        T = n * costPerUnit + shipFee;
+        T = denom * costPerUnit + shipFee;
       } else if (totalCost > 0) {
         T = totalCost + shipFee;
       }
@@ -5106,6 +5106,11 @@
       }
 
       copyMsg('finalMsg', event);
+
+      // Refresh VIP list display after copying
+      const vipAreaText = document.getElementById('vipArea')?.value || '';
+      const vipBalances = parseVip(vipAreaText);
+      renderClickableVipList(vipBalances);
     }
 
     function getFinalMsgFromOrder(order) {
@@ -6198,6 +6203,63 @@
       if (desiredPriceInput) {
         desiredPriceInput.addEventListener('input', handleDesiredPriceInput);
         desiredPriceInput.addEventListener('change', handleDesiredPriceInput);
+      }
+
+      // Auto-calculate totalCost when costPerUnit or n changes
+      const costPerUnitInput = document.getElementById('costPerUnit');
+      const totalCostInput = document.getElementById('totalCost');
+      const nInput2 = document.getElementById('n');
+      const alvinFreeCheckbox2 = document.getElementById('alvinFree');
+
+      if (costPerUnitInput && totalCostInput && nInput2 && alvinFreeCheckbox2) {
+        // Get the correct denominator based on alvinFree checkbox
+        const getDenom = () => {
+          const n = Number(nInput2.value || 0);
+          const alvinFree = alvinFreeCheckbox2.checked;
+          return alvinFree ? (n - 1) : n;
+        };
+
+        // When costPerUnit changes, update totalCost
+        const updateTotalCost = () => {
+          const c = Number(costPerUnitInput.value || 0);
+          const denom = getDenom();
+          if (c > 0 && denom > 0) {
+            totalCostInput.value = c * denom;
+          }
+        };
+
+        // When totalCost changes, update costPerUnit
+        const updateCostPerUnit = () => {
+          const T = Number(totalCostInput.value || 0);
+          const denom = getDenom();
+          if (T > 0 && denom > 0) {
+            costPerUnitInput.value = (T / denom).toFixed(2);
+          }
+        };
+
+        costPerUnitInput.addEventListener('input', updateTotalCost);
+        totalCostInput.addEventListener('input', updateCostPerUnit);
+        nInput2.addEventListener('input', () => {
+          // When n changes, update whichever field is non-zero
+          const c = Number(costPerUnitInput.value || 0);
+          const T = Number(totalCostInput.value || 0);
+          if (c > 0) {
+            updateTotalCost();
+          } else if (T > 0) {
+            updateCostPerUnit();
+          }
+        });
+
+        // Also update when alvinFree checkbox changes
+        alvinFreeCheckbox2.addEventListener('change', () => {
+          const c = Number(costPerUnitInput.value || 0);
+          const T = Number(totalCostInput.value || 0);
+          if (c > 0) {
+            updateTotalCost();
+          } else if (T > 0) {
+            updateCostPerUnit();
+          }
+        });
       }
 
       // Auto-backup mode: run export silently after load
