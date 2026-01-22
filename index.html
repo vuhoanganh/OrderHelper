@@ -837,6 +837,71 @@
     </div>
   </div>
 
+  <!-- Quick Edit Order Modal -->
+  <div id="quickEditOrderModal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h2 class="modal-title">✏️ Chỉnh sửa nhanh đơn hàng</h2>
+        <button class="modal-close" onclick="closeModal('quickEditOrderModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="quickEditOrderInfo"
+          style="margin-bottom: 16px; padding: 12px; background: var(--surface-elevated); border-radius: 8px;">
+          <!-- Order info will be injected here -->
+        </div>
+
+        <!-- Add new participant -->
+        <div class="form-group"
+          style="background: var(--surface-hover); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+          <label class="form-label" style="color: var(--accent-green); font-weight: 600;">➕ Thêm người mới</label>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <input type="text" id="quickEditNewName" class="form-input" placeholder="Tên người..."
+              style="flex: 2; min-width: 120px;">
+            <input type="number" id="quickEditNewQty" class="form-input" placeholder="Số phần" min="1" value="1"
+              style="flex: 1; min-width: 80px;">
+            <select id="quickEditNewPayment" class="form-input" style="flex: 1; min-width: 100px;">
+              <option value="unpaid">Chưa trả</option>
+              <option value="vip">VIP</option>
+              <option value="cash">Tiền mặt</option>
+            </select>
+            <button class="btn btn-primary" onclick="quickEditAddPerson()" style="white-space: nowrap;">➕ Thêm</button>
+          </div>
+        </div>
+
+        <!-- Existing participants -->
+        <div class="form-group">
+          <label class="form-label">👥 Danh sách người tham gia</label>
+          <div class="table-wrapper">
+            <table class="table" id="quickEditParticipantsTable">
+              <thead>
+                <tr>
+                  <th>Tên</th>
+                  <th style="text-align: center; width: 80px;">Số phần</th>
+                  <th style="text-align: right; width: 90px;">Thành tiền</th>
+                  <th style="text-align: center; width: 100px;">Trạng thái</th>
+                  <th style="text-align: center; width: 60px;">Xóa</th>
+                </tr>
+              </thead>
+              <tbody id="quickEditParticipantsBody">
+                <!-- Participants will be rendered here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div id="quickEditSummary"
+          style="margin-top: 16px; padding: 12px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.2);">
+          <!-- Summary will be injected here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('quickEditOrderModal')">Hủy</button>
+        <button type="button" class="btn btn-primary" onclick="saveQuickEditOrder()">💾 Lưu thay đổi</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const VIP_PATCH_ENABLED = false;
     const BUILD_TAG = "vip-fix-v1.1";
@@ -869,10 +934,14 @@
     let editingOrderDate = null;
     const VIP_TX_KEY = 'vipTransactions';
 
+    // Patch to restore lost opening balances from Nov 2025
+    const MISSING_OPENING_BALANCES = [
+      { id: "opening-dave-nov20", ts: "2025-11-20T00:00:00.000Z", name: "a Dave", amount: 1000, type: "opening" }
+    ];
+
     // Transaction IDs confirmed for deletion (duplicates)
-    // These transactions will be filtered out during migration/reconciliation
     const CONFIRMED_DELETE_TXN_IDS = [
-      "9310deae-d8f0-48c4-8dd0-b8031e44886d" // a Duck topup 1000đ duplicate on 2025-12-15
+      '9310deae-d8f0-48c4-8dd0-b8031e44886d', // a Duck topup 1000đ duplicate on 2025-12-15
     ];
 
     let vipTransactions = [];
@@ -1500,7 +1569,7 @@
         return out;
       }).filter(tx => tx.name);
 
-      localStorage.setItem(VIP_TX_KEY, JSON.stringify(normalized.slice(0, 200)));
+      localStorage.setItem(VIP_TX_KEY, JSON.stringify(normalized)); // Giữ toàn bộ lịch sử giao dịch
       return normalized;
     }
 
@@ -1561,7 +1630,8 @@
       }
 
       vipTransactions.unshift(entry);
-      vipTransactions = vipTransactions.slice(0, 200);
+      // Giữ toàn bộ lịch sử giao dịch để tránh mất 'Opening Balance'
+      // vipTransactions = vipTransactions.slice(0, 200); 
       localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
       renderVipHistory();
       populateVipMemberSelect();
@@ -5439,8 +5509,9 @@
       </div>
     </div>
 
-    <div class="btn-group" style="margin-top: 20px;">
-      <button class="btn btn-secondary" onclick="editOrder(${order.id})">✏️ Chỉnh sửa đơn</button>
+    <div class="btn-group" style="margin-top: 20px; flex-wrap: wrap;">
+      <button class="btn btn-primary" onclick="openQuickEditOrder(${order.id})">✏️ Sửa nhanh</button>
+      <button class="btn btn-secondary" onclick="editOrder(${order.id})">📝 Sửa toàn bộ</button>
       <button class="btn btn-info" onclick="markAllPaid(${order.id})">✓ Đánh dấu tất cả đã trả</button>
       <button class="btn btn-danger" onclick="deleteOrder(${order.id})">🗑️ Xoá đơn này</button>
     </div>
@@ -5497,6 +5568,388 @@
 
       markDraftChanged();
       setDraftBanner('✏️ Đang chỉnh sửa đơn từ lịch sử. Bấm "Lưu đơn" để cập nhật.');
+    }
+
+    // ========== Quick Edit Order Functions ==========
+    let quickEditOrderData = null; // Temporary storage for editing order
+
+    function openQuickEditOrder(orderId) {
+      const order = orderHistory.find(o => o.id === orderId);
+      if (!order) {
+        alert('❌ Không tìm thấy đơn hàng');
+        return;
+      }
+
+      // Deep clone order for editing
+      quickEditOrderData = JSON.parse(JSON.stringify(order));
+
+      // Close order detail modal first
+      closeModal('orderModal');
+
+      // Render order info with editable item name
+      const infoEl = document.getElementById('quickEditOrderInfo');
+      const unitPrice = quickEditOrderData.sellingPrice || 0;
+      infoEl.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div style="flex: 1; min-width: 200px;">
+            <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px;">🍽 Tên món (click để sửa)</label>
+            <input type="text" id="quickEditItemName" class="form-input" value="${quickEditOrderData.itemName}" 
+              onchange="quickEditOrderData.itemName = this.value.trim()"
+              style="font-size: 18px; font-weight: 700; padding: 8px 12px; background: var(--surface-hover);">
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 16px; font-weight: 600; color: var(--accent-purple);">${formatMoney(unitPrice)}/phần</div>
+            <div style="font-size: 12px; color: var(--text-muted);">📅 ${formatDate(quickEditOrderData.date)}</div>
+          </div>
+        </div>
+      `;
+
+      // Render participants table
+      renderQuickEditParticipants();
+
+      // Reset add new person inputs
+      document.getElementById('quickEditNewName').value = '';
+      document.getElementById('quickEditNewQty').value = '1';
+      document.getElementById('quickEditNewPayment').value = 'unpaid';
+
+      // Show modal
+      document.getElementById('quickEditOrderModal').classList.add('active');
+    }
+
+    function renderQuickEditParticipants() {
+      const tbody = document.getElementById('quickEditParticipantsBody');
+      if (!quickEditOrderData || !quickEditOrderData.details) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Không có dữ liệu</td></tr>';
+        updateQuickEditSummary();
+        return;
+      }
+
+      const unitPrice = quickEditOrderData.sellingPrice || 0;
+
+      tbody.innerHTML = quickEditOrderData.details.map((d, idx) => {
+        const due = d.qty * unitPrice;
+        const statusClass = d.paid ? 'status-paid' : 'status-unpaid';
+        const statusText = d.paid ? 'Đã trả' : 'Chưa trả';
+        const paymentInfo = d.paymentMethod === 'vip' ? ' (VIP)' : (d.paymentMethod === 'cash' ? ' (Cash)' : '');
+
+        return `
+          <tr data-idx="${idx}">
+            <td>
+              <input type="text" class="form-input" value="${d.name}" 
+                onchange="quickEditUpdateName(${idx}, this.value)"
+                style="padding: 6px 10px; font-size: 13px;">
+            </td>
+            <td style="text-align: center;">
+              <input type="number" class="form-input" value="${d.qty}" min="1"
+                onchange="quickEditUpdateQty(${idx}, this.value)"
+                style="width: 60px; padding: 6px; text-align: center; font-size: 13px;">
+            </td>
+            <td style="text-align: right; font-weight: 600; color: var(--accent-purple);">
+              ${formatMoney(due)}
+            </td>
+            <td style="text-align: center;">
+              <button class="btn ${d.paid ? 'btn-success' : 'btn-warning'}" 
+                onclick="quickEditTogglePaid(${idx})"
+                style="padding: 4px 8px; font-size: 11px; min-width: 80px;">
+                ${statusText}${paymentInfo}
+              </button>
+            </td>
+            <td style="text-align: center;">
+              <button class="btn btn-danger" onclick="quickEditRemovePerson(${idx})"
+                style="padding: 4px 8px; font-size: 11px;">🗑️</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      updateQuickEditSummary();
+    }
+
+    function quickEditUpdateName(idx, newName) {
+      if (!quickEditOrderData || !quickEditOrderData.details[idx]) return;
+      quickEditOrderData.details[idx].name = newName.trim();
+    }
+
+    function quickEditUpdateQty(idx, newQty) {
+      if (!quickEditOrderData || !quickEditOrderData.details[idx]) return;
+      const qty = Math.max(1, parseInt(newQty) || 1);
+      quickEditOrderData.details[idx].qty = qty;
+
+      // Recalculate due
+      const unitPrice = quickEditOrderData.sellingPrice || 0;
+      quickEditOrderData.details[idx].due = qty * unitPrice;
+      quickEditOrderData.details[idx].nonShipQty = qty;
+
+      renderQuickEditParticipants();
+    }
+
+    function quickEditTogglePaid(idx) {
+      if (!quickEditOrderData || !quickEditOrderData.details[idx]) return;
+
+      const detail = quickEditOrderData.details[idx];
+
+      if (detail.paid) {
+        // Unpaid
+        detail.paid = false;
+        detail.paymentMethod = null;
+      } else {
+        // Show payment method selection
+        openPaymentMethodModal({
+          title: `Đánh dấu đã trả cho ${detail.name}`,
+          info: `${formatMoney(detail.due)} (${detail.qty} phần)`,
+          onConfirm: (method) => {
+            detail.paid = true;
+            detail.paymentMethod = method;
+            if (method === 'vip') {
+              detail.isVipPayment = true;
+            }
+            renderQuickEditParticipants();
+          }
+        });
+        return;
+      }
+
+      renderQuickEditParticipants();
+    }
+
+    function quickEditRemovePerson(idx) {
+      if (!quickEditOrderData || !quickEditOrderData.details[idx]) return;
+
+      const person = quickEditOrderData.details[idx];
+      if (!confirm(`Xác nhận xóa "${person.name}" khỏi đơn hàng?`)) return;
+
+      quickEditOrderData.details.splice(idx, 1);
+      renderQuickEditParticipants();
+    }
+
+    function quickEditAddPerson() {
+      if (!quickEditOrderData) return;
+
+      const nameInput = document.getElementById('quickEditNewName');
+      const qtyInput = document.getElementById('quickEditNewQty');
+      const paymentSelect = document.getElementById('quickEditNewPayment');
+
+      const name = nameInput.value.trim();
+      const qty = Math.max(1, parseInt(qtyInput.value) || 1);
+      const paymentMethod = paymentSelect.value;
+
+      if (!name) {
+        alert('⚠️ Vui lòng nhập tên người');
+        nameInput.focus();
+        return;
+      }
+
+      // Check if person already exists
+      const existingIdx = quickEditOrderData.details.findIndex(d =>
+        d.name.toLowerCase() === name.toLowerCase()
+      );
+
+      if (existingIdx !== -1) {
+        if (confirm(`"${name}" đã có trong đơn. Bạn muốn cộng thêm ${qty} phần không?`)) {
+          quickEditOrderData.details[existingIdx].qty += qty;
+          const unitPrice = quickEditOrderData.sellingPrice || 0;
+          quickEditOrderData.details[existingIdx].due = quickEditOrderData.details[existingIdx].qty * unitPrice;
+          quickEditOrderData.details[existingIdx].nonShipQty = quickEditOrderData.details[existingIdx].qty;
+        } else {
+          return;
+        }
+      } else {
+        // Add new person
+        const unitPrice = quickEditOrderData.sellingPrice || 0;
+        const newDetail = {
+          name: name,
+          qty: qty,
+          shipQty: 0,
+          nonShipQty: qty,
+          due: qty * unitPrice,
+          paid: paymentMethod !== 'unpaid',
+          unitPrice: unitPrice
+        };
+
+        if (paymentMethod === 'vip') {
+          newDetail.paymentMethod = 'vip';
+          newDetail.isVipPayment = true;
+        } else if (paymentMethod === 'cash') {
+          newDetail.paymentMethod = 'cash';
+          newDetail.isVipPayment = false;
+        }
+
+        quickEditOrderData.details.push(newDetail);
+      }
+
+      // Clear inputs
+      nameInput.value = '';
+      qtyInput.value = '1';
+      paymentSelect.value = 'unpaid';
+      nameInput.focus();
+
+      renderQuickEditParticipants();
+    }
+
+    function updateQuickEditSummary() {
+      const summaryEl = document.getElementById('quickEditSummary');
+      if (!quickEditOrderData) {
+        summaryEl.innerHTML = '';
+        return;
+      }
+
+      const details = quickEditOrderData.details || [];
+      const totalParts = details.reduce((sum, d) => sum + d.qty, 0);
+      const totalRevenue = details.reduce((sum, d) => sum + (d.due || d.qty * (quickEditOrderData.sellingPrice || 0)), 0);
+      const paidCount = details.filter(d => d.paid).length;
+      const unpaidCount = details.length - paidCount;
+
+      const originalTotalParts = quickEditOrderData.totalParts || 0;
+      const originalRevenue = quickEditOrderData.revenue || 0;
+
+      const partsDiff = totalParts - originalTotalParts;
+      const revenueDiff = totalRevenue - originalRevenue;
+
+      summaryEl.innerHTML = `
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <div style="font-size: 13px; color: var(--text-muted);">Tổng phần</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--text-primary);">
+              ${totalParts}
+              ${partsDiff !== 0 ? `<span style="font-size: 13px; color: ${partsDiff > 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">(${partsDiff > 0 ? '+' : ''}${partsDiff})</span>` : ''}
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 13px; color: var(--text-muted);">Tổng thu</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--accent-purple);">
+              ${formatMoney(totalRevenue)}
+              ${revenueDiff !== 0 ? `<span style="font-size: 13px; color: ${revenueDiff > 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">(${revenueDiff > 0 ? '+' : ''}${formatMoney(revenueDiff)})</span>` : ''}
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 13px; color: var(--text-muted);">Đã trả / Chưa trả</div>
+            <div style="font-size: 20px; font-weight: 700;">
+              <span style="color: var(--accent-green);">${paidCount}</span> / 
+              <span style="color: ${unpaidCount > 0 ? 'var(--accent-red)' : 'var(--text-muted)'};">${unpaidCount}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveQuickEditOrder() {
+      if (!quickEditOrderData) {
+        alert('❌ Không có dữ liệu để lưu');
+        return;
+      }
+
+      if (quickEditOrderData.details.length === 0) {
+        alert('⚠️ Đơn hàng phải có ít nhất 1 người');
+        return;
+      }
+
+      // Find and update the order in history
+      const orderIdx = orderHistory.findIndex(o => o.id === quickEditOrderData.id);
+      if (orderIdx === -1) {
+        alert('❌ Không tìm thấy đơn hàng trong lịch sử');
+        return;
+      }
+
+      // Recalculate totals
+      const totalParts = quickEditOrderData.details.reduce((sum, d) => sum + d.qty, 0);
+      const revenue = quickEditOrderData.details.reduce((sum, d) => sum + (d.due || d.qty * (quickEditOrderData.sellingPrice || 0)), 0);
+      const nonShipCount = quickEditOrderData.details.reduce((sum, d) => sum + (d.nonShipQty || d.qty), 0);
+      const shipCount = quickEditOrderData.details.reduce((sum, d) => sum + (d.shipQty || 0), 0);
+
+      // Update order
+      quickEditOrderData.totalParts = totalParts;
+      quickEditOrderData.revenue = revenue;
+      quickEditOrderData.nonShipCount = nonShipCount;
+      quickEditOrderData.shipCount = shipCount;
+      quickEditOrderData.profit = revenue - (quickEditOrderData.totalCost || 0);
+
+      // Handle VIP transactions for newly paid items
+      const originalOrder = orderHistory[orderIdx];
+      quickEditOrderData.details.forEach((detail, idx) => {
+        if (detail.paid && detail.paymentMethod === 'vip') {
+          // Check if this is a new VIP payment
+          const originalDetail = originalOrder.details.find(d => d.name === detail.name);
+          const wasAlreadyPaidVip = originalDetail && originalDetail.paid && originalDetail.paymentMethod === 'vip';
+
+          if (!wasAlreadyPaidVip) {
+            // Check if transaction already exists
+            const existingTx = vipTransactions.find(tx =>
+              tx.type === 'order' &&
+              tx.orderId === quickEditOrderData.id &&
+              tx.name === detail.name
+            );
+
+            if (!existingTx) {
+              // Record new VIP transaction
+              recordVipTransaction({
+                name: detail.name,
+                amount: -detail.due,
+                type: 'order',
+                itemName: quickEditOrderData.itemName,
+                orderId: quickEditOrderData.id,
+                detailIndex: idx,
+                isVipPayment: true,
+                paymentMethod: 'vip'
+              });
+
+              // Update VIP balance
+              const vipArea = document.getElementById('vipArea');
+              if (vipArea) {
+                const vipMap = parseVip(vipArea.value);
+                if (vipMap.has(detail.name)) {
+                  vipMap.set(detail.name, Number(vipMap.get(detail.name) || 0) - Number(detail.due || 0));
+                } else {
+                  // Add new VIP with negative balance
+                  vipMap.set(detail.name, -Number(detail.due || 0));
+                }
+                const vipText = vipToText(vipMap);
+                vipArea.value = vipText;
+                persistVipList(vipText);
+              }
+            }
+          }
+        }
+      });
+
+      // Update vipSnapshot with current VIP balances (read from localStorage for accuracy)
+      // First, persist any pending VIP changes to ensure localStorage is up to date
+      recomputeVipBalances();
+
+      // Now read the VIP list from localStorage
+      const vipListText = localStorage.getItem('vipList') || '';
+      const vipMap = parseVip(vipListText);
+      quickEditOrderData.vipSnapshot = Array.from(vipMap.entries());
+
+      // Update itemName in vipTransactions if it was changed
+      const oldItemName = originalOrder.itemName;
+      const newItemName = quickEditOrderData.itemName;
+      if (oldItemName !== newItemName) {
+        // Update all vipTransactions that reference this order
+        vipTransactions.forEach(tx => {
+          if (tx.orderId === quickEditOrderData.id && tx.itemName === oldItemName) {
+            tx.itemName = newItemName;
+          }
+        });
+        localStorage.setItem('vipTransactions', JSON.stringify(vipTransactions));
+        console.log(`[Quick Edit] Updated itemName from "${oldItemName}" to "${newItemName}" in ${vipTransactions.filter(tx => tx.orderId === quickEditOrderData.id).length} transactions`);
+      }
+
+      // Save to history
+      orderHistory[orderIdx] = quickEditOrderData;
+      localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
+
+      // Close modal and refresh
+      closeModal('quickEditOrderModal');
+      quickEditOrderData = null;
+
+      // Refresh displays
+      loadHistory();
+      loadDebtManagement();
+      recomputeVipBalances();
+      renderVipHistory();
+      populateVipMemberSelect();
+
+      alert('✅ Đã lưu thay đổi đơn hàng');
     }
 
     function closeModal(id) {
@@ -6139,20 +6592,35 @@
 
       // Filter out confirmed duplicate transactions
       const beforeFilterCount = vipTransactions.length;
-      vipTransactions = vipTransactions.filter(tx => !CONFIRMED_DELETE_TXN_IDS.includes(tx.id));
-      const deletedCount = beforeFilterCount - vipTransactions.length;
-      if (deletedCount > 0) {
-        console.log(`[Init] Removed ${deletedCount} confirmed duplicate transaction(s)`);
-      }
+      vipTransactions = vipTransactions.filter(tx => tx.id !== "9310deae-d8f0-48c4-8dd0-b8031e44886d");
+
+      // Restore missing opening balances if they are gone
+      MISSING_OPENING_BALANCES.forEach(missing => {
+        const exists = vipTransactions.some(tx =>
+          tx.name === missing.name &&
+          tx.type === 'opening' &&
+          tx.amount === missing.amount
+        );
+        if (!exists) {
+          console.log(`[Init] Restoring missing opening balance for ${missing.name}`);
+          vipTransactions.push(missing);
+        }
+      });
 
       // Reconcile VIP ledger to ensure consistency
-      console.log('[Init] Running VIP ledger reconciliation...');
       const reconcileResult = reconcileVipLedgerFromOrders(orderHistory, vipTransactions);
-      if (reconcileResult.changed) {
-        console.log('[Init] VIP ledger updated:', reconcileResult.stats);
+      if (reconcileResult.changed || vipTransactions.length !== beforeFilterCount) {
+        console.log('[Init] VIP ledger updated');
         vipTransactions = reconcileResult.vipTransactions;
+
+        // Re-ensure restored balances are in the final list after reconciliation
+        MISSING_OPENING_BALANCES.forEach(missing => {
+          if (!vipTransactions.some(tx => tx.name === missing.name && tx.type === 'opening')) {
+            vipTransactions.push(missing);
+          }
+        });
+
         localStorage.setItem(VIP_TX_KEY, JSON.stringify(vipTransactions));
-        // Update orderHistory if details were normalized
         localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
       }
 
