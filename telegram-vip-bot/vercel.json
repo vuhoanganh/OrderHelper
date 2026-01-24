@@ -1,0 +1,10 @@
+{
+    "version": 2,
+    "env": {
+        "BOT_TOKEN": "@bot_token",
+        "GITHUB_RAW_URL": "@github_raw_url",
+        "ALLOWED_USER_IDS": "@allowed_user_ids",
+        "UPSTASH_REDIS_REST_URL": "@upstash_redis_rest_url",
+        "UPSTASH_REDIS_REST_TOKEN": "@upstash_redis_rest_token"
+    }
+}

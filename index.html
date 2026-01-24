@@ -83,6 +83,13 @@
             </div>
           </div>
 
+          <div class="checkbox-wrapper" style="margin-bottom: 12px; margin-top: 0;">
+            <input id="includeHostQuick" type="checkbox" checked>
+            <label class="checkbox-label">
+              <strong>Bao gồm Host</strong> (Lão nhân gia)
+            </label>
+          </div>
+
           <button class="btn btn-secondary btn-full" onclick="parseQuickInput()">
             🚀 Parse & Fill vào bảng
           </button>
@@ -495,201 +502,287 @@
             </div>
           </div>
 
+          <!-- Option 3: Member Report -->
+          <div class="report-option-card" onclick="switchTab(event, 'memberReport')"
+            style="cursor: pointer; padding: 32px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%); border-radius: 16px; border: 2px solid rgba(16, 185, 129, 0.3); transition: all 0.3s ease;">
+            <div style="font-size: 48px; margin-bottom: 16px; text-align: center;">👥</div>
+            <h3
+              style="font-size: 20px; font-weight: 700; margin-bottom: 12px; text-align: center; color: var(--text-primary);">
+              Báo cáo Member - Sổ chi tiêu</h3>
+            <p style="color: var(--text-secondary); text-align: center; font-size: 14px; line-height: 1.6;">
+              Xem chi tiết lịch sử ăn uống của Member không phải VIP: món ăn, ngày giờ và tổng chi tiêu
+            </p>
+            <div style="margin-top: 20px; text-align: center;">
+              <span
+                style="display: inline-block; padding: 8px 20px; background: rgba(16, 185, 129, 0.2); color: #10b981; border-radius: 20px; font-size: 13px; font-weight: 600;">
+                Xem chi tiết →
+              </span>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
+  </div>
 
-    <!-- Tab: VIP Report -->
-    <div id="vipReport" class="tab-content">
-      <div class="glass-card">
-        <div class="section-title">📋 Báo cáo VIP - Sổ phụ</div>
+  <!-- Tab: VIP Report -->
+  <div id="vipReport" class="tab-content">
+    <div class="glass-card">
+      <div class="section-title">📋 Báo cáo VIP - Sổ phụ</div>
 
-        <!-- Controls -->
-        <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
-          <div style="flex: 1; min-width: 200px;">
-            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Chọn VIP Member</label>
-            <select id="vipReportMember" class="form-input" onchange="renderVipReport()">
-              <option value="">-- Chọn người --</option>
-            </select>
-          </div>
-
-          <div style="flex: 0 0 auto; display: flex; align-items: flex-end; gap: 8px;">
-            <button class="btn btn-primary" onclick="exportVipReportPDF()"
-              style="background: linear-gradient(135deg, #ef4444, #dc2626);">
-              📄 Xuất PDF
-            </button>
-            <button id="btnReconcile" class="btn btn-secondary" onclick="toggleReconcile()"
-              style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5);">
-              🔍 Đối soát
-            </button>
-          </div>
+      <!-- Controls -->
+      <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px;">
+          <label style="display: block; margin-bottom: 4px; font-weight: 500;">Chọn VIP Member</label>
+          <select id="vipReportMember" class="form-input" onchange="renderVipReport()">
+            <option value="">-- Chọn người --</option>
+          </select>
         </div>
 
-        <!-- Date Filters (Optional) -->
-        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-          <div>
-            <label style="display: block; margin-bottom: 4px;">Từ ngày (tuỳ chọn)</label>
-            <input type="date" id="vipReportFromDate" class="form-input" onchange="renderVipReport()" />
-          </div>
-          <div>
-            <label style="display: block; margin-bottom: 4px;">Đến ngày (tuỳ chọn)</label>
-            <input type="date" id="vipReportToDate" class="form-input" onchange="renderVipReport()" />
-          </div>
-        </div>
-
-        <!-- Summary Box -->
-        <div id="vipReportSummary"
-          style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; color: white; margin-bottom: 20px; display: none;">
-          <!-- Will be populated by JS -->
-        </div>
-
-        <!-- Transaction Table -->
-        <div style="overflow-x: auto;">
-          <table id="vipReportTable" style="width: 100%; border-collapse: collapse; display: none;">
-            <thead>
-              <tr style="background: rgba(102, 126, 234, 0.1); border-bottom: 2px solid rgba(102, 126, 234, 0.3);">
-                <th style="padding: 12px 8px; text-align: left; font-weight: 600; cursor: pointer; user-select: none;"
-                  onclick="toggleVipReportSort()">
-                  Ngày giờ <span id="sortIcon">🔽</span>
-                </th>
-                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Loại</th>
-                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Món</th>
-                <th style="padding: 12px 8px; text-align: right; font-weight: 600;">Đơn giá</th>
-                <th style="padding: 12px 8px; text-align: right; font-weight: 600;">Số phần</th>
-                <th style="padding: 12px 8px; text-align: right; font-weight: 600;">+/-</th>
-                <th style="padding: 12px 8px; text-align: right; font-weight: 600;">Số dư</th>
-              </tr>
-            </thead>
-            <tbody id="vipReportTableBody">
-              <!-- Will be populated by JS -->
-            </tbody>
-          </table>
-        </div>
-
-        <div id="vipReportEmpty" style="text-align: center; padding: 40px; color: #999;">
-          Chọn VIP member để xem báo cáo
+        <div style="flex: 0 0 auto; display: flex; align-items: flex-end; gap: 8px;">
+          <button class="btn btn-primary" onclick="exportVipReportPDF()"
+            style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+            📄 Xuất PDF
+          </button>
+          <button id="btnReconcile" class="btn btn-secondary" onclick="toggleReconcile()"
+            style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5);">
+            🔍 Đối soát
+          </button>
         </div>
       </div>
+
+      <!-- Date Filters (Optional) -->
+      <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+        <div>
+          <label style="display: block; margin-bottom: 4px;">Từ ngày (tuỳ chọn)</label>
+          <input type="date" id="vipReportFromDate" class="form-input" onchange="renderVipReport()" />
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 4px;">Đến ngày (tuỳ chọn)</label>
+          <input type="date" id="vipReportToDate" class="form-input" onchange="renderVipReport()" />
+        </div>
+      </div>
+
+      <!-- Summary Box -->
+      <div id="vipReportSummary"
+        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; color: white; margin-bottom: 20px; display: none;">
+        <!-- Will be populated by JS -->
+      </div>
+
+      <!-- Transaction Table -->
+      <div style="overflow-x: auto;">
+        <table id="vipReportTable" style="width: 100%; border-collapse: collapse; display: none;">
+          <thead>
+            <tr style="background: rgba(102, 126, 234, 0.1); border-bottom: 2px solid rgba(102, 126, 234, 0.3);">
+              <th style="padding: 12px 8px; text-align: left; font-weight: 600; cursor: pointer; user-select: none;"
+                onclick="toggleVipReportSort()">
+                Ngày giờ <span id="sortIcon">🔽</span>
+              </th>
+              <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Loại</th>
+              <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Món</th>
+              <th style="padding: 12px 8px; text-align: right; font-weight: 600;">Đơn giá</th>
+              <th style="padding: 12px 8px; text-align: right; font-weight: 600;">Số phần</th>
+              <th style="padding: 12px 8px; text-align: right; font-weight: 600;">+/-</th>
+              <th style="padding: 12px 8px; text-align: right; font-weight: 600;">Số dư</th>
+            </tr>
+          </thead>
+          <tbody id="vipReportTableBody">
+            <!-- Will be populated by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <div id="vipReportEmpty" style="text-align: center; padding: 40px; color: #999;">
+        Chọn VIP member để xem báo cáo
+      </div>
     </div>
-    <div id="backup" class="tab-content">
-      <!-- GitHub Settings -->
-      <div class="glass-card">
-        <div class="section-title">⚙️ Cài đặt GitHub</div>
+  </div>
 
-        <div class="alert alert-info">
-          <span>ℹ️</span>
-          <div>
-            <strong>Hướng dẫn setup:</strong><br>
-            1. Tạo GitHub Personal Access Token tại <a href="https://github.com/settings/tokens" target="_blank"
-              style="color: #60a5fa;">github.com/settings/tokens</a><br>
-            2. Chọn scope: <code>repo</code> (Full control of private repositories)<br>
-            3. Copy token và paste vào ô bên dưới<br>
-            4. Nhập tên repository (ví dụ: vuhoanganh/OrderHelper)
-          </div>
+  <!-- Tab: Member Report -->
+  <div id="memberReport" class="tab-content">
+    <div class="glass-card">
+      <div class="section-title">📋 Báo cáo Member - Sổ chi tiêu</div>
+
+      <!-- Controls -->
+      <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px;">
+          <label style="display: block; margin-bottom: 4px; font-weight: 500;">Chọn Member (Không phải VIP)</label>
+          <select id="memberReportMember" class="form-input" onchange="renderMemberReport()">
+            <option value="">-- Chọn người --</option>
+          </select>
         </div>
 
+        <div style="flex: 0 0 auto; display: flex; align-items: flex-end; gap: 8px;">
+          <button class="btn btn-primary" onclick="exportMemberReportPDF()"
+            style="background: linear-gradient(135deg, #059669, #10b981);">
+            📄 Xuất PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Date Filters (Optional) -->
+      <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+        <div>
+          <label style="display: block; margin-bottom: 4px;">Từ ngày (tuỳ chọn)</label>
+          <input type="date" id="memberReportFromDate" class="form-input" onchange="renderMemberReport()" />
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 4px;">Đến ngày (tuỳ chọn)</label>
+          <input type="date" id="memberReportToDate" class="form-input" onchange="renderMemberReport()" />
+        </div>
+      </div>
+
+      <!-- Summary Box -->
+      <div id="memberReportSummary"
+        style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 20px; border-radius: 12px; color: white; margin-bottom: 20px; display: none;">
+        <!-- Will be populated by JS -->
+      </div>
+
+      <!-- Transaction Table -->
+      <div style="overflow-x: auto;">
+        <table id="memberReportTable" style="width: 100%; border-collapse: collapse; display: none;">
+          <thead>
+            <tr style="background: rgba(16, 185, 129, 0.1); border-bottom: 2px solid rgba(16, 185, 129, 0.3);">
+              <th style="padding: 12px 8px; text-align: left; font-weight: 600; cursor: pointer; user-select: none;"
+                onclick="toggleMemberReportSort()">
+                Ngày giờ <span id="memberSortIcon">🔽</span>
+              </th>
+              <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Loại</th>
+              <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Món</th>
+              <th style="padding: 12px 8px; text-align: right; font-weight: 600;">Đơn giá</th>
+              <th style="padding: 12px 8px; text-align: right; font-weight: 600;">Số phần</th>
+              <th style="padding: 12px 8px; text-align: right; font-weight: 600;">Số tiền</th>
+            </tr>
+          </thead>
+          <tbody id="memberReportTableBody">
+            <!-- Will be populated by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <div id="memberReportEmpty" style="text-align: center; padding: 40px; color: #999;">
+        Chọn member để xem lịch sử
+      </div>
+    </div>
+  </div>
+  <div id="backup" class="tab-content">
+    <!-- GitHub Settings -->
+    <div class="glass-card">
+      <div class="section-title">⚙️ Cài đặt GitHub</div>
+
+      <div class="alert alert-info">
+        <span>ℹ️</span>
+        <div>
+          <strong>Hướng dẫn setup:</strong><br>
+          1. Tạo GitHub Personal Access Token tại <a href="https://github.com/settings/tokens" target="_blank"
+            style="color: #60a5fa;">github.com/settings/tokens</a><br>
+          2. Chọn scope: <code>repo</code> (Full control of private repositories)<br>
+          3. Copy token và paste vào ô bên dưới<br>
+          4. Nhập tên repository (ví dụ: vuhoanganh/OrderHelper)
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">GitHub Personal Access Token</label>
+        <input id="githubToken" class="form-input" type="password" placeholder="ghp_xxxxxxxxxxxx"
+          onblur="loadGithubRepos()">
+        <div class="helper-text">Token sẽ được lưu trong localStorage của trình duyệt</div>
+      </div>
+
+      <div class="form-row">
         <div class="form-group">
-          <label class="form-label">GitHub Personal Access Token</label>
-          <input id="githubToken" class="form-input" type="password" placeholder="ghp_xxxxxxxxxxxx"
-            onblur="loadGithubRepos()">
-          <div class="helper-text">Token sẽ được lưu trong localStorage của trình duyệt</div>
+          <label class="form-label">Repository (owner/repo)</label>
+          <select id="githubRepo" class="form-input" onchange="loadGithubBranches()">
+            <option value="">-- Select repository --</option>
+          </select>
+          <div class="helper-text" id="repoLoadingStatus" style="display:none; color: var(--accent-blue);">⏳ Loading
+            repositories...</div>
         </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Repository (owner/repo)</label>
-            <select id="githubRepo" class="form-input" onchange="loadGithubBranches()">
-              <option value="">-- Select repository --</option>
-            </select>
-            <div class="helper-text" id="repoLoadingStatus" style="display:none; color: var(--accent-blue);">⏳ Loading
-              repositories...</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Branch</label>
-            <select id="githubBranch" class="form-input">
-              <option value="master">master</option>
-            </select>
-            <div class="helper-text" id="branchLoadingStatus" style="display:none; color: var(--accent-blue);">⏳ Loading
-              branches...</div>
-          </div>
-        </div>
-
-        <div class="checkbox-wrapper">
-          <input id="githubAutoBackupEnabled" type="checkbox">
-          <label class="checkbox-label">
-            <strong>Bật auto-backup</strong><br>
-            Tự động backup data lên GitHub theo interval đã cài đặt
-          </label>
-        </div>
-
         <div class="form-group">
-          <label class="form-label">Auto-backup Interval (phút)</label>
-          <input id="githubBackupInterval" class="form-input" type="number" min="5" step="5" value="30"
-            placeholder="30">
-          <div class="helper-text">Thời gian giữa các lần auto-backup (tối thiểu 5 phút)</div>
+          <label class="form-label">Branch</label>
+          <select id="githubBranch" class="form-input">
+            <option value="master">master</option>
+          </select>
+          <div class="helper-text" id="branchLoadingStatus" style="display:none; color: var(--accent-blue);">⏳ Loading
+            branches...</div>
         </div>
+      </div>
 
-        <button class="btn btn-primary btn-full" onclick="saveGithubSettings()">
-          💾 Lưu cài đặt
+      <div class="checkbox-wrapper">
+        <input id="githubAutoBackupEnabled" type="checkbox">
+        <label class="checkbox-label">
+          <strong>Bật auto-backup</strong><br>
+          Tự động backup data lên GitHub theo interval đã cài đặt
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Auto-backup Interval (phút)</label>
+        <input id="githubBackupInterval" class="form-input" type="number" min="5" step="5" value="30" placeholder="30">
+        <div class="helper-text">Thời gian giữa các lần auto-backup (tối thiểu 5 phút)</div>
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="saveGithubSettings()">
+        💾 Lưu cài đặt
+      </button>
+    </div>
+
+    <!-- Backup Controls -->
+    <div class="glass-card">
+      <div class="section-title">🔄 Backup & Restore</div>
+
+      <div id="githubBackupStatus" class="alert alert-info" style="display: none;">
+        <span>ℹ️</span>
+        <div id="githubBackupStatusText">Chưa có backup nào</div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-item">
+          <h3>Lần backup cuối</h3>
+          <div class="summary-value" id="lastBackupTime">--</div>
+          <div class="summary-detail" id="lastBackupCommit">--</div>
+        </div>
+        <div class="summary-item">
+          <h3>Trạng thái</h3>
+          <div class="summary-value" id="backupStatusIndicator">--</div>
+          <div class="summary-detail" id="backupStatusDetail">--</div>
+        </div>
+      </div>
+
+      <div class="btn-group" style="margin-bottom: 20px;">
+        <button class="btn btn-primary" onclick="backupToGithub()" style="flex: 1;">
+          📤 Backup to GitHub
+        </button>
+        <button class="btn btn-success" onclick="syncNow()" style="flex: 1;">
+          🔄 Sync Now
+        </button>
+        <button class="btn btn-success" onclick="downloadBackup()" style="flex: 1;">
+          💾 Download Backup
+        </button>
+        <button class="btn btn-info" onclick="restoreFromFile()" style="flex: 1;">
+          📥 Restore from File
+        </button>
+        <button class="btn btn-secondary" onclick="restoreFromGithub()" style="flex: 1;">
+          📥 Restore
         </button>
       </div>
 
-      <!-- Backup Controls -->
-      <div class="glass-card">
-        <div class="section-title">🔄 Backup & Restore</div>
-
-        <div id="githubBackupStatus" class="alert alert-info" style="display: none;">
-          <span>ℹ️</span>
-          <div id="githubBackupStatusText">Chưa có backup nào</div>
-        </div>
-
-        <div class="summary-grid">
-          <div class="summary-item">
-            <h3>Lần backup cuối</h3>
-            <div class="summary-value" id="lastBackupTime">--</div>
-            <div class="summary-detail" id="lastBackupCommit">--</div>
-          </div>
-          <div class="summary-item">
-            <h3>Trạng thái</h3>
-            <div class="summary-value" id="backupStatusIndicator">--</div>
-            <div class="summary-detail" id="backupStatusDetail">--</div>
-          </div>
-        </div>
-
-        <div class="btn-group" style="margin-bottom: 20px;">
-          <button class="btn btn-primary" onclick="backupToGithub()" style="flex: 1;">
-            📤 Backup to GitHub
-          </button>
-          <button class="btn btn-success" onclick="syncNow()" style="flex: 1;">
-            🔄 Sync Now
-          </button>
-          <button class="btn btn-success" onclick="downloadBackup()" style="flex: 1;">
-            💾 Download Backup
-          </button>
-          <button class="btn btn-info" onclick="restoreFromFile()" style="flex: 1;">
-            📥 Restore from File
-          </button>
-          <button class="btn btn-secondary" onclick="restoreFromGithub()" style="flex: 1;">
-            📥 Restore
-          </button>
-        </div>
-
-        <div class="helper-text" style="margin-top: 16px;">
-          <strong>Data sẽ backup:</strong> Order History, VIP List, VIP Transactions
-        </div>
-      </div>
-
-
-
-      <!-- Backup Log -->
-      <div class="glass-card">
-        <div class="section-title">📝 Backup Log</div>
-        <div id="backupLog"
-          style="max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; color: var(--text-secondary);">
-          Chưa có log...
-        </div>
+      <div class="helper-text" style="margin-top: 16px;">
+        <strong>Data sẽ backup:</strong> Order History, VIP List, VIP Transactions
       </div>
     </div>
+
+
+
+    <!-- Backup Log -->
+    <div class="glass-card">
+      <div class="section-title">📝 Backup Log</div>
+      <div id="backupLog"
+        style="max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; color: var(--text-secondary);">
+        Chưa có log...
+      </div>
+    </div>
+  </div>
 
   </div>
 
@@ -984,11 +1077,14 @@
         // Check if already exists
         if (this.nameMap.has(normalized)) {
           const existing = this.nameMap.get(normalized);
-          // Update data but keep original name if it's more "complete"
-          if (trimmedName.length >= existing.original.length) {
+          // Heuristic to pick the 'better' casing/name: prefer longer or Title Case
+          const isCurrentBetter = (trimmedName.length > existing.original.length) ||
+            (trimmedName.length === existing.original.length && /^[A-Z]/.test(trimmedName) && !/^[A-Z]/.test(existing.original));
+
+          if (isCurrentBetter) {
             existing.original = trimmedName;
           }
-          existing.data = data;
+          if (data) existing.data = data;
         } else {
           this.nameMap.set(normalized, {
             original: trimmedName,
@@ -1136,6 +1232,33 @@
       localStorage.setItem('vipUpdatedAt', String(timestamp));
     }
 
+    function removeVipMember(name, event) {
+      if (event) event.stopPropagation();
+
+      // Get current balance from the VIP Area (parsed map)
+      const vipArea = document.getElementById('vipArea');
+      const vipMap = parseVip(vipArea ? vipArea.value : '');
+      const balance = vipMap.get(name) || 0;
+
+      if (Math.abs(balance) > 0.01) {
+        alert(`❌ Không thể loại bỏ "${name}" vì vẫn còn số dư (${balance}đ).\n\nVui lòng sử dụng "Cash Out" để đưa số dư về 0đ trước khi xóa.`);
+        return;
+      }
+
+      if (!confirm(`Bạn có chắc muốn loại bỏ "${name}" khỏi danh sách VIP?`)) return;
+
+      // Remove from map and update
+      vipMap.delete(name);
+      const newVipText = vipToText(vipMap);
+
+      if (vipArea) vipArea.value = newVipText;
+      persistVipList(newVipText);
+      recomputeVipBalances(); // Refresh UI
+
+      // Also update any dropdowns that might be using the VIP list
+      if (typeof populateVipReportMembers === 'function') populateVipReportMembers();
+    }
+
     /**
      * Recompute VIP balances from current data to keep VIP management in sync with reports
      * Uses the SAME LOGIC as buildVipStatementFromDB to ensure consistency
@@ -1231,7 +1354,15 @@
           onclick="selectVipMemberForReport('${name.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')"
           >
             <span style="color: #cbd5e1;">${name}</span>
-            <span style="color: ${balanceColor}; font-weight: 600;">${balanceText}</span>
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <span style="color: ${balanceColor}; font-weight: 600;">${balanceText}</span>
+              <button onclick="removeVipMember('${name.replace(/'/g, "\\'")}', event)" 
+                      style="background: none; border: none; color: #f87171; cursor: pointer; padding: 2px 6px; border-radius: 4px; font-size: 14px; opacity: 0.5; transition: all 0.2s;"
+                      onmouseover="this.style.opacity='1'; this.style.background='rgba(248, 113, 113, 0.2)'"
+                      onmouseout="this.style.opacity='0.5'; this.style.background='none'"
+                      title="Loại bỏ khỏi danh sách VIP"
+              >✕</button>
+            </span>
           </div>
         `;
       }).join('');
@@ -3860,6 +3991,8 @@
       document.getElementById('itemName').value = data.itemName || '';
       document.getElementById('n').value = data.totalParts || 0;
       document.getElementById('alvinFree').checked = !!data.alvinFree;
+      const includeHostQuick = document.getElementById('includeHostQuick');
+      if (includeHostQuick) includeHostQuick.checked = !!data.alvinFree;
       const desiredPriceInput = document.getElementById('desiredPrice');
       if (desiredPriceInput) desiredPriceInput.value = data.desiredPrice || '';
       selectedPrice = data.desiredPrice ? Number(data.desiredPrice) : null;
@@ -4443,13 +4576,15 @@
       document.getElementById('itemName').value = '';
       document.getElementById('n').value = '';
       document.getElementById('alvinFree').checked = true;
+      const includeHostQuick = document.getElementById('includeHostQuick');
+      if (includeHostQuick) includeHostQuick.checked = true;
       applyPeopleToTable([]);
       updateDraftStatusUI({ hasChanges: false, lastModified: Date.now() });
       setDraftBanner('🗑️ Đã xoá nháp cục bộ');
     }
 
     function setupDraftListeners() {
-      const watchedSelectors = ['#quickInput', '#itemName', '#n', '#alvinFree', '#totalCost', '#costPerUnit', '#shipFee', '#targetProfit', '#desiredPrice', '#itemDesc', '#deadline'];
+      const watchedSelectors = ['#quickInput', '#itemName', '#n', '#alvinFree', '#includeHostQuick', '#totalCost', '#costPerUnit', '#shipFee', '#targetProfit', '#desiredPrice', '#itemDesc', '#deadline'];
       watchedSelectors.forEach(sel => {
         const el = document.querySelector(sel);
         if (el) {
@@ -4514,6 +4649,8 @@
       if (tabName === 'history') loadHistory();
       if (tabName === 'debt') loadDebtManagement();
       if (tabName === 'stats') loadStats();
+      if (tabName === 'vipReport') populateVipReportMembers();
+      if (tabName === 'memberReport') populateMemberReportMembers();
     }
     window.switchTab = switchTab;
 
@@ -4528,6 +4665,16 @@
       // Parse VIP for smart matching
       const vipMap = parseVip(document.getElementById('vipArea').value);
       const vipMatcher = vipMap._matcher || new SmartNameMatcher();
+
+      // Also add common members from history to the matcher for non-VIP recognition
+      if (Array.isArray(orderHistory)) {
+        orderHistory.forEach(order => {
+          if (!order.details) return;
+          order.details.forEach(detail => {
+            if (detail.name) vipMatcher.add(detail.name, null);
+          });
+        });
+      }
 
       // Clear existing table
       const tbody = document.querySelector('#orderTable tbody');
@@ -4573,14 +4720,23 @@
         tbody.appendChild(tr);
       });
 
-      // Update total parts (add 1 for Lão nhân gia)
-      document.getElementById('n').value = totalParts + 1;
+      // Update total parts
+      const includeHost = document.getElementById('includeHostQuick')?.checked;
+      const finalParts = includeHost ? totalParts + 1 : totalParts;
+      document.getElementById('n').value = finalParts;
+
+      // Sync with main checkbox
+      const alvinFreeBtn = document.getElementById('alvinFree');
+      if (alvinFreeBtn) {
+        alvinFreeBtn.checked = !!includeHost;
+      }
 
       // Clear quick input
       document.getElementById('quickInput').value = '';
 
       // Show success message with suggestions
-      let msg = `✅ Đã parse ${items.length} người, tổng ${totalParts + 1} phần (bao gồm Lão nhân gia)`;
+      let msg = `✅ Đã parse ${items.length} người, tổng ${finalParts} phần`;
+      if (includeHost) msg += ' (bao gồm Lão nhân gia)';
 
       if (suggestions.length > 0) {
         msg += '\n\n🔄 Smart matching đã tự động sửa tên:';
@@ -4659,6 +4815,7 @@
       </div>
       <div class="price-card active" onclick="selectPrice(${priceProfit}, event)">
         <div class="price-card-label">Dư ${targetProfit}đ</div>
+        <div class="price-card-value">${priceProfit}đ</div>
         <div class="price-card-desc">Tích lũy tối thiểu ${targetProfit}đ</div>
       </div>
     </div>
@@ -6631,6 +6788,7 @@
       populateVipMemberSelect();
       populateVIPFilterDropdown(); // Populate filter dropdown
       populateVipReportMembers(); // Populate VIP Report dropdown
+      populateMemberReportMembers(); // Populate Member Report dropdown
       recomputeVipBalances(); // Recompute and render VIP list
       // Enable dish name suggestions dropdown
       const itemNameInput = document.getElementById('itemName');
@@ -6655,16 +6813,39 @@
       const nInput = document.getElementById('n');
 
       if (alvinFreeCheckbox && nInput) {
-        alvinFreeCheckbox.addEventListener('change', function () {
-          if (this.checked) {
-            nInput.min = 2;
-            if (Number(nInput.value) < 2) {
-              nInput.value = 2;
+        const includeHostQuick = document.getElementById('includeHostQuick');
+        if (includeHostQuick) {
+          alvinFreeCheckbox.addEventListener('change', function () {
+            includeHostQuick.checked = this.checked;
+            if (this.checked) {
+              nInput.min = 2;
+              if (Number(nInput.value) < 2) nInput.value = 2;
+            } else {
+              nInput.min = 1;
             }
-          } else {
-            nInput.min = 1;
-          }
-        });
+          });
+          includeHostQuick.addEventListener('change', function () {
+            alvinFreeCheckbox.checked = this.checked;
+            // Trigger alvinFree's change logic
+            if (this.checked) {
+              nInput.min = 2;
+              if (Number(nInput.value) < 2) nInput.value = 2;
+            } else {
+              nInput.min = 1;
+            }
+          });
+        } else {
+          alvinFreeCheckbox.addEventListener('change', function () {
+            if (this.checked) {
+              nInput.min = 2;
+              if (Number(nInput.value) < 2) {
+                nInput.value = 2;
+              }
+            } else {
+              nInput.min = 1;
+            }
+          });
+        }
       }
 
       const desiredPriceInput = document.getElementById('desiredPrice');
@@ -8240,6 +8421,8 @@
       }, 500); // Wait 500ms for DOM to fully render
     }
 
+    let memberReportSortDesc = true;
+
     function populateVipReportMembers() {
       const select = document.getElementById('vipReportMember');
       if (!select) return;
@@ -8251,6 +8434,261 @@
       const sorted = Array.from(members).sort();
       select.innerHTML = '<option value="">-- Chọn người --</option>' +
         sorted.map(name => `<option value="${name.replace(/"/g, '&quot;')}">${name}</option>`).join('');
+    }
+
+    function populateMemberReportMembers() {
+      const select = document.getElementById('memberReportMember');
+      if (!select) return;
+
+      const vipMap = parseVip(document.getElementById('vipArea')?.value || '');
+      const matcher = new SmartNameMatcher();
+
+      // Get all names from orderHistory and feed through matcher to deduplicate smartly
+      orderHistory.forEach(order => {
+        if (!order.details) return;
+        order.details.forEach(detail => {
+          const name = (detail.name || '').trim();
+          if (name && !vipMap.has(name)) {
+            matcher.add(name, {});
+          }
+        });
+      });
+
+      const memberNames = Array.from(matcher.nameMap.values()).map(m => m.original);
+      const sorted = memberNames.sort((a, b) => a.localeCompare(b));
+      select.innerHTML = '<option value="">-- Chọn người --</option>' +
+        sorted.map(name => `<option value="${name.replace(/"/g, '&quot;')}">${name}</option>`).join('');
+    }
+
+    function toggleMemberReportSort() {
+      memberReportSortDesc = !memberReportSortDesc;
+      const sortIcon = document.getElementById('memberSortIcon');
+      if (sortIcon) {
+        sortIcon.textContent = memberReportSortDesc ? '🔽' : '🔼';
+      }
+      renderMemberReport();
+    }
+
+    function buildMemberStatementRows(memberName, options = {}) {
+      if (!memberName) return { rows: [], summary: {} };
+      const { from, to } = options;
+      const fromDate = from ? new Date(from) : null;
+      const toDate = to ? new Date(to) : null;
+
+      const rows = [];
+      let totalSpent = 0;
+      let orderCount = 0;
+
+      const matcher = new SmartNameMatcher();
+      const targetNormalized = matcher.normalize(memberName);
+
+      orderHistory.forEach(order => {
+        if (!order.details) return;
+
+        const txDate = new Date(order.date || Number(order.id));
+        if (fromDate && txDate < fromDate) return;
+        if (toDate && txDate > toDate) return;
+
+        order.details.forEach(detail => {
+          if (matcher.normalize(detail.name) === targetNormalized) {
+            const amount = Number(detail.due) || 0;
+            totalSpent += amount;
+            orderCount++;
+
+            const dateISO = txDate.toISOString();
+            const dateLocal = formatDate(dateISO).replace(/(\d{2}\/\d{2}\/\d{4})/, '$1') + ' ' +
+              txDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+            rows.push({
+              dateISO,
+              dateLocal,
+              typeLabel: 'Order',
+              description: order.itemName || 'Đơn hàng',
+              unitPrice: detail.unitPrice || (amount / (detail.qty || 1)),
+              qty: detail.qty,
+              amount: amount,
+              paid: !!detail.paid
+            });
+          }
+        });
+      });
+
+      // Sort by date ascending initially for processing if needed
+      rows.sort((a, b) => new Date(a.dateISO) - new Date(b.dateISO));
+
+      return {
+        rows,
+        summary: {
+          totalSpent,
+          orderCount
+        }
+      };
+    }
+
+    function renderMemberReport() {
+      const memberSelect = document.getElementById('memberReportMember');
+      const memberName = memberSelect.value;
+
+      const summaryDiv = document.getElementById('memberReportSummary');
+      const table = document.getElementById('memberReportTable');
+      const tbody = document.getElementById('memberReportTableBody');
+      const emptyDiv = document.getElementById('memberReportEmpty');
+
+      if (!memberName) {
+        summaryDiv.style.display = 'none';
+        table.style.display = 'none';
+        emptyDiv.style.display = 'block';
+        return;
+      }
+
+      const fromDate = document.getElementById('memberReportFromDate').value;
+      const toDate = document.getElementById('memberReportToDate').value;
+
+      const statement = buildMemberStatementRows(memberName, { from: fromDate, to: toDate });
+
+      if (statement.rows.length === 0) {
+        summaryDiv.style.display = 'none';
+        table.style.display = 'none';
+        emptyDiv.innerHTML = `<div style="text-align: center; padding: 40px; color: #999;">Không có lịch sử cho ${memberName}</div>`;
+        emptyDiv.style.display = 'block';
+        return;
+      }
+
+      emptyDiv.style.display = 'none';
+
+      // Render Summary
+      const s = statement.summary;
+      summaryDiv.innerHTML = `
+        <div style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">📊 Tổng kết: ${memberName}</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+          <div>
+            <div style="opacity: 0.9; font-size: 13px;">Tổng số đơn</div>
+            <div style="font-size: 20px; font-weight: 700;">${s.orderCount}</div>
+          </div>
+          <div>
+            <div style="opacity: 0.9; font-size: 13px;">Tổng chi tiêu</div>
+            <div style="font-size: 20px; font-weight: 700;">${formatMoney(s.totalSpent)}</div>
+          </div>
+        </div>
+      `;
+      summaryDiv.style.display = 'block';
+
+      let sortedRows = [...statement.rows];
+      if (memberReportSortDesc) {
+        sortedRows = sortedRows.reverse();
+      }
+
+      tbody.innerHTML = sortedRows.map((row, idx) => {
+        const rowBg = idx % 2 === 0 ? 'rgba(0,0,0,0.02)' : 'transparent';
+        return `
+          <tr style="background: ${rowBg}; border-bottom: 1px solid rgba(0,0,0,0.05);">
+            <td style="padding: 10px 8px; font-size: 13px;">${row.dateLocal}</td>
+            <td style="padding: 10px 8px;">
+              <span style="background: rgba(16, 185, 129, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">
+                ${row.typeLabel}
+              </span>
+            </td>
+            <td style="padding: 10px 8px; font-size: 13px;">${row.description}</td>
+            <td style="padding: 10px 8px; text-align: right; font-size: 13px; color: var(--text-secondary);">${formatMoney(row.unitPrice)}</td>
+            <td style="padding: 10px 8px; text-align: right; font-size: 13px; color: var(--text-secondary);">${row.qty}</td>
+            <td style="padding: 10px 8px; text-align: right; font-weight: 600; color: #f87171;">
+              -${formatMoney(row.amount)}
+            </td>
+          </tr>
+        `;
+      }).join('');
+      table.style.display = 'table';
+    }
+
+    function exportMemberReportPDF() {
+      const memberName = document.getElementById('memberReportMember').value;
+      if (!memberName) { alert('Vui lòng chọn member!'); return; }
+
+      const fromDate = document.getElementById('memberReportFromDate').value;
+      const toDate = document.getElementById('memberReportToDate').value;
+
+      const statement = buildMemberStatementRows(memberName, { from: fromDate, to: toDate });
+      if (statement.rows.length === 0) { alert('Không có dữ liệu để xuất!'); return; }
+
+      const button = event.target;
+      const originalText = button.textContent;
+      button.textContent = '⏳ Đang tạo PDF...';
+      button.disabled = true;
+
+      const s = statement.summary;
+      const htmlContent = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; background: #ffffff; color: #1e293b; width: 1000px;">
+          <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 16px; padding: 24px; margin-bottom: 24px; color: white; page-break-inside: avoid;">
+            <h1 style="font-size: 24px; font-weight: 700; margin: 0 0 20px 0;">📊 Lịch sử chi tiêu: ${memberName}</h1>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 5px;">
+                  <div style="font-size: 13px; margin-bottom: 4px;">Tổng số đơn</div>
+                  <div style="font-size: 20px; font-weight: 700;">${s.orderCount}</div>
+                </td>
+                <td style="padding: 5px;">
+                  <div style="font-size: 13px; margin-bottom: 4px;">Tổng chi tiêu</div>
+                  <div style="font-size: 20px; font-weight: 700;">${formatMoney(s.totalSpent)}</div>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <table style="width: 100%; border-collapse: collapse; background: white; border: 2px solid #e2e8f0;">
+            <thead style="background: #065f46; color: white;">
+              <tr>
+                <th style="padding: 12px; text-align: left; font-size: 12px; border: 1px solid #065f46;">Ngày giờ 📅</th>
+                <th style="padding: 12px; text-align: left; font-size: 12px; border: 1px solid #065f46;">Món</th>
+                <th style="padding: 12px; text-align: right; font-size: 12px; border: 1px solid #065f46;">Đơn giá</th>
+                <th style="padding: 12px; text-align: right; font-size: 12px; border: 1px solid #065f46;">Số phần</th>
+                <th style="padding: 12px; text-align: right; font-size: 12px; border: 1px solid #065f46;">Số tiền</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${statement.rows.map((row, index) => `
+                <tr style="background: ${index % 2 === 0 ? '#ffffff' : '#f0fdf4'};">
+                  <td style="padding: 10px; font-size: 12px; color: #4b5563; border: 1px solid #e2e8f0;">${row.dateLocal}</td>
+                  <td style="padding: 10px; font-size: 12px; border: 1px solid #e2e8f0;">${row.description}</td>
+                  <td style="padding: 10px; text-align: right; font-size: 12px; border: 1px solid #e2e8f0;">${formatMoney(row.unitPrice)}</td>
+                  <td style="padding: 10px; text-align: right; font-size: 12px; border: 1px solid #e2e8f0;">${row.qty}</td>
+                  <td style="padding: 10px; text-align: right; font-size: 12px; font-weight: 600; color: #ef4444; border: 1px solid #e2e8f0;">-${formatMoney(row.amount)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div style="margin-top: 20px; text-align: center; font-size: 11px; color: #94a3b8;">
+            Xuất lúc: ${new Date().toLocaleString('vi-VN')} | Order Helper Pro
+          </div>
+        </div>
+      `;
+
+      const wrapper = document.createElement('div');
+      wrapper.style.position = 'fixed'; wrapper.style.zIndex = '-9999'; wrapper.style.opacity = '0';
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = htmlContent;
+      wrapper.appendChild(tempDiv);
+      document.body.appendChild(wrapper);
+
+      setTimeout(() => {
+        const opt = {
+          margin: [8, 8, 8, 8],
+          filename: `member-report-${memberName.replace(/\s+/g, '_')}-${new Date().toISOString().split('T')[0]}.pdf`,
+          image: { type: 'jpeg', quality: 0.95 },
+          html2canvas: { scale: 1.5, useCORS: true, backgroundColor: '#ffffff' },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        html2pdf().set(opt).from(tempDiv).save().then(() => {
+          document.body.removeChild(wrapper);
+          button.textContent = originalText;
+          button.disabled = false;
+        }).catch(err => {
+          console.error(err);
+          document.body.removeChild(wrapper);
+          button.textContent = originalText;
+          button.disabled = false;
+        });
+      }, 500);
     }
 
 

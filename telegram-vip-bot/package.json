@@ -1,0 +1,19 @@
+{
+  "name": "telegram-vip-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot for VIP report generation",
+  "main": "api/webhook.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "form-data": "^4.0.0"
+  },
+  "devDependencies": {
+    "vercel": "^33.0.0"
+  }
+}
